@@ -20,6 +20,12 @@ class _GamePageState extends State<GamePage> {
   var _pendingPromotion = false;
   board.ShortMove _pendingPromotionMove;
 
+  startNewGame() {
+    setState(() {
+      _boardState = board_logic.Chess();
+    });
+  }
+
   notifyGameFinishedIfNecessary() {
     if (_boardState.in_checkmate) {
       final actor =
@@ -94,10 +100,23 @@ class _GamePageState extends State<GamePage> {
     notifyGameFinishedIfNecessary();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget headerBar(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
-    final size = min(viewport.height * 0.8, viewport.width);
+
+    return Container(
+      width: viewport.width * 0.8,
+      height: viewport.height * 0.1,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        color: Colors.teal[200],
+      ),
+      margin: EdgeInsets.all(viewport.height * 0.025),
+    );
+  }
+
+  Widget mainZone(BuildContext context) {
+    final viewport = MediaQuery.of(context).size;
+    final size = min(viewport.height * 0.7, viewport.width);
     final promotionPieceSize = size / 7.0;
 
     var children = <Widget>[
@@ -220,15 +239,19 @@ class _GamePageState extends State<GamePage> {
           ));
     }
 
+    return Stack(children: children);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Game page"),
       ),
-      body: Center(
-        child: Stack(
-          children: children,
-        ),
-      ),
+      body: Center(child: Column(children: [
+        headerBar(context),
+        mainZone(context),
+      ],)),
     );
   }
 }
