@@ -6,6 +6,7 @@ import 'package:chess/chess.dart' as board_logic;
 import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart'
     as board;
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
+import 'package:toast/toast.dart';
 
 void main() {
   runApp(MyApp());
@@ -57,6 +58,27 @@ class _MyHomePageState extends State<MyHomePage> {
   var _pendingPromotion = false;
   board.ShortMove _pendingPromotionMove;
 
+  notifyGameFinishedIfNecessary() {
+    if (_boardState.in_checkmate) {
+      final actor =
+          _boardState.turn == board_logic.Color.WHITE ? 'Blacks' : 'Whites';
+      Toast.show("$actor have won by checkmate.", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    } else if (_boardState.in_stalemate) {
+      Toast.show("Draw by stalemate.", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    } else if (_boardState.in_threefold_repetition) {
+      Toast.show("Draw by three fold repetition.", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    } else if (_boardState.insufficient_material) {
+      Toast.show("Draw by insufficient material.", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    } else if (_boardState.in_draw) {
+      Toast.show("Draw by 50-moves rule.", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    }
+  }
+
   checkAndMakeMove(board.ShortMove move) {
     var boardLogicClone = board_logic.Chess();
     boardLogicClone.load(_boardState.fen);
@@ -84,8 +106,16 @@ class _MyHomePageState extends State<MyHomePage> {
           // We need to notify that state has been updated.
           // Nothing to add here.
         });
+        notifyGameFinishedIfNecessary();
       }
     }
+  }
+
+  cancelPendingPromotion() {
+    setState(() {
+      _pendingPromotionMove = null;
+      _pendingPromotion = false;
+    });
   }
 
   commitPromotionMove(String type) {
@@ -99,13 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // Nothing to add here.
     });
     cancelPendingPromotion();
-  }
-
-  cancelPendingPromotion() {
-    setState(() {
-      _pendingPromotionMove = null;
-      _pendingPromotion = false;
-    });
+    notifyGameFinishedIfNecessary();
   }
 
   @override
