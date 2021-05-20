@@ -102,6 +102,7 @@ class _GamePageState extends State<GamePage> {
 
   Widget headerBar(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
+    final commonHeight = viewport.height * 0.09;
 
     return Container(
       width: viewport.width * 0.8,
@@ -111,6 +112,23 @@ class _GamePageState extends State<GamePage> {
         color: Colors.teal[200],
       ),
       margin: EdgeInsets.all(viewport.height * 0.025),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          TextButton.icon(
+            label: Text(''),
+            icon: Image(
+              image: AssetImage('images/racing_flag.png'),
+              width: commonHeight,
+              height: commonHeight,
+            ),
+            onPressed: () {
+              startNewGame();
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -248,10 +266,13 @@ class _GamePageState extends State<GamePage> {
       appBar: AppBar(
         title: Text("Game page"),
       ),
-      body: Center(child: Column(children: [
-        headerBar(context),
-        mainZone(context),
-      ],)),
+      body: Center(
+          child: Column(
+        children: [
+          headerBar(context),
+          mainZone(context),
+        ],
+      )),
     );
   }
 }

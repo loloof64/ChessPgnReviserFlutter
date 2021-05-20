@@ -5,4 +5,5 @@ Load your chess PGN file and try to find moves (from your side).
 ## Credits
 
 Using some pictures from flaticon.com:
-* red_cross : downloaded at https://www.flaticon.com/free-icon/cancel_1168643 and designed by FreePik.
+* red_cross : downloaded at https://www.flaticon.com/free-icon/cancel_1168643 and designed by FreePik,
+* race_flag : downloaded at https://www.flaticon.com/free-icon/racing-flag_1505471 and designed by SmashIcons
