@@ -30,6 +30,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   chess: ^0.6.6
   flutter_stateless_chessboard: ^0.0.6
+  chess_vectors_flutter: ^1.0.12
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +51,8 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - images/red_cross.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

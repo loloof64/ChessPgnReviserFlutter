@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
-set(BINARY_NAME "chess_pgn_reviser")
-set(APPLICATION_ID "com.example.chess_pgn_reviser")
+set(BINARY_NAME "ChessPgnReviser")
+set(APPLICATION_ID "com.loloof64.chess_pgn_reviser")
 
 cmake_policy(SET CMP0063 NEW)
 
