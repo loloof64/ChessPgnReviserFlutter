@@ -23,7 +23,7 @@ class _GamePageState extends State<GamePage> {
   board.ShortMove _pendingPromotionMove;
 
   loadPgn() {
-    final content = '"Video #1 Mastering Rook Endings."';
+    final content = 'Goal "White play and win."';
     /*[
       '[Event "Video #1 Mastering Rook Endings"]',
       '[Site "?"]',
