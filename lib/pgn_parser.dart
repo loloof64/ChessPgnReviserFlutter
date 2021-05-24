@@ -2,11 +2,10 @@ import 'package:petitparser/petitparser.dart';
 import 'package:chess_pgn_reviser/pgn_grammar.dart';
 
 class PgnParserDefinition extends PgnGrammarDefinition {
-  Parser start() => ref0(tagKeyValue).end();
+  Parser start() => ref0(tags).end();
 
   Parser tag() => super.tag().map((values) {
-        print("tag => $values");
-        return values[2];
+        return values[1];
       });
 
   Parser tagKeyValue() => super.tagKeyValue().map((values) {
@@ -69,7 +68,37 @@ class PgnParserDefinition extends PgnGrammarDefinition {
   Parser blackTeamKey() => super.blackTeamKey().map((values) => "BlackTeam");
   Parser anyKey() => super.anyKey().map((values) => values.join());
 
+  Parser date() => super.date().map((values) {
+        final year = values[1];
+        final month = values[3];
+        final day = values[5];
+        return {
+          'value': "$year.$month.$day",
+          'year': year,
+          'month': month,
+          'day': day
+        };
+      });
+
+  Parser time() => super.time().map((values) {
+        final hour = values[1];
+        final minute = values[3];
+        final second = values[5];
+
+        return {
+          'value': '$hour:$minute:$second',
+          'hour': hour,
+          'minute': minute,
+          'second': second,
+        };
+      });
+
   Parser stringP() => super.stringP().map((values) {
         return values[1].join().trim();
       });
+
+  Parser integerString() =>
+      super.integerString().map((values) => num.parse(values[1]));
+
+  Parser result() => super.result().map((values) => values[1]);
 }

@@ -1,18 +1,16 @@
 import 'package:petitparser/petitparser.dart';
 
 class PgnGrammarDefinition extends GrammarDefinition {
-  Parser start() => ref0(tagKeyValue).end();
+  Parser start() => ref0(games).end();
 
   Parser games() =>
-      ref0(ws).optional() & (ref0(game) & (ref0(ws) & ref0(game)).star()).optional();
+      ref0(ws).optional() &
+      (ref0(game) & (ref0(ws) & ref0(game)).star()).optional();
   Parser game() =>
       ref0(tags).optional() & ref0(comments).optional() & ref0(pgn);
-  Parser tags() =>
-      ref0(ws).optional() &
-      (ref0(tag) & (ref0(ws) & ref0(tag)).star()).optional() &
-      ref0(ws);
+  Parser tags() => ref0(tag).plus();
 
-  Parser tag() => ref0(bl) & ref0(ws).star() & ref0(tagKeyValue) & ref0(ws).star() & ref0(br);
+  Parser tag() => ref0(bl) & ref0(tagKeyValue) & ref0(br);
 
   Parser tagKeyValue() =>
       ref0(eventKey) & ref0(ws) & ref0(stringP) |
@@ -83,8 +81,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(eventSponsorKey) |
       ref0(sectionKey) |
       ref0(stageKey) |
-      ref0(boardKey) |
-      ref0(openingKey) |
+          ref0(boardKey) |
+          ref0(openingKey) |
       ref0(variationKey) |
       ref0(subVariationKey) |
       ref0(ecoKey) |
@@ -186,14 +184,17 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser stageKey() => string('Stage').trim() | string('stage').trim();
   Parser boardKey() => string('Board').trim() | string('board').trim();
   Parser openingKey() => string('Opening').trim() | string('opening').trim();
-  Parser variationKey() => string('Variation').trim() | string('variation').trim();
+  Parser variationKey() =>
+      string('Variation').trim() | string('variation').trim();
   Parser subVariationKey() =>
       string('SubVariation').trim() |
       string('Subvariation').trim() |
       string('subvariation').trim() |
       string('subVariation').trim();
-  Parser ecoKey() => string('ECO').trim() | string('Eco').trim() | string('eco'.trim());
-  Parser nicKey() => string('NIC').trim() | string('Nic').trim() | string('nic').trim();
+  Parser ecoKey() =>
+      string('ECO').trim() | string('Eco').trim() | string('eco'.trim());
+  Parser nicKey() =>
+      string('NIC').trim() | string('Nic').trim() | string('nic').trim();
   Parser timeKey() => string('Time').trim() | string('time').trim();
   Parser utcTimeKey() =>
       string('UTCTime').trim() |
@@ -215,10 +216,16 @@ class PgnGrammarDefinition extends GrammarDefinition {
       string('timecontrol').trim() |
       string('timeControl').trim();
   Parser setUpKey() =>
-      string('SetUp').trim() | string('Setup').trim() | string('setup').trim() | string('setUp').trim();
-  Parser fenKey() => string('FEN').trim() | string('Fen').trim() | string('fen').trim();
-  Parser terminationKey() => string('Termination').trim() | string('termination').trim();
-  Parser anotatorKey() => string('Annotator').trim() | string('annotator').trim();
+      string('SetUp').trim() |
+      string('Setup').trim() |
+      string('setup').trim() |
+      string('setUp').trim();
+  Parser fenKey() =>
+      string('FEN').trim() | string('Fen').trim() | string('fen').trim();
+  Parser terminationKey() =>
+      string('Termination').trim() | string('termination').trim();
+  Parser anotatorKey() =>
+      string('Annotator').trim() | string('annotator').trim();
   Parser modeKey() => string('Mode').trim() | string('mode').trim();
   Parser plyCountKey() =>
       string('PlyCount').trim() |
@@ -234,12 +241,12 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser blackTeamKey() => string('BlackTeam').trim();
   Parser anyKey() => ref0(stringNoQuot);
 
-  Parser ws() => (char(' ').trim() | char('\t').trim() | char('\n').trim() | char('\r').trim()).star();
-  Parser wsp() => (char(' ').trim() | char('\t').trim() | char('\n').trim() | char('\r').trim()).plus();
-  Parser eol() => (char('\n').trim() | char('\r')).trim();
+  Parser ws() => (char(' ') | char('\t') | char('\n') | char('\r')).star();
+  Parser wsp() => (char(' ') | char('\t') | char('\n') | char('\r')).plus();
+  Parser eol() => (char('\n') | char('\r')).plus();
 
   Parser stringP() =>
-      ref0(quotationMark) & ref0(charP).star()  & ref0(quotationMark);
+      ref0(quotationMark) & ref0(charP).star() & ref0(quotationMark);
 
   Parser stringNoQuot() => pattern("-a-zA-Z0-9.").trim().star();
 
@@ -251,20 +258,20 @@ class PgnGrammarDefinition extends GrammarDefinition {
 
   Parser date() =>
       ref0(quotationMark) &
-      (ref0(dateDigit) & ref0(dateDigit) & ref0(dateDigit) & ref0(dateDigit)) &
+      (ref0(dateDigit) & ref0(dateDigit) & ref0(dateDigit) & ref0(dateDigit)).flatten() &
       char('.').trim() &
-      (ref0(dateDigit) & ref0(dateDigit)) &
+      (ref0(dateDigit) & ref0(dateDigit)).flatten() &
       char('.').trim() &
-      (ref0(dateDigit) & ref0(dateDigit)) &
+      (ref0(dateDigit) & ref0(dateDigit)).flatten() &
       ref0(quotationMark);
 
   Parser time() =>
       ref0(quotationMark) &
-      digit().plus() &
+      digit().plus().flatten() &
       char(':').trim() &
-      digit().plus() &
+      digit().plus().flatten() &
       char(':').trim() &
-      digit().plus() &
+      digit().plus().flatten() &
       ref0(quotationMark);
 
   Parser timeControl() =>
@@ -281,14 +288,17 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser result() =>
       ref0(quotationMark) & ref0(innerResult) & ref0(quotationMark);
   Parser innerResult() =>
-      string("1-0").trim() | string("0-1").trim() | string("1/2-1/2").trim() | char('*').trim();
+      string("1-0").trim() |
+      string("0-1").trim() |
+      string("1/2-1/2").trim() |
+      char('*').trim();
 
   Parser integerOrDash() =>
       ref0(integerString) |
       ref0(quotationMark) & char('-').trim() & ref0(quotationMark);
 
   Parser integerString() =>
-      ref0(quotationMark) & digit().plus() & ref0(quotationMark);
+      ref0(quotationMark) & digit().plus().flatten() & ref0(quotationMark);
 
   Parser pgn() =>
       ref0(ws) & ref0(pgnStartWhite) | ref0(ws) & ref0(pgnStartBlack);
@@ -375,7 +385,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
           ref0(innerComment).star() |
       ref0(nonCommand).plus() & ref0(innerComment).star();
 
-  Parser nonCommand() => string("[%").trim().not() & char('}').trim().not() & any();
+  Parser nonCommand() =>
+      string("[%").trim().not() & char('}').trim().not() & any();
 
   Parser nbr() => ref0(br).not() & any();
 
@@ -394,7 +405,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
       (char(',').trim() & ref0(ws) & ref0(colorArrow)).star();
 
   Parser colorArrow() => ref0(color) & ref0(field) & ref0(field);
-  Parser color() => char('Y').trim() | char('G').trim() | char('R').trim() | char('B').trim();
+  Parser color() =>
+      char('Y').trim() | char('G').trim() | char('R').trim() | char('B').trim();
 
   Parser field() => ref0(column) & ref0(row);
 
@@ -405,7 +417,10 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser semicolon() => char(';').trim();
 
   Parser clockCommand() =>
-      string('clk').trim() | string('egt').trim() | string('emt').trim() | string('mct').trim();
+      string('clk').trim() |
+      string('egt').trim() |
+      string('emt').trim() |
+      string('mct').trim();
   Parser clockValue() =>
       digit() &
       digit().optional() &
@@ -466,7 +481,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(figure) & char('@').trim() & ref0(column) & ref0(row);
 
   Parser check() =>
-      (string('+-').trim().not() & char('+').trim()) | (string(r'$$$').trim().not() & char('#').trim());
+      (string('+-').trim().not() & char('+').trim()) |
+      (string(r'$$$').trim().not() & char('#').trim());
   Parser promotion() => char('=').trim() & ref0(promFigure);
 
   Parser nags() => ref0(nag) & ref0(ws) & ref0(nags).optional();
@@ -504,9 +520,15 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(discriminator) & ref0(strike).optional() & ref0(column) & ref0(row);
 
   Parser figure() =>
-      char('R').trim() | char('N').trim() | char('B').trim() | char('Q').trim() | char('K').trim() | char('P').trim();
+      char('R').trim() |
+      char('N').trim() |
+      char('B').trim() |
+      char('Q').trim() |
+      char('K').trim() |
+      char('P').trim();
 
-  Parser promFigure() => char('R').trim() | char('N').trim() | char('B').trim() | char('Q').trim();
+  Parser promFigure() =>
+      char('R').trim() | char('N').trim() | char('B').trim() | char('Q').trim();
   Parser column() => pattern('a-h').trim();
   Parser row() => pattern('1-8').trim();
   Parser strike() => char('x').trim();
