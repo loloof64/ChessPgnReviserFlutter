@@ -32,6 +32,7 @@ dependencies:
   flutter_stateless_chessboard: ^0.0.6
   chess_vectors_flutter: ^1.0.12
   toast: ^0.1.5
+  petitparser: ^4.1.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 // @dart=2.9
 import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
@@ -7,6 +8,7 @@ import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart'
     as board;
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:toast/toast.dart';
+import 'package:chess_pgn_reviser/pgn_parser.dart';
 
 class GamePage extends StatefulWidget {
   GamePage({Key key}) : super(key: key);
@@ -20,10 +22,45 @@ class _GamePageState extends State<GamePage> {
   var _pendingPromotion = false;
   board.ShortMove _pendingPromotionMove;
 
+  loadPgn() {
+    final content = '"Video #1 Mastering Rook Endings."';
+    /*[
+      '[Event "Video #1 Mastering Rook Endings"]',
+      '[Site "?"]',
+      '[Date "2008.02.21"]',
+      '[Round "?"]',
+      '[White "Rook and Pawn Endings"]',
+      '[Black "Lucena/Bridge Position"]',
+      '[Result "*"]',
+      '[SetUp "1"]',
+      '[FEN "6K1/4k1P1/8/8/8/8/5R2/7r w - - 0 1"]',
+      '[PlyCount "13"]',
+      '[EventDate "2008.02.15"]',
+      '',
+      "1. Re2+ Kd7 (1... Kf6 2. Kf8 \$18 {Diagram #}) 2. Re4 Kd6 3. Kf7 {Diagram #}",
+      "Rf1+ 4. Kg6 Rg1+ 5. Kf6 Rf1+ (5... Rg2 6. Re6+ (6. Re5 \$2 Rf2+ (6... Rxg7 \$1",
+      "\$11) 7. Rf5 Rg2 8. Rg5 \$18) 6... Kd7 7. Re5 Rf2+ 8. Rf5 Rg2 9. Rg5 \$18) 6. Kg5",
+      "Rg1+ {Diagram #} 7. Rg4 \$18 *",
+    ].join('\n');*/
+
+    try {
+      final definition = PgnParserDefinition();
+      final parser = definition.build();
+      final parseResult = parser.parse(content);
+
+      if (parseResult.isFailure)
+        throw Exception("Failed to read pgn content : $parseResult !");
+
+      print("Result is ${parseResult.value}");
+    } catch (ex, stacktrace) {
+      Completer().completeError(ex, stacktrace);
+      Toast.show("Failed to read pgn content !", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    }
+  }
+
   startNewGame() {
-    setState(() {
-      _boardState = board_logic.Chess();
-    });
+    loadPgn();
   }
 
   notifyGameFinishedIfNecessary() {
