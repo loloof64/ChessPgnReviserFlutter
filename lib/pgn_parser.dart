@@ -2,7 +2,7 @@ import 'package:petitparser/petitparser.dart';
 import 'package:chess_pgn_reviser/pgn_grammar.dart';
 
 class PgnParserDefinition extends PgnGrammarDefinition {
-  Parser start() => ref0(timeControl).end();
+  Parser start() => ref0(nags).end();
 
   Parser tag() => super.tag().map((values) {
         return values[1];
@@ -107,7 +107,11 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         } else if (head == '*') {
           return {'kind': 'hourglass', 'seconds': values[1]};
         } else if (values[1] == '/') {
-          return {'kind': 'movesInSeconds', 'moves': head, 'seconds': values[2]};
+          return {
+            'kind': 'movesInSeconds',
+            'moves': head,
+            'seconds': values[2]
+          };
         } else if (values[1] == '+') {
           return {'kind': 'increment', 'seconds': head, 'increment': values[2]};
         } else {
@@ -125,4 +129,117 @@ class PgnParserDefinition extends PgnGrammarDefinition {
   Parser integer() => super.integer().map((values) => num.parse(values));
 
   Parser result() => super.result().map((values) => values[1]);
+
+  Parser nags() => super.nags().map((values) {
+        final head = values[0];
+        var tail = values[2] ?? [];
+        tail.insert(0, head);
+        return tail;
+      });
+
+  Parser nag() => super.nag().map((values) {
+        final first = values[0];
+        switch (first) {
+          case '\$':
+            return "\$${values[1]}";
+          case '!!':
+            return '\$3';
+          case '??':
+            {
+              return '\$4';
+            }
+          case '!?':
+            {
+              return '\$5';
+            }
+          case '?!':
+            {
+              return '\$6';
+            }
+          case '!':
+            {
+              return '\$1';
+            }
+          case '?':
+            {
+              return '\$2';
+            }
+          case '‼':
+            {
+              return '\$3';
+            }
+          case '⁇':
+            {
+              return '\$4';
+            }
+          case '⁉':
+            {
+              return '\$5';
+            }
+          case '⁈':
+            {
+              return '\$6';
+            }
+          case '□':
+            {
+              return '\$7';
+            }
+          case '=':
+            {
+              return '\$10';
+            }
+          case '∞':
+            {
+              return '\$13';
+            }
+          case '⩲':
+            {
+              return '\$14';
+            }
+          case '⩱':
+            {
+              return '\$15';
+            }
+          case '±':
+            {
+              return '\$16';
+            }
+          case '∓':
+            {
+              return '\$17';
+            }
+          case '+-':
+            {
+              return '\$18';
+            }
+          case '-+':
+            {
+              return '\$19';
+            }
+          case '⨀':
+            {
+              return '\$22';
+            }
+          case '⟳':
+            {
+              return '\$32';
+            }
+          case '→':
+            {
+              return '\$36';
+            }
+          case '↑':
+            {
+              return '\$40';
+            }
+          case '⇆':
+            {
+              return '\$132';
+            }
+          case 'D':
+            {
+              return '\$220';
+            }
+        }
+      });
 }
