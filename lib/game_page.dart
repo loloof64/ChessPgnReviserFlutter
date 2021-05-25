@@ -7,6 +7,7 @@ import 'package:chess/chess.dart' as board_logic;
 import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart'
     as board;
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
+import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
 import 'package:chess_pgn_reviser/pgn_parser.dart';
 
@@ -23,7 +24,7 @@ class _GamePageState extends State<GamePage> {
   board.ShortMove _pendingPromotionMove;
 
   loadPgn() {
-    final content = '''exf8=Q#''';
+    final content = ''' Ye2e4, Gg1h3 , Ra1h8 ##a''';
     /*[
       '[Event "Video #1 Mastering Rook Endings"]',
       '[Site "?"]',
@@ -48,10 +49,13 @@ class _GamePageState extends State<GamePage> {
       final parser = definition.build();
       final parseResult = parser.parse(content);
 
-      if (parseResult.isFailure)
-        throw Exception("Failed to read pgn content : $parseResult !");
+      final tempValue = parseResult.value;
 
-      print("Result is ${parseResult.value}");
+      final result = tempValue is List && tempValue[0] is Failure<dynamic>
+          ? tempValue.last
+          : tempValue;
+
+      print("Result is $result");
     } catch (ex, stacktrace) {
       Completer().completeError(ex, stacktrace);
       Toast.show("Failed to read pgn content !", context,

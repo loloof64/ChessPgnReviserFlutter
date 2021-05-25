@@ -57,7 +57,7 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(blackFideIdKey) & ref0(ws) & ref0(stringP) |
       ref0(whiteTeamKey) & ref0(ws) & ref0(stringP) |
       ref0(blackTeamKey) & ref0(ws) & ref0(stringP) |
-      ref0(anyKey) & ref0(ws) & ref0(stringP);
+      ref0(stringNoQuot) & ref0(ws) & ref0(stringP);
 
   Parser validatedKey() =>
       ref0(eventKey) |
@@ -239,7 +239,6 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser blackFideIdKey() => string('BlackFideId').trim();
   Parser whiteTeamKey() => string('WhiteTeam').trim();
   Parser blackTeamKey() => string('BlackTeam').trim();
-  Parser anyKey() => ref0(stringNoQuot);
 
   Parser ws() => (char(' ') | char('\t') | char('\n') | char('\r')).star();
   Parser wsp() => (char(' ') | char('\t') | char('\n') | char('\r')).plus();
@@ -248,7 +247,7 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser stringP() =>
       ref0(quotationMark) & ref0(charP).star() & ref0(quotationMark);
 
-  Parser stringNoQuot() => pattern("-a-zA-Z0-9.").trim().star();
+  Parser stringNoQuot() => pattern("-a-zA-Z0-9.").star().flatten().trim();
 
   Parser quotationMark() => char('"').trim();
 
@@ -387,7 +386,7 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(nonCommand).plus() & ref0(innerComment).star();
 
   Parser nonCommand() =>
-      string("[%").trim().not() & char('}').trim().not() & any();
+      string("[%").not() & char('}').not() & any();
 
   Parser nbr() => ref0(br).not() & any();
 
@@ -425,10 +424,10 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser clockValue() =>
       digit() &
       digit().optional() &
-      char(':').trim() &
+      char(':') &
       digit() &
       digit() &
-      char(':').trim() &
+      char(':') &
       digit() &
       digit();
 
@@ -452,7 +451,7 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(integer) & ref0(whiteSpace).star() & ref0(dot).star();
   Parser dot() => char('.').trim();
   Parser integer() => digit().plus().flatten();
-  Parser whiteSpace() => char(' ').trim();
+  Parser whiteSpace() => char(' ').plus();
 
   Parser halfMove() =>
       ref0(figure).optional() &

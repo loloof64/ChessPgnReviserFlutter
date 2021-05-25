@@ -2,7 +2,7 @@ import 'package:petitparser/petitparser.dart';
 import 'package:chess_pgn_reviser/pgn_grammar.dart';
 
 class PgnParserDefinition extends PgnGrammarDefinition {
-  Parser start() => ref0(halfMove).end();
+  Parser start() => ref0(colorArrows).end();
 
   Parser tag() => super.tag().map((values) {
         return values[1];
@@ -66,7 +66,6 @@ class PgnParserDefinition extends PgnGrammarDefinition {
       super.blackFideIdKey().map((values) => "BlackFideId");
   Parser whiteTeamKey() => super.whiteTeamKey().map((values) => "WhiteTeam");
   Parser blackTeamKey() => super.blackTeamKey().map((values) => "BlackTeam");
-  Parser anyKey() => super.anyKey().map((values) => values.join());
 
   Parser date() => super.date().map((values) {
         final year = values[1];
@@ -119,6 +118,73 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         }
       });
 
+  Parser colorArrows() => super.colorArrows().map((values) {
+        final head = values[0];
+        final tail = values[2];
+
+        var results = [head];
+        tail.forEach((value) {
+          results.add(value[2]);
+        });
+
+        return results;
+      }); 
+
+  Parser colorArrow() =>
+      super.colorArrow().map((values) => values[0] + values[1] + values[2]);
+
+  Parser clockValue() => super.clockValue().map((values) {
+        final h1 = values[0];
+        final h2 = values[1];
+
+        final m1 = values[3];
+        final m2 = values[4];
+
+        final s1 = values[6];
+        final s2 = values[7];
+
+        return "$h1${h2 ?? ''}:$m1$m2:$s1$s2";
+      });
+
+  Parser colorFields() => super.colorFields().map((values) {
+        final head = values[0];
+        final tail = values[2];
+
+        var results = [head];
+        tail.forEach((value) {
+          results.add(value[2]);
+        });
+
+        return results;
+      });
+
+  Parser colorField() =>
+      super.colorField().map((values) => values[0] + values[1]);
+
+  Parser field() => super.field().map((values) => values[0] + values[1]);
+
+  Parser variationWhite() => super.variationWhite().map((values) {
+        final head = values[1];
+        final tail = values[4];
+
+        var results = tail ?? [];
+        results.insert(0, head);
+
+        return results;
+      });
+
+  Parser variationBlack() => super.variationBlack().map((values) {
+        final head = values[1];
+        final tail = values[4];
+
+        var results = tail ?? [];
+        results.insert(0, head);
+
+        return results;
+      });
+
+  Parser moveNumber() => super.moveNumber().map((values) => values[0]);
+
   Parser stringP() => super.stringP().map((values) {
         return values[1].join().trim();
       });
@@ -127,6 +193,8 @@ class PgnParserDefinition extends PgnGrammarDefinition {
       super.integerString().map((values) => num.parse(values[1]));
 
   Parser integer() => super.integer().map((values) => num.parse(values));
+
+  Parser whiteSpace() => super.whiteSpace().map((values) => '');
 
   Parser halfMove() => super.halfMove().map((values) {
         if (values[0] == 'O-O-O') {
@@ -203,14 +271,15 @@ class PgnParserDefinition extends PgnGrammarDefinition {
           final check = values[6];
 
           return {
-             'fig': figure,
-             'disc': discriminator,
-             'strike': strike,
-             'col': col,
-             'row': row,
-             'check' : check,
-             'promotion': promotion,
-             'notation': "${figure ?? ""}${discriminator ?? ""}${strike ?? ""}$col$row${promotion ?? ""}${check ?? ""}",
+            'fig': figure,
+            'disc': discriminator,
+            'strike': strike,
+            'col': col,
+            'row': row,
+            'check': check,
+            'promotion': promotion,
+            'notation':
+                "${figure ?? ""}${discriminator ?? ""}${strike ?? ""}$col$row${promotion ?? ""}${check ?? ""}",
           };
         }
       });
