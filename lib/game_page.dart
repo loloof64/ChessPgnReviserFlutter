@@ -23,7 +23,7 @@ class _GamePageState extends State<GamePage> {
   board.ShortMove _pendingPromotionMove;
 
   loadPgn() {
-    final content = '''□''';
+    final content = '''exf8=Q#''';
     /*[
       '[Event "Video #1 Mastering Rook Endings"]',
       '[Site "?"]',

@@ -81,8 +81,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(eventSponsorKey) |
       ref0(sectionKey) |
       ref0(stageKey) |
-          ref0(boardKey) |
-          ref0(openingKey) |
+      ref0(boardKey) |
+      ref0(openingKey) |
       ref0(variationKey) |
       ref0(subVariationKey) |
       ref0(ecoKey) |
@@ -258,7 +258,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
 
   Parser date() =>
       ref0(quotationMark) &
-      (ref0(dateDigit) & ref0(dateDigit) & ref0(dateDigit) & ref0(dateDigit)).flatten() &
+      (ref0(dateDigit) & ref0(dateDigit) & ref0(dateDigit) & ref0(dateDigit))
+          .flatten() &
       char('.').trim() &
       (ref0(dateDigit) & ref0(dateDigit)).flatten() &
       char('.').trim() &
@@ -455,7 +456,6 @@ class PgnGrammarDefinition extends GrammarDefinition {
 
   Parser halfMove() =>
       ref0(figure).optional() &
-          ref0(checkdisc).and() &
           ref0(discriminator) &
           ref0(strike).optional() &
           ref0(column) &
@@ -481,8 +481,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(figure) & char('@').trim() & ref0(column) & ref0(row);
 
   Parser check() =>
-      (string('+-').trim().not() & char('+').trim()) |
-      (string(r'$$$').trim().not() & char('#').trim());
+      char('+').trim() |
+      char('#').trim();
   Parser promotion() => char('=').trim() & ref0(promFigure);
 
   Parser nags() => ref0(nag) & ref0(ws) & ref0(nags).optional();
@@ -516,8 +516,6 @@ class PgnGrammarDefinition extends GrammarDefinition {
       char('D').trim();
 
   Parser discriminator() => ref0(column) | ref0(row);
-  Parser checkdisc() =>
-      ref0(discriminator) & ref0(strike).optional() & ref0(column) & ref0(row);
 
   Parser figure() =>
       char('R').trim() |

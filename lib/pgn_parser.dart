@@ -2,7 +2,7 @@ import 'package:petitparser/petitparser.dart';
 import 'package:chess_pgn_reviser/pgn_grammar.dart';
 
 class PgnParserDefinition extends PgnGrammarDefinition {
-  Parser start() => ref0(nags).end();
+  Parser start() => ref0(halfMove).end();
 
   Parser tag() => super.tag().map((values) {
         return values[1];
@@ -128,7 +128,98 @@ class PgnParserDefinition extends PgnGrammarDefinition {
 
   Parser integer() => super.integer().map((values) => num.parse(values));
 
+  Parser halfMove() => super.halfMove().map((values) {
+        if (values[0] == 'O-O-O') {
+          final check = values[1];
+          return {
+            'notation': 'O-O-O${values[1] ?? ""}',
+            'check': check,
+          };
+        } else if (values[0] == 'O-O') {
+          final check = values[1];
+          return {
+            'notation': 'O-O${values[1] ?? ""}',
+            'check': check,
+          };
+        } else if (values[1] == '@') {
+          final figure = values[0];
+          final col = values[2];
+          final row = values[3];
+
+          return {
+            'fig': figure,
+            'drop': true,
+            'col': col,
+            'row': row,
+            'notation': "$figure@$col$row",
+          };
+        } else if (values.length == 6) {
+          final figure = values[0];
+          final strike = values[1];
+          final col = values[2];
+          final row = values[3];
+          final promotion = values[4];
+          final check = values[5];
+
+          return {
+            'fig': figure,
+            'strike': strike,
+            'col': col,
+            'row': row,
+            'check': check,
+            'promotion': promotion,
+            'notation':
+                "${figure ?? ""}${strike ?? ""}$col$row${promotion ?? ""}${check ?? ""}"
+          };
+        }
+        // case 2 : values.length is 8
+        else if (values.length == 8) {
+          final figure = values[0];
+          final cols = values[1];
+          final rows = values[2];
+          final strike = values[3];
+          final col = values[4];
+          final row = values[5];
+          final promotion = values[6];
+          final check = values[7];
+
+          return {
+            'fig': figure,
+            'strike': strike == 'x' ? strike : null,
+            'col': col,
+            'row': row,
+            'check': check,
+            'promotion': promotion,
+            'notation':
+                '${figure != null && figure != 'P' ? figure : ''}$cols$rows${strike == 'x' ? strike : '-'}$col$row${promotion ?? ""}${check ?? ""}'
+          };
+        } else {
+          final figure = values[0];
+          final discriminator = values[1];
+          final strike = values[2];
+          final col = values[3];
+          final row = values[4];
+          final promotion = values[5];
+          final check = values[6];
+
+          return {
+             'fig': figure,
+             'disc': discriminator,
+             'strike': strike,
+             'col': col,
+             'row': row,
+             'check' : check,
+             'promotion': promotion,
+             'notation': "${figure ?? ""}${discriminator ?? ""}${strike ?? ""}$col$row${promotion ?? ""}${check ?? ""}",
+          };
+        }
+      });
+
   Parser result() => super.result().map((values) => values[1]);
+
+  Parser check() => super.check().map((values) => values[0]);
+
+  Parser promotion() => super.promotion().map((values) => "=${values[1]}");
 
   Parser nags() => super.nags().map((values) {
         final head = values[0];
