@@ -2,7 +2,7 @@ import 'package:petitparser/petitparser.dart';
 import 'package:chess_pgn_reviser/pgn_grammar.dart';
 
 class PgnParserDefinition extends PgnGrammarDefinition {
-  Parser start() => ref0(tags).end();
+  Parser start() => ref0(timeControl).end();
 
   Parser tag() => super.tag().map((values) {
         return values[1];
@@ -93,12 +93,36 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         };
       });
 
+  Parser timeControl() => super.timeControl().map((values) {
+        return values[1];
+      });
+
+  Parser tcnq() => super.tcnq().map((values) {
+        final head = values[0];
+
+        if (head == '?') {
+          return {'kind': 'unknown', 'value': '?'};
+        } else if (head == '-') {
+          return {'kind': 'unlimited', 'value': '-'};
+        } else if (head == '*') {
+          return {'kind': 'hourglass', 'seconds': values[1]};
+        } else if (values[1] == '/') {
+          return {'kind': 'movesInSeconds', 'moves': head, 'seconds': values[2]};
+        } else if (values[1] == '+') {
+          return {'kind': 'increment', 'seconds': head, 'increment': values[2]};
+        } else {
+          return {'kind': 'suddenDeath', 'seconds': head};
+        }
+      });
+
   Parser stringP() => super.stringP().map((values) {
         return values[1].join().trim();
       });
 
   Parser integerString() =>
       super.integerString().map((values) => num.parse(values[1]));
+
+  Parser integer() => super.integer().map((values) => num.parse(values));
 
   Parser result() => super.result().map((values) => values[1]);
 }

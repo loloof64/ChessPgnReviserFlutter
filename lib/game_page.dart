@@ -24,22 +24,8 @@ class _GamePageState extends State<GamePage> {
 
   loadPgn() {
     final content = '''
-      [Event "Champions Showdown Chess 9LX"]
-      [Site "lichess.org INT"]
-      [Date "2020.09.13"]
-      [EventDate "2020.09.11"]
-      [Round "7.1"]
-      [Result "1/2-1/2"]
-      [White "Levon Aronian"]
-      [Black "Garry Kasparov"]
-      [ECO "000"]
-      [WhiteElo "2773"]
-      [BlackElo "2812"]
-      [Source "TWIC"]
-      [PlyCount "96"]
-      [SetUp "1"]
-      [FEN "rnbnqkrb/pppppppp/8/8/8/8/PPPPPPPP/RNBNQKRB w GAga - 0 1"]
-      ''';
+    "12+25"
+    ''';
     /*[
       '[Event "Video #1 Mastering Rook Endings"]',
       '[Site "?"]',

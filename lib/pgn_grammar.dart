@@ -450,7 +450,7 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser moveNumber() =>
       ref0(integer) & ref0(whiteSpace).star() & ref0(dot).star();
   Parser dot() => char('.').trim();
-  Parser integer() => digit().plus();
+  Parser integer() => digit().plus().flatten();
   Parser whiteSpace() => char(' ').trim();
 
   Parser halfMove() =>
