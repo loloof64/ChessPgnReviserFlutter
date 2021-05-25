@@ -24,7 +24,9 @@ class _GamePageState extends State<GamePage> {
   board.ShortMove _pendingPromotionMove;
 
   loadPgn() {
-    final content = ''' Ye2e4, Gg1h3 , Ra1h8 ##a''';
+    final content = ''';This is a weak move.
+    
+    ''';
     /*[
       '[Event "Video #1 Mastering Rook Endings"]',
       '[Site "?"]',

@@ -7,7 +7,7 @@ class PgnGrammarDefinition extends GrammarDefinition {
       ref0(ws).optional() &
       (ref0(game) & (ref0(ws) & ref0(game)).star()).optional();
   Parser game() =>
-      ref0(tags).optional() & ref0(comments).optional() & ref0(pgn);
+      ref0(tags).optional() & ref0(comment).optional() & ref0(pgn);
   Parser tags() => ref0(tag).plus();
 
   Parser tag() => ref0(bl) & ref0(tagKeyValue) & ref0(br);
@@ -309,127 +309,41 @@ class PgnGrammarDefinition extends GrammarDefinition {
 
   Parser pgnWhite() =>
       ref0(ws) &
-          (ref0(comments) & ref0(ws)).optional() &
+          (ref0(comment) & ref0(ws)).optional() &
           (ref0(moveNumber) & ref0(ws)).optional() &
           (ref0(halfMove) & ref0(ws)) &
           (ref0(nags) & ref0(ws)).optional() &
-          (ref0(comments) & ref0(ws)).optional() &
+          (ref0(comment) & ref0(ws)).optional() &
           ref0(variationWhite).optional() &
           ref0(pgnBlack).optional() |
       ref0(ws) & ref0(endGame) & ref0(ws);
 
   Parser pgnBlack() =>
       ref0(ws) &
-          (ref0(comments) & ref0(ws)).optional() &
+          (ref0(comment) & ref0(ws)).optional() &
           (ref0(moveNumber) & ref0(ws)).optional() &
           (ref0(halfMove) & ref0(ws)) &
           (ref0(nags) & ref0(ws)).optional() &
-          (ref0(comments) & ref0(ws)).optional() &
+          (ref0(comment) & ref0(ws)).optional() &
           ref0(variationBlack).optional() &
           ref0(pgnWhite).optional() |
       ref0(ws) & ref0(endGame) & ref0(ws);
 
   Parser endGame() => ref0(innerResult);
 
-  Parser comments() => ref0(comment) & (ref0(ws) & ref0(comment)).star();
-
   Parser comment() =>
       ref0(cl) & ref0(innerComment) & ref0(cr) | ref0(commentEndOfLine);
 
-  Parser innerComment() =>
-      ref0(ws) &
-          ref0(bl) &
-          string("%csl").trim() &
-          ref0(wsp) &
-          ref0(colorFields) &
-          ref0(ws) &
-          ref0(br) &
-          ref0(ws) &
-          ref0(innerComment).star() |
-      ref0(ws) &
-          ref0(bl) &
-          string("%cal").trim() &
-          ref0(wsp) &
-          ref0(colorArrows) &
-          ref0(ws) &
-          ref0(br) &
-          ref0(ws) &
-          ref0(innerComment).star() |
-      ref0(ws) &
-          ref0(bl) &
-          char("%").trim() &
-          ref0(clockCommand) &
-          ref0(wsp) &
-          ref0(clockValue) &
-          ref0(ws) &
-          ref0(br) &
-          ref0(ws) &
-          ref0(innerComment).star() |
-      ref0(ws) &
-          ref0(bl) &
-          string("%eval").trim() &
-          ref0(wsp) &
-          ref0(stringNoQuot) &
-          ref0(ws) &
-          ref0(br) &
-          ref0(ws) &
-          ref0(innerComment).star() |
-      ref0(ws) &
-          ref0(bl) &
-          char("%").trim() &
-          ref0(stringNoQuot) &
-          ref0(wsp) &
-          ref0(nbr).plus() &
-          ref0(br) &
-          ref0(ws) &
-          ref0(innerComment).star() |
-      ref0(nonCommand).plus() & ref0(innerComment).star();
-
-  Parser nonCommand() =>
-      string("[%").not() & char('}').not() & any();
-
-  Parser nbr() => ref0(br).not() & any();
+  Parser innerComment() => pattern('^}').star();
 
   Parser commentEndOfLine() =>
       ref0(semicolon) & pattern('^\r\n').trim().star() & ref0(eol);
-
-  Parser colorFields() =>
-      ref0(colorField) &
-      ref0(ws) &
-      (char(',').trim() & ref0(ws) & ref0(colorField)).star();
-
-  Parser colorField() => ref0(color) & ref0(field);
-  Parser colorArrows() =>
-      ref0(colorArrow) &
-      ref0(ws) &
-      (char(',').trim() & ref0(ws) & ref0(colorArrow)).star();
-
-  Parser colorArrow() => ref0(color) & ref0(field) & ref0(field);
-  Parser color() =>
-      char('Y').trim() | char('G').trim() | char('R').trim() | char('B').trim();
-
-  Parser field() => ref0(column) & ref0(row);
 
   Parser cl() => char('{').trim();
   Parser cr() => char('}').trim();
   Parser bl() => char('[').trim();
   Parser br() => char(']').trim();
   Parser semicolon() => char(';').trim();
-
-  Parser clockCommand() =>
-      string('clk').trim() |
-      string('egt').trim() |
-      string('emt').trim() |
-      string('mct').trim();
-  Parser clockValue() =>
-      digit() &
-      digit().optional() &
-      char(':') &
-      digit() &
-      digit() &
-      char(':') &
-      digit() &
-      digit();
 
   Parser variationWhite() =>
       ref0(pl) &

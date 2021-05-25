@@ -1,8 +1,25 @@
 import 'package:petitparser/petitparser.dart';
 import 'package:chess_pgn_reviser/pgn_grammar.dart';
 
+Map<dynamic, dynamic> merge(List array) {
+  var results = {};
+  array.forEach((json) {
+    for (var key in json) {
+      if (json[key] is List) {
+        results[key] =
+            results[key] ? results[key].concat(json[key]) : json[key];
+      } else {
+        results[key] = results[key]
+            ? (results[key]).trimRight() + " " + (json[key]).trimLeft()
+            : json[key];
+      }
+    }
+  });
+  return results;
+}
+
 class PgnParserDefinition extends PgnGrammarDefinition {
-  Parser start() => ref0(colorArrows).end();
+  Parser start() => ref0(comment).end();
 
   Parser tag() => super.tag().map((values) {
         return values[1];
@@ -118,50 +135,17 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         }
       });
 
-  Parser colorArrows() => super.colorArrows().map((values) {
-        final head = values[0];
-        final tail = values[2];
-
-        var results = [head];
-        tail.forEach((value) {
-          results.add(value[2]);
-        });
-
-        return results;
-      }); 
-
-  Parser colorArrow() =>
-      super.colorArrow().map((values) => values[0] + values[1] + values[2]);
-
-  Parser clockValue() => super.clockValue().map((values) {
-        final h1 = values[0];
-        final h2 = values[1];
-
-        final m1 = values[3];
-        final m2 = values[4];
-
-        final s1 = values[6];
-        final s2 = values[7];
-
-        return "$h1${h2 ?? ''}:$m1$m2:$s1$s2";
+  Parser comment() => super.comment().map((values) {
+        if (values.length == 1)
+          return values[0];
+        else
+          return values[1];
       });
 
-  Parser colorFields() => super.colorFields().map((values) {
-        final head = values[0];
-        final tail = values[2];
+  Parser innerComment() => super.innerComment().map((values) => values.join(''));
 
-        var results = [head];
-        tail.forEach((value) {
-          results.add(value[2]);
-        });
-
-        return results;
-      });
-
-  Parser colorField() =>
-      super.colorField().map((values) => values[0] + values[1]);
-
-  Parser field() => super.field().map((values) => values[0] + values[1]);
+  Parser commentEndOfLine() =>
+      super.commentEndOfLine().map((values) => values[1].join());
 
   Parser variationWhite() => super.variationWhite().map((values) {
         final head = values[1];
