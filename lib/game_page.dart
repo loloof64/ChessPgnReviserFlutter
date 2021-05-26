@@ -24,27 +24,72 @@ class _GamePageState extends State<GamePage> {
   board.ShortMove _pendingPromotionMove;
 
   loadPgn() {
-    final content = ''';This is a weak move.
-    
+    final content = '''
+      [Event "Video #1 Mastering Rook Endings"]
+      [Site "?"]
+      [Date "2008.02.21"]
+      [Round "?"]
+      [White "Rook and Pawn Endings"]
+      [Black "Lucena/Bridge Position"]
+      [Result "*"]
+      [SetUp "1"]
+      [FEN "6K1/4k1P1/8/8/8/8/5R2/7r w - - 0 1"]
+      [PlyCount "13"]
+      [EventDate "2008.02.15"]
+      
+      1. Re2+ Kd7 (1... Kf6 2. Kf8 \$18 {Diagram #}) 2. Re4 Kd6 3. Kf7 {Diagram #}
+      Rf1+ 4. Kg6 Rg1+ 5. Kf6 Rf1+ (5... Rg2 6. Re6+ (6. Re5 \$2 Rf2+ (6... Rxg7 \$1
+      \$11) 7. Rf5 Rg2 8. Rg5 \$18) 6... Kd7 7. Re5 Rf2+ 8. Rf5 Rg2 9. Rg5 \$18) 6. Kg5
+      Rg1+ {Diagram #} 7. Rg4 \$18 * 
+
+      [Event "Champions Showdown Chess 9LX"]
+[Site "lichess.org INT"]
+[Date "2020.09.13"]
+[EventDate "2020.09.11"]
+[Round "7.1"]
+[Result "1/2-1/2"]
+[White "Levon Aronian"]
+[Black "Garry Kasparov"]
+[ECO "000"]
+[WhiteElo "2773"]
+[BlackElo "2812"]
+[Source "TWIC"]
+[PlyCount "96"]
+[SetUp "1"]
+[FEN "rnbnqkrb/pppppppp/8/8/8/8/PPPPPPPP/RNBNQKRB w GAga - 0 1"]
+
+1. d4 O-O 2. c4 Ndc6 3. d5 Ne5 4. b3 e6 5. O-O d6 6. Nbc3 Na6
+7. g3 exd5 8. Nxd5 Bh3 9. Bg2 Bxg2 10. Kxg2 c6 11. N5c3 f5
+12. f3 Rd8 13. Nf2 Nb4 14. Rb1 g6 15. Bh6 Rf7 16. Rd1 Rfd7
+17. Bg5 Nf7 18. Bxd8 Nc2 19. Qd2 Ne3+ 20. Kg1 Rxd8 21. Rc1
+Nxf1 22. Kxf1 Qe7 23. Kg2 Ng5 24. f4 Ne6 25. e4 Nd4 26. Re1
+Re8 27. Ne2 Qg7 28. Nxd4 Qxd4 29. Qc2 Qc3 30. Qxc3 Bxc3
+31. Re2 Bd4 32. Rd2 Bxf2 33. Kxf2 Rxe4 34. Rxd6 Kf7 35. Rd7+
+Re7 36. Rxe7+ Kxe7 37. Ke3 c5 38. Kd3 Kd6 39. Kc3 a5 40. a4 b6
+41. Kd3 Ke6 42. Ke3 Kf6 43. Kf3 h6 44. h4 h5 45. Ke3 Ke6
+46. Kf3 Kf6 47. Ke3 Ke6 48. Kf3 Kf6 1/2-1/2
+
+[Event "Interclubs FRA"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "Calistri, Tristan"]
+[Black "Bauduin, Etienne"]
+[Result "1-0"]
+
+1.e4 c5 2.Nf3 e6 3.d4 cxd4 4.Nxd4 Nc6 5.Nc3 a6 6.Be2 Qc7 7.O-O Nf6 8.Be3 Bb4 
+9.Na4 O-O 10.c4 Bd6 11.g3 Nxe4 12.Bf3 f5 13.Bxe4 fxe4 14.c5 Be7 {Les Noirs ont 
+un pion d'avance mais de gros problèmes pour mettre leur Fc8 et leur Ta8 en jeu} 
+15.Qg4 Ne5 16.Qxe4 d5 17.cxd6 Bxd6 18.Rac1 Qa5 19.Nb3 {Les blancs ont 
+récupéré leur pion et toutes leurs pièces sont mobilisées}
+19...Qb4 
+    (19...Qd5 20.Qxd5 exd5 21.Nb6 Bh3 22.Nxa8 Nf3+ 23.Kh1 Bxf1 24.Rxf1 Rxa8 25.Rd1)
+    (19...Nf3+ 20.Kg2 Qh5)
+20.Qxb4 Bxb4 21.Nb6 \$18 {Les noirs n'arriveront jamais à sortir leur Fc8}
+21...Rb8 22.Bc5 Bxc5 
+    (22...Nd3 23.Bxf8 Nxc1 24.Rxc1 Bxf8 25.Rxc8 Rxc8 26.Nxc8)
+23.Nxc5 Rd8 24.Rfd1 Re8 25.Ne4 Nf7 26.Rc7 Kf8 27.Rdc1 1-0
     ''';
-    /*[
-      '[Event "Video #1 Mastering Rook Endings"]',
-      '[Site "?"]',
-      '[Date "2008.02.21"]',
-      '[Round "?"]',
-      '[White "Rook and Pawn Endings"]',
-      '[Black "Lucena/Bridge Position"]',
-      '[Result "*"]',
-      '[SetUp "1"]',
-      '[FEN "6K1/4k1P1/8/8/8/8/5R2/7r w - - 0 1"]',
-      '[PlyCount "13"]',
-      '[EventDate "2008.02.15"]',
-      '',
-      "1. Re2+ Kd7 (1... Kf6 2. Kf8 \$18 {Diagram #}) 2. Re4 Kd6 3. Kf7 {Diagram #}",
-      "Rf1+ 4. Kg6 Rg1+ 5. Kf6 Rf1+ (5... Rg2 6. Re6+ (6. Re5 \$2 Rf2+ (6... Rxg7 \$1",
-      "\$11) 7. Rf5 Rg2 8. Rg5 \$18) 6... Kd7 7. Re5 Rf2+ 8. Rf5 Rg2 9. Rg5 \$18) 6. Kg5",
-      "Rg1+ {Diagram #} 7. Rg4 \$18 *",
-    ].join('\n');*/
 
     try {
       final definition = PgnParserDefinition();

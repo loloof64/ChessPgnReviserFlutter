@@ -1,25 +1,30 @@
 import 'package:petitparser/petitparser.dart';
 import 'package:chess_pgn_reviser/pgn_grammar.dart';
 
-Map<dynamic, dynamic> merge(List array) {
-  var results = {};
-  array.forEach((json) {
-    for (var key in json) {
-      if (json[key] is List) {
-        results[key] =
-            results[key] ? results[key].concat(json[key]) : json[key];
-      } else {
-        results[key] = results[key]
-            ? (results[key]).trimRight() + " " + (json[key]).trimLeft()
-            : json[key];
-      }
-    }
-  });
-  return results;
-}
-
 class PgnParserDefinition extends PgnGrammarDefinition {
-  Parser start() => ref0(comment).end();
+  Parser start() => ref0(games).end();
+
+  Parser games() => super.games().map((values) {
+        final games = values[1];
+        var results = [];
+
+        if (games != null) {
+          final head = games[0];
+          final tail = games[1].map((items) => items[1]);
+
+          results.add(head);
+          results.addAll(tail);
+        }
+
+        return results;
+      });
+  Parser game() => super.game().map((values) {
+        return {
+          'tags': values[0],
+          'gameComment': values[1],
+          'moves': values[2],
+        };
+      });
 
   Parser tag() => super.tag().map((values) {
         return values[1];
@@ -88,6 +93,7 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         final year = values[1];
         final month = values[3];
         final day = values[5];
+
         return {
           'value': "$year.$month.$day",
           'year': year,
@@ -135,6 +141,65 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         }
       });
 
+  Parser pgn() => super.pgn().map((values) {
+        final inner = values[0];
+        final result = values[1];
+
+        return {'pgn': inner, 'result': result};
+      });
+
+  Parser innerPgnWhite() => super.innerPgnWhite().map((values) {
+        final commentBefore = values[0];
+        final moveNumber = values[2];
+        final halfMove = values[4];
+        final nags = values[6];
+        final commentAfter = values[8];
+        final innerVariations = values[10];
+        final innerPgnBlack = values[11];
+
+        final newItem = {
+          'turn': 'w',
+          'moveNumber': moveNumber,
+          'halfMove': halfMove,
+          'variations': innerVariations ?? [],
+          'nag': nags,
+          'commentDiag': commentAfter,
+          'commentBefore': commentBefore,
+          'commentAfter': commentAfter,
+        };
+
+        var results = innerPgnBlack ?? [];
+        results.insert(0, newItem);
+
+        return results;
+      });
+
+  Parser innerPgnBlack() => super.innerPgnBlack().map((values) {
+        final commentBefore = values[0];
+        final moveNumber = values[2];
+        final halfMove = values[4];
+        final nags = values[6];
+        final commentAfter = values[8];
+        final innerVariations = values[10];
+        final innerPgnWhite = values[11];
+
+        final newItem = {
+          'turn': 'b',
+          'moveNumber': moveNumber,
+          'halfMove': halfMove,
+          'variations': innerVariations ?? [],
+          'nag': nags,
+          'commentDiag': commentAfter,
+          'commentBefore': commentBefore,
+          'commentAfter': commentAfter,
+        };
+
+        var results = innerPgnWhite ?? [];
+        results.insert(0, newItem);
+
+        return results;
+      });
+
   Parser comment() => super.comment().map((values) {
         if (values.length == 1)
           return values[0];
@@ -142,32 +207,17 @@ class PgnParserDefinition extends PgnGrammarDefinition {
           return values[1];
       });
 
-  Parser innerComment() => super.innerComment().map((values) => values.join(''));
+  Parser innerComment() =>
+      super.innerComment().map((values) => values.join(''));
 
   Parser commentEndOfLine() =>
       super.commentEndOfLine().map((values) => values[1].join());
 
-  Parser variationWhite() => super.variationWhite().map((values) {
-        final head = values[1];
-        final tail = values[4];
+  Parser variation() => super.variation().map((values) => values[1]);
 
-        var results = tail ?? [];
-        results.insert(0, head);
+  Parser moveNumberWhite() => super.moveNumberWhite().map((values) => values[0]);
 
-        return results;
-      });
-
-  Parser variationBlack() => super.variationBlack().map((values) {
-        final head = values[1];
-        final tail = values[4];
-
-        var results = tail ?? [];
-        results.insert(0, head);
-
-        return results;
-      });
-
-  Parser moveNumber() => super.moveNumber().map((values) => values[0]);
+  Parser moveNumberBlack() => super.moveNumberBlack().map((values) => values[0]);
 
   Parser stringP() => super.stringP().map((values) {
         return values[1].join().trim();
@@ -267,8 +317,6 @@ class PgnParserDefinition extends PgnGrammarDefinition {
           };
         }
       });
-
-  Parser result() => super.result().map((values) => values[1]);
 
   Parser check() => super.check().map((values) => values[0]);
 

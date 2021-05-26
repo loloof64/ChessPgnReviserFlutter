@@ -4,10 +4,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser start() => ref0(games).end();
 
   Parser games() =>
-      ref0(ws).optional() &
-      (ref0(game) & (ref0(ws) & ref0(game)).star()).optional();
-  Parser game() =>
-      ref0(tags).optional() & ref0(comment).optional() & ref0(pgn);
+      ref0(ws) & (ref0(game) & (ref0(ws) & ref0(game)).star()).optional();
+  Parser game() => ref0(tags).optional() & ref0(comment).optional() & ref0(pgn);
   Parser tags() => ref0(tag).plus();
 
   Parser tag() => ref0(bl) & ref0(tagKeyValue) & ref0(br);
@@ -286,8 +284,6 @@ class PgnGrammarDefinition extends GrammarDefinition {
       char('*').trim() & ref0(integer);
 
   Parser result() =>
-      ref0(quotationMark) & ref0(innerResult) & ref0(quotationMark);
-  Parser innerResult() =>
       string("1-0").trim() |
       string("0-1").trim() |
       string("1/2-1/2").trim() |
@@ -300,36 +296,35 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser integerString() =>
       ref0(quotationMark) & digit().plus().flatten() & ref0(quotationMark);
 
-  Parser pgn() =>
-      ref0(ws) & ref0(pgnStartWhite) | ref0(ws) & ref0(pgnStartBlack);
+  Parser pgn() => (ref0(innerPgnWhite) | ref0(innerPgnBlack)) & ref0(result).optional();
 
-  Parser pgnStartWhite() => ref0(pgnWhite) & ref0(ws);
-
-  Parser pgnStartBlack() => ref0(pgnBlack) & ref0(ws);
-
-  Parser pgnWhite() =>
+  Parser innerPgnWhite() =>
+      ref0(comment).optional() &
       ref0(ws) &
-          (ref0(comment) & ref0(ws)).optional() &
-          (ref0(moveNumber) & ref0(ws)).optional() &
-          (ref0(halfMove) & ref0(ws)) &
-          (ref0(nags) & ref0(ws)).optional() &
-          (ref0(comment) & ref0(ws)).optional() &
-          ref0(variationWhite).optional() &
-          ref0(pgnBlack).optional() |
-      ref0(ws) & ref0(endGame) & ref0(ws);
-
-  Parser pgnBlack() =>
+      ref0(moveNumberWhite).optional() &
       ref0(ws) &
-          (ref0(comment) & ref0(ws)).optional() &
-          (ref0(moveNumber) & ref0(ws)).optional() &
-          (ref0(halfMove) & ref0(ws)) &
-          (ref0(nags) & ref0(ws)).optional() &
-          (ref0(comment) & ref0(ws)).optional() &
-          ref0(variationBlack).optional() &
-          ref0(pgnWhite).optional() |
-      ref0(ws) & ref0(endGame) & ref0(ws);
+      ref0(halfMove) &
+      ref0(ws) &
+      ref0(nags).optional() &
+      ref0(ws) &
+      ref0(comment).optional() &
+      ref0(ws) &
+      ref0(variation).star() &
+      ref0(innerPgnBlack).optional();
 
-  Parser endGame() => ref0(innerResult);
+  Parser innerPgnBlack() =>
+      ref0(comment).optional() &
+      ref0(ws) &
+      ref0(moveNumberBlack).optional() &
+      ref0(ws) &
+      ref0(halfMove) &
+      ref0(ws) &
+      ref0(nags).optional() &
+      ref0(ws) &
+      ref0(comment).optional() &
+      ref0(ws) &
+      ref0(variation).star() &
+      ref0(innerPgnWhite).optional();
 
   Parser comment() =>
       ref0(cl) & ref0(innerComment) & ref0(cr) | ref0(commentEndOfLine);
@@ -345,24 +340,15 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser br() => char(']').trim();
   Parser semicolon() => char(';').trim();
 
-  Parser variationWhite() =>
-      ref0(pl) &
-      ref0(pgnWhite) &
-      ref0(pr) &
-      ref0(ws) &
-      ref0(variationWhite).optional();
-  Parser variationBlack() =>
-      ref0(pl) &
-      ref0(pgnStartBlack) &
-      ref0(pr) &
-      ref0(ws) &
-      ref0(variationBlack).optional();
+  Parser variation() => ref0(pl) & ref0(pgn) & ref0(pr);
 
   Parser pl() => char('(').trim();
   Parser pr() => char(')').trim();
 
-  Parser moveNumber() =>
-      ref0(integer) & ref0(whiteSpace).star() & ref0(dot).star();
+  Parser moveNumberWhite() =>
+      ref0(integer) & ref0(whiteSpace).star() & ref0(dot);
+  Parser moveNumberBlack() =>
+      ref0(integer) & ref0(whiteSpace).star() & ref0(dot) & ref0(dot) & ref0(dot);
   Parser dot() => char('.').trim();
   Parser integer() => digit().plus().flatten();
   Parser whiteSpace() => char(' ').plus();
@@ -393,9 +379,7 @@ class PgnGrammarDefinition extends GrammarDefinition {
       string('O-O').trim() & ref0(check).optional() |
       ref0(figure) & char('@').trim() & ref0(column) & ref0(row);
 
-  Parser check() =>
-      char('+').trim() |
-      char('#').trim();
+  Parser check() => char('+').trim() | char('#').trim();
   Parser promotion() => char('=').trim() & ref0(promFigure);
 
   Parser nags() => ref0(nag) & ref0(ws) & ref0(nags).optional();
