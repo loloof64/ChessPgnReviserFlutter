@@ -9,6 +9,7 @@ import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart'
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:chess_pgn_reviser/pgn_parser.dart';
 
 class GamePage extends StatefulWidget {
@@ -23,69 +24,49 @@ class _GamePageState extends State<GamePage> {
   var _pendingPromotion = false;
   board.ShortMove _pendingPromotionMove;
 
-  loadPgn() {
-    final content = '''
-      [Event "Video #1 Mastering Rook Endings"]
-      [Site "?"]
-      [Date "2008.02.21"]
-      [Round "?"]
-      [White "Rook and Pawn Endings"]
-      [Black "Lucena/Bridge Position"]
-      [Result "*"]
-      [SetUp "1"]
-      [FEN "6K1/4k1P1/8/8/8/8/5R2/7r w - - 0 1"]
-      [PlyCount "13"]
-      [EventDate "2008.02.15"]
-      
-      1. Re2+ Kd7 (1... Kf6 2. Kf8 \$18 {Diagram #}) 2. Re4 Kd6 3. Kf7 {Diagram #}
-      Rf1+ 4. Kg6 Rg1+ 5. Kf6 Rf1+ (5... Rg2 6. Re6+ (6. Re5 \$2 Rf2+ (6... Rxg7 \$1
-      \$11) 7. Rf5 Rg2 8. Rg5 \$18) 6... Kd7 7. Re5 Rf2+ 8. Rf5 Rg2 9. Rg5 \$18) 6. Kg5
-      Rg1+ {Diagram #} 7. Rg4 \$18 * 
+  loadPgn() async {
+    final XTypeGroup pgnTypeGroup = XTypeGroup(
+      label: 'pgn file',
+      extensions: ['pgn'],
+      mimeTypes: ['application/vnd.chess-pgn', 'application/x-chess-pgn'],
+    );
 
-[Event "Interclubs FRA"]
-[Site "?"]
-[Date "????.??.??"]
-[Round "?"]
-[White "Calistri, Tristan"]
-[Black "Bauduin, Etienne"]
-[Result "1-0"]
+    final XTypeGroup allTypeGroup = XTypeGroup(
+      label: 'all files',
+      extensions: ['*'],
+      mimeTypes: ['application/octet-stream'],
+    );
 
-1.e4 c5 2.Nf3 e6 3.d4 cxd4 4.Nxd4 Nc6 5.Nc3 a6 6.Be2 Qc7 7.O-O Nf6 8.Be3 Bb4 
-9.Na4 O-O 10.c4 Bd6 11.g3 Nxe4 12.Bf3 f5 13.Bxe4 fxe4 14.c5 Be7 {Les Noirs ont 
-un pion d'avance mais de gros problèmes pour mettre leur Fc8 et leur Ta8 en jeu} 
-15.Qg4 Ne5 16.Qxe4 d5 17.cxd6 Bxd6 18.Rac1 Qa5 19.Nb3 {Les blancs ont 
-récupéré leur pion et toutes leurs pièces sont mobilisées}
-19...Qb4 
-    (19...Qd5 20.Qxd5 exd5 21.Nb6 Bh3 22.Nxa8 Nf3+ 23.Kh1 Bxf1 24.Rxf1 Rxa8 25.Rd1)
-    (19...Nf3+ 20.Kg2 Qh5)
-20.Qxb4 Bxb4 21.Nb6 \$18 {Les noirs n'arriveront jamais à sortir leur Fc8}
-21...Rb8 22.Bc5 Bxc5 
-    (22...Nd3 23.Bxf8 Nxc1 24.Rxc1 Bxf8 25.Rxc8 Rxc8 26.Nxc8)
-23.Nxc5 Rd8 24.Rfd1 Re8 25.Ne4 Nf7 26.Rc7 Kf8 27.Rdc1 1-0
-    ''';
-
-    try {
-      final definition = PgnParserDefinition();
-      final parser = definition.build();
-      final parseResult = parser.parse(content);
-
-      final tempValue = parseResult.value;
-
-      final result = tempValue is List && tempValue[0] is Failure<dynamic>
-          ? tempValue.last
-          : tempValue;
-
-      final game = result[0];
-      final fen = game["tags"]["FEN"] ?? board_logic.Chess().fen;
-
-      setState(() {
-        _boardState = board_logic.Chess.fromFEN(fen);
-      });
-    } catch (ex, stacktrace) {
-      Completer().completeError(ex, stacktrace);
-      Toast.show("Failed to read pgn content !", context,
+    final XFile file = await openFile(acceptedTypeGroups: [pgnTypeGroup, allTypeGroup]);
+    if (file == null) {
+      Toast.show("Cancelled new game !", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
     }
+
+      try {
+        final content = await file.readAsString();
+        final definition = PgnParserDefinition();
+        final parser = definition.build();
+        final parseResult = parser.parse(content);
+
+        final tempValue = parseResult.value;
+
+        final result = tempValue is List && tempValue[0] is Failure<dynamic>
+            ? tempValue.last
+            : tempValue;
+
+        final game = result[0];
+        final fen = game["tags"]["FEN"] ?? board_logic.Chess().fen;
+
+        setState(() {
+          _boardState = board_logic.Chess.fromFEN(fen);
+        });
+      } catch (ex, stacktrace) {
+        Completer().completeError(ex, stacktrace);
+        Toast.show("Failed to read pgn content, cancelled new game !", context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      }
   }
 
   startNewGame() {

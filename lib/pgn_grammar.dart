@@ -296,7 +296,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser integerString() =>
       ref0(quotationMark) & digit().plus().flatten() & ref0(quotationMark);
 
-  Parser pgn() => (ref0(innerPgnWhite) | ref0(innerPgnBlack)) & ref0(result).optional();
+  Parser pgn() =>
+      (ref0(innerPgnWhite) | ref0(innerPgnBlack)) & ref0(result).optional();
 
   Parser innerPgnWhite() =>
       ref0(comment).optional() &
@@ -348,7 +349,11 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser moveNumberWhite() =>
       ref0(integer) & ref0(whiteSpace).star() & ref0(dot);
   Parser moveNumberBlack() =>
-      ref0(integer) & ref0(whiteSpace).star() & ref0(dot) & ref0(dot) & ref0(dot);
+      ref0(integer) &
+      ref0(whiteSpace).star() &
+      ref0(dot) &
+      ref0(dot) &
+      ref0(dot);
   Parser dot() => char('.').trim();
   Parser integer() => digit().plus().flatten();
   Parser whiteSpace() => char(' ').plus();
