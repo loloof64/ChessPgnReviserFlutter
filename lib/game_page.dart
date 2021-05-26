@@ -11,6 +11,7 @@ import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:chess_pgn_reviser/pgn_parser.dart';
+import 'package:chess_pgn_reviser/game_selector.dart';
 
 class GamePage extends StatefulWidget {
   GamePage({Key key}) : super(key: key);
@@ -24,7 +25,7 @@ class _GamePageState extends State<GamePage> {
   var _pendingPromotion = false;
   board.ShortMove _pendingPromotionMove;
 
-  loadPgn() async {
+  loadPgn(BuildContext context) async {
     final XTypeGroup pgnTypeGroup = XTypeGroup(
       label: 'pgn file',
       extensions: ['pgn'],
@@ -37,40 +38,48 @@ class _GamePageState extends State<GamePage> {
       mimeTypes: ['application/octet-stream'],
     );
 
-    final XFile file = await openFile(acceptedTypeGroups: [pgnTypeGroup, allTypeGroup]);
+    final XFile file =
+        await openFile(acceptedTypeGroups: [pgnTypeGroup, allTypeGroup]);
     if (file == null) {
       Toast.show("Cancelled new game !", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       return;
     }
 
-      try {
-        final content = await file.readAsString();
-        final definition = PgnParserDefinition();
-        final parser = definition.build();
-        final parseResult = parser.parse(content);
+    try {
+      final content = await file.readAsString();
+      final definition = PgnParserDefinition();
+      final parser = definition.build();
+      final parseResult = parser.parse(content);
 
-        final tempValue = parseResult.value;
+      final tempValue = parseResult.value;
 
-        final result = tempValue is List && tempValue[0] is Failure<dynamic>
-            ? tempValue.last
-            : tempValue;
+      final allGames = tempValue is List && tempValue[0] is Failure<dynamic>
+          ? tempValue.last
+          : tempValue;
 
-        final game = result[0];
-        final fen = game["tags"]["FEN"] ?? board_logic.Chess().fen;
-
-        setState(() {
-          _boardState = board_logic.Chess.fromFEN(fen);
-        });
-      } catch (ex, stacktrace) {
-        Completer().completeError(ex, stacktrace);
-        Toast.show("Failed to read pgn content, cancelled new game !", context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      final gameIndex = await Navigator.push(context,
+          MaterialPageRoute(builder: (context) => GameSelector(allGames)));
+      if (gameIndex == null) {
+        Toast.show("Cancelled new game !", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+          return;
       }
+      final game = allGames[gameIndex];
+      final fen = (game["tags"] ?? {})["FEN"] ?? board_logic.Chess().fen;
+
+      setState(() {
+        _boardState = board_logic.Chess.fromFEN(fen);
+      });
+    } catch (ex, stacktrace) {
+      Completer().completeError(ex, stacktrace);
+      Toast.show("Failed to read pgn content, cancelled new game !", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    }
   }
 
-  startNewGame() {
-    loadPgn();
+  startNewGame(BuildContext context) {
+    loadPgn(context);
   }
 
   notifyGameFinishedIfNecessary() {
@@ -171,7 +180,7 @@ class _GamePageState extends State<GamePage> {
               height: commonHeight,
             ),
             onPressed: () {
-              startNewGame();
+              startNewGame(context);
             },
           ),
         ],

@@ -59,6 +59,10 @@ flutter:
   assets:
     - images/red_cross.png
     - images/racing_flag.png
+    - images/first_item.png
+    - images/next_item.png
+    - images/last_item.png
+    - images/previous_item.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
