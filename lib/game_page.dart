@@ -62,8 +62,8 @@ class _GamePageState extends State<GamePage> {
           MaterialPageRoute(builder: (context) => GameSelector(allGames)));
       if (gameIndex == null) {
         Toast.show("Cancelled new game !", context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-          return;
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+        return;
       }
       final game = allGames[gameIndex];
       final fen = (game["tags"] ?? {})["FEN"] ?? board_logic.Chess().fen;

@@ -360,6 +360,12 @@ class PgnGrammarDefinition extends GrammarDefinition {
 
   Parser halfMove() =>
       ref0(figure).optional() &
+          ref0(strike).optional() &
+          ref0(column) &
+          ref0(row) &
+          ref0(promotion).optional() &
+          ref0(check).optional() |
+      ref0(figure).optional() &
           ref0(discriminator) &
           ref0(strike).optional() &
           ref0(column) &
@@ -374,12 +380,6 @@ class PgnGrammarDefinition extends GrammarDefinition {
           ref0(row) &
           ref0(promotion).optional() &
           ref0(check) |
-      ref0(figure).optional() &
-          ref0(strike).optional() &
-          ref0(column) &
-          ref0(row) &
-          ref0(promotion).optional() &
-          ref0(check).optional() |
       string('O-O-O').trim() & ref0(check).optional() |
       string('O-O').trim() & ref0(check).optional() |
       ref0(figure) & char('@').trim() & ref0(column) & ref0(row);

@@ -12,9 +12,6 @@ class GameSelector extends StatefulWidget {
   GameSelector(this.games);
 
   String currentFen() {
-    //////////////////
-    print(games[gameIndex]);
-    //////////////////
     return (games[gameIndex]["tags"] ?? {})["FEN"] ?? board_logic.Chess().fen;
   }
 
