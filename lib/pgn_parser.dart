@@ -26,14 +26,20 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         };
       });
 
+  Parser tags() => super.tags().map((values) {
+        var results = {};
+        for (var pair in values) {
+          results[pair[0]] = pair[1];
+        }
+        return results;
+      });
+
   Parser tag() => super.tag().map((values) {
         return values[1];
       });
 
   Parser tagKeyValue() => super.tagKeyValue().map((values) {
-        var result = {};
-        result[values[0]] = values[2];
-        return result;
+        return [values[0], values[2]];
       });
 
   Parser eventKey() => super.eventKey().map((values) => "Event");
@@ -215,9 +221,11 @@ class PgnParserDefinition extends PgnGrammarDefinition {
 
   Parser variation() => super.variation().map((values) => values[1]);
 
-  Parser moveNumberWhite() => super.moveNumberWhite().map((values) => values[0]);
+  Parser moveNumberWhite() =>
+      super.moveNumberWhite().map((values) => values[0]);
 
-  Parser moveNumberBlack() => super.moveNumberBlack().map((values) => values[0]);
+  Parser moveNumberBlack() =>
+      super.moveNumberBlack().map((values) => values[0]);
 
   Parser stringP() => super.stringP().map((values) {
         return values[1].join().trim();
