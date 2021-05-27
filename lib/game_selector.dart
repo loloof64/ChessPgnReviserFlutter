@@ -56,6 +56,26 @@ class _GameSelectorState extends State<GameSelector> {
     Navigator.pop(context, widget.gameIndex);
   }
 
+  resetText() {
+    setState(() {});
+  }
+
+  tryNavigatingAt(String value) {
+    try {
+      final gameIndex = int.parse(value) - 1;
+      if (gameIndex < 0 || gameIndex > widget.games.length - 1) {
+        resetText();
+        return;
+      }
+      setState(() {
+        widget.gameIndex = gameIndex;
+      });
+    } catch (ex) {
+      resetText();
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
@@ -64,11 +84,34 @@ class _GameSelectorState extends State<GameSelector> {
     final navigationButtonsSize = size * 0.05;
     final validationButtonsFontSize = size * 0.08;
     final validationButtonsPadding = size * 0.016;
+    final navigationFontSize = size * 0.08;
+
+    TextEditingController textController =
+        TextEditingController(text: "${widget.gameIndex + 1}");
+
     return Scaffold(
         appBar: AppBar(title: Text('Game selector')),
         body: Center(
           child: Column(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: size * 0.16,
+                    child: TextField(
+                      controller: textController,
+                      onSubmitted: (value) => tryNavigatingAt(value),
+                      textAlign: TextAlign.end,
+                      style: TextStyle(fontSize: navigationFontSize),
+                    ),
+                  ),
+                  Text("/", style: TextStyle(fontSize: navigationFontSize)),
+                  Text("${widget.games.length}",
+                      style: TextStyle(fontSize: navigationFontSize))
+                ],
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
