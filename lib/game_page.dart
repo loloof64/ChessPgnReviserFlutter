@@ -12,6 +12,7 @@ import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:chess_pgn_reviser/pgn_parser.dart';
 import 'package:chess_pgn_reviser/game_selector.dart';
+import 'package:chess_pgn_reviser/chessboard_coordinates.dart';
 
 class GamePage extends StatefulWidget {
   GamePage({Key key}) : super(key: key);
@@ -194,12 +195,24 @@ class _GamePageState extends State<GamePage> {
     final promotionPieceSize = size / 7.0;
 
     var children = <Widget>[
-      board.Chessboard(
-          fen: _boardState.fen,
-          size: size,
-          onMove: (move) {
-            checkAndMakeMove(move);
-          })
+      Stack(
+        children: [
+          ChessBoardCoordinates(
+            size: size * 1.11,
+            reversed: false,
+            blackTurn: _boardState.turn == board_logic.Color.BLACK,
+          ),
+          Padding(
+            padding: EdgeInsets.all(size * 0.055),
+            child: board.Chessboard(
+                fen: _boardState.fen,
+                size: size,
+                onMove: (move) {
+                  checkAndMakeMove(move);
+                }),
+          )
+        ],
+      )
     ];
 
     if (_pendingPromotion) {

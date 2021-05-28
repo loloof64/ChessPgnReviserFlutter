@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart'
     as board;
 import 'package:chess/chess.dart' as board_logic;
+import 'package:chess_pgn_reviser/chessboard_coordinates.dart';
 
 class GameSelector extends StatefulWidget {
   final List<dynamic> games;
@@ -84,6 +85,11 @@ class _GameSelectorState extends State<GameSelector> {
     return "";
   }
 
+  bool isBlackTurn() {
+    final currentGame = widget.games[widget.gameIndex];
+    return currentGame["moves"]["pgn"][0]["turn"] == "b";
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
@@ -162,11 +168,24 @@ class _GameSelectorState extends State<GameSelector> {
                   )
                 ],
               ),
-              board.Chessboard(
-                size: size,
-                fen: fen,
-                orientation:
-                    widget.whiteTurn() ? board.Color.WHITE : board.Color.BLACK,
+              Stack(
+                children: [
+                  ChessBoardCoordinates(
+                    size: size * 1.11,
+                    reversed: isBlackTurn(),
+                    blackTurn: isBlackTurn(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(size * 0.055),
+                    child: board.Chessboard(
+                      size: size,
+                      fen: fen,
+                      orientation: widget.whiteTurn()
+                          ? board.Color.WHITE
+                          : board.Color.BLACK,
+                    ),
+                  )
+                ],
               ),
               Padding(
                 child: Text(
