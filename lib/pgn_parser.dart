@@ -239,9 +239,6 @@ class PgnParserDefinition extends PgnGrammarDefinition {
   Parser whiteSpace() => super.whiteSpace().map((values) => '');
 
   Parser halfMove() => super.halfMove().map((values) {
-        ///////////////////////////
-        print("halfMove => $values");
-        ///////////////////////////
         if (values[0] == 'O-O-O') {
           final check = values[1];
           return {

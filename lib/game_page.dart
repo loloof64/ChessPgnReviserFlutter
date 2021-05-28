@@ -190,7 +190,7 @@ class _GamePageState extends State<GamePage> {
 
   Widget mainZone(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
-    final size = min(viewport.height * 0.7, viewport.width);
+    final size = min(viewport.height * 0.6, viewport.width);
     final promotionPieceSize = size / 7.0;
 
     var children = <Widget>[

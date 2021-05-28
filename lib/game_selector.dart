@@ -76,6 +76,14 @@ class _GameSelectorState extends State<GameSelector> {
     }
   }
 
+  String getGameGoal() {
+    final goalString = widget.games[widget.gameIndex]["tags"]["Goal"] ?? "*";
+    if (goalString == "1-0") return "White should win";
+    if (goalString == "0-1") return "Black should win";
+    if (goalString.startsWith("1/2")) return "It should be draw";
+    return "";
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
@@ -159,6 +167,14 @@ class _GameSelectorState extends State<GameSelector> {
                 fen: fen,
                 orientation:
                     widget.whiteTurn() ? board.Color.WHITE : board.Color.BLACK,
+              ),
+              Padding(
+                child: Text(
+                  getGameGoal(),
+                  style: TextStyle(fontSize: navigationFontSize),
+                ),
+                padding:
+                    EdgeInsets.symmetric(vertical: validationButtonsPadding),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
