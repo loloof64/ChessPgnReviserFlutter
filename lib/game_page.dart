@@ -24,6 +24,7 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   var _boardState = board_logic.Chess();
   var _pendingPromotion = false;
+  var _boardReversed = false;
   board.ShortMove _pendingPromotionMove;
 
   loadPgn(BuildContext context) async {
@@ -71,6 +72,7 @@ class _GamePageState extends State<GamePage> {
 
       setState(() {
         _boardState = board_logic.Chess.fromFEN(fen);
+        _boardReversed = game["moves"]["pgn"][0]["turn"] == "b";
       });
     } catch (ex, stacktrace) {
       Completer().completeError(ex, stacktrace);
@@ -199,17 +201,20 @@ class _GamePageState extends State<GamePage> {
         children: [
           ChessBoardCoordinates(
             size: size * 1.11,
-            reversed: false,
+            reversed: _boardReversed,
             blackTurn: _boardState.turn == board_logic.Color.BLACK,
           ),
           Padding(
             padding: EdgeInsets.all(size * 0.055),
             child: board.Chessboard(
-                fen: _boardState.fen,
-                size: size,
-                onMove: (move) {
-                  checkAndMakeMove(move);
-                }),
+              fen: _boardState.fen,
+              size: size,
+              onMove: (move) {
+                checkAndMakeMove(move);
+              },
+              orientation:
+                  _boardReversed ? board.Color.BLACK : board.Color.WHITE,
+            ),
           )
         ],
       )
