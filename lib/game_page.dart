@@ -33,6 +33,10 @@ class _GamePageState extends State<GamePage> {
   var _lastMoveEndFile = -10;
   var _lastMoveEndRank = -10;
 
+  _GamePageState() {
+    Future.delayed(Duration(milliseconds: 200), () => blinkLastMoveArrowOut());
+  }
+
   loadPgn(BuildContext context) async {
     final XTypeGroup pgnTypeGroup = XTypeGroup(
       label: 'pgn file',
@@ -79,7 +83,6 @@ class _GamePageState extends State<GamePage> {
       setState(() {
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = game["moves"]["pgn"][0]["turn"] == "b";
-        _lastMoveVisible = false;
       });
     } catch (ex, stacktrace) {
       Completer().completeError(ex, stacktrace);
@@ -137,7 +140,6 @@ class _GamePageState extends State<GamePage> {
       } else {
         _boardState.move({'from': move.from, 'to': move.to});
         setState(() {
-          _lastMoveVisible = true;
           _lastMoveStartFile = move.from.codeUnitAt(0) - 'a'.codeUnitAt(0);
           _lastMoveStartRank = move.from.codeUnitAt(1) - '1'.codeUnitAt(0);
           _lastMoveEndFile = move.to.codeUnitAt(0) - 'a'.codeUnitAt(0);
@@ -162,7 +164,6 @@ class _GamePageState extends State<GamePage> {
       'promotion': type
     });
     setState(() {
-      _lastMoveVisible = true;
       _lastMoveStartFile =
           _pendingPromotionMove.from.codeUnitAt(0) - 'a'.codeUnitAt(0);
       _lastMoveStartRank =
@@ -174,6 +175,22 @@ class _GamePageState extends State<GamePage> {
     });
     cancelPendingPromotion();
     notifyGameFinishedIfNecessary();
+  }
+
+  blinkLastMoveArrowIn() async {
+    setState(() {
+      _lastMoveVisible = true;
+    });
+
+    Future.delayed(Duration(milliseconds: 600), () => blinkLastMoveArrowOut());
+  }
+
+  blinkLastMoveArrowOut() async {
+    setState(() {
+      _lastMoveVisible = false;
+    });
+
+    Future.delayed(Duration(milliseconds: 1100), () => blinkLastMoveArrowIn());
   }
 
   Widget headerBar(BuildContext context) {
