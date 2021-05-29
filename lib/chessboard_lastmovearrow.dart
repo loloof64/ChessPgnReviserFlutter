@@ -50,7 +50,7 @@ class ChessBoardLastMoveArrowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final minSize = size.width < size.height ? size.width : size.height;
-    final cellSize = minSize * 0.11525;
+    final cellSize = minSize * 0.11;
 
     final paint = Paint()
       ..color = Colors.blueAccent.shade400

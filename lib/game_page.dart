@@ -32,10 +32,7 @@ class _GamePageState extends State<GamePage> {
   var _lastMoveStartRank = -10;
   var _lastMoveEndFile = -10;
   var _lastMoveEndRank = -10;
-
-  _GamePageState() {
-    Future.delayed(Duration(milliseconds: 200), () => blinkLastMoveArrowOut());
-  }
+  var _lastMoveArrowBlinkingStarted = false;
 
   loadPgn(BuildContext context) async {
     final XTypeGroup pgnTypeGroup = XTypeGroup(
@@ -145,6 +142,12 @@ class _GamePageState extends State<GamePage> {
           _lastMoveEndFile = move.to.codeUnitAt(0) - 'a'.codeUnitAt(0);
           _lastMoveEndRank = move.to.codeUnitAt(1) - '1'.codeUnitAt(0);
         });
+        if (!_lastMoveArrowBlinkingStarted) {
+          blinkLastMoveArrowIn();
+          setState(() {
+            _lastMoveArrowBlinkingStarted = false;
+          });
+        }
         notifyGameFinishedIfNecessary();
       }
     }
@@ -173,6 +176,12 @@ class _GamePageState extends State<GamePage> {
       _lastMoveEndRank =
           _pendingPromotionMove.to.codeUnitAt(1) - '1'.codeUnitAt(0);
     });
+    if (!_lastMoveArrowBlinkingStarted) {
+      blinkLastMoveArrowIn();
+      setState(() {
+        _lastMoveArrowBlinkingStarted = false;
+      });
+    }
     cancelPendingPromotion();
     notifyGameFinishedIfNecessary();
   }
@@ -182,7 +191,7 @@ class _GamePageState extends State<GamePage> {
       _lastMoveVisible = true;
     });
 
-    Future.delayed(Duration(milliseconds: 600), () => blinkLastMoveArrowOut());
+    Future.delayed(Duration(milliseconds: 700), () => blinkLastMoveArrowOut());
   }
 
   blinkLastMoveArrowOut() async {
