@@ -1,10 +1,8 @@
 // @dart=2.9
-import 'dart:math';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
-import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
@@ -163,7 +161,6 @@ class _GamePageState extends State<GamePage> {
       'to': _pendingPromotionMove.end.toAlgebraic(),
       'promotion': type
     });
-    cancelPendingPromotion();
     setState(() {
       _lastMoveVisible = true;
       _lastMoveStartFile = _pendingPromotionMove.start.file;
@@ -171,6 +168,7 @@ class _GamePageState extends State<GamePage> {
       _lastMoveEndFile = _pendingPromotionMove.end.file;
       _lastMoveEndRank = _pendingPromotionMove.end.rank;
     });
+    cancelPendingPromotion();
     notifyGameFinishedIfNecessary();
   }
 
@@ -235,144 +233,11 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  Widget mainZone(BuildContext context) {
-    final viewport = MediaQuery.of(context).size;
-    final size = min(viewport.height * 0.6, viewport.width);
-    final promotionPieceSize = size / 7.0;
-
-    var children = <Widget>[
-      board.ChessBoard(
-        fen: _boardState.fen,
-        size: size,
-        userCanMovePieces: true,
-        onDragMove: (startCell, endCell) {
-          checkAndMakeMove(startCell, endCell);
-        },
-        blackAtBottom: _boardReversed,
-        lastMoveVisible: _lastMoveVisible,
-        lastMoveStartFile: _lastMoveStartFile,
-        lastMoveStartRank: _lastMoveStartRank,
-        lastMoveEndFile: _lastMoveEndFile,
-        lastMoveEndRank: _lastMoveEndRank,
-      ),
-    ];
-
-    if (_pendingPromotion) {
-      List<Widget> promotionButtons;
-      if (_boardState.turn == board_logic.Color.WHITE) {
-        promotionButtons = <Widget>[
-          TextButton.icon(
-            label: Text(''),
-            icon: WhiteQueen(
-              size: promotionPieceSize,
-            ),
-            onPressed: () {
-              commitPromotionMove('q');
-            },
-          ),
-          TextButton.icon(
-            label: Text(''),
-            icon: WhiteRook(
-              size: promotionPieceSize,
-            ),
-            onPressed: () {
-              commitPromotionMove('r');
-            },
-          ),
-          TextButton.icon(
-            label: Text(''),
-            icon: WhiteBishop(
-              size: promotionPieceSize,
-            ),
-            onPressed: () {
-              commitPromotionMove('b');
-            },
-          ),
-          TextButton.icon(
-            label: Text(''),
-            icon: WhiteKnight(
-              size: promotionPieceSize,
-            ),
-            onPressed: () {
-              commitPromotionMove('n');
-            },
-          ),
-        ];
-      } else {
-        promotionButtons = <Widget>[
-          TextButton.icon(
-            label: Text(''),
-            icon: BlackQueen(
-              size: promotionPieceSize,
-            ),
-            onPressed: () {
-              commitPromotionMove('q');
-            },
-          ),
-          TextButton.icon(
-            label: Text(''),
-            icon: BlackRook(
-              size: promotionPieceSize,
-            ),
-            onPressed: () {
-              commitPromotionMove('r');
-            },
-          ),
-          TextButton.icon(
-            label: Text(''),
-            icon: BlackBishop(
-              size: promotionPieceSize,
-            ),
-            onPressed: () {
-              commitPromotionMove('b');
-            },
-          ),
-          TextButton.icon(
-            label: Text(''),
-            icon: BlackKnight(
-              size: promotionPieceSize,
-            ),
-            onPressed: () {
-              commitPromotionMove('n');
-            },
-          ),
-        ];
-      }
-      children.insert(
-          1,
-          Opacity(
-            opacity: 0.3,
-            child: Container(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  ...promotionButtons,
-                  TextButton.icon(
-                    label: Text(''),
-                    icon: Image(
-                      image: AssetImage('images/red_cross.png'),
-                      width: promotionPieceSize,
-                      height: promotionPieceSize,
-                    ),
-                    onPressed: () {
-                      cancelPendingPromotion();
-                    },
-                  ),
-                ],
-              ),
-              width: size,
-              height: size,
-              color: Colors.blue[600],
-            ),
-          ));
-    }
-
-    return Stack(children: children);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final viewport = MediaQuery.of(context).size;
+    final minSize =
+        viewport.width < viewport.height ? viewport.width : viewport.height;
     return Scaffold(
       appBar: AppBar(
         title: Text("Game page"),
@@ -381,7 +246,23 @@ class _GamePageState extends State<GamePage> {
           child: Column(
         children: [
           headerBar(context),
-          mainZone(context),
+          board.ChessBoard(
+            fen: _boardState.fen,
+            size: minSize * 0.7,
+            userCanMovePieces: true,
+            onDragMove: (startCell, endCell) {
+              checkAndMakeMove(startCell, endCell);
+            },
+            blackAtBottom: _boardReversed,
+            lastMoveVisible: _lastMoveVisible,
+            lastMoveStartFile: _lastMoveStartFile,
+            lastMoveStartRank: _lastMoveStartRank,
+            lastMoveEndFile: _lastMoveEndFile,
+            lastMoveEndRank: _lastMoveEndRank,
+            pendingPromotion: _pendingPromotion,
+            commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
+            cancelPendingPromotion: () => cancelPendingPromotion(),
+          ),
         ],
       )),
     );

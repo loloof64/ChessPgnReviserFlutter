@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:chess_pgn_reviser/chessboard/chessboard_wrapper.dart';
 import 'package:chess_pgn_reviser/chessboard/chessboard_mainzone.dart';
+import 'package:chess_pgn_reviser/chessboard/chessboard_promotionzone_white.dart';
+import 'package:chess_pgn_reviser/chessboard/chessboard_promotionzone_black.dart';
 
 class ChessBoard extends StatelessWidget {
   final double size;
@@ -17,7 +19,12 @@ class ChessBoard extends StatelessWidget {
 
   final bool userCanMovePieces;
 
+  final bool pendingPromotion;
+
   final Function(String startCell, String endCell) onDragMove;
+
+  final void Function() cancelPendingPromotion;
+  final void Function(String pieceType) commitPromotionMove;
 
   ChessBoard(
       {@required this.size,
@@ -29,13 +36,39 @@ class ChessBoard extends StatelessWidget {
       this.lastMoveEndFile,
       this.lastMoveEndRank,
       this.onDragMove,
-      this.userCanMovePieces});
+      this.userCanMovePieces,
+      this.pendingPromotion,
+      this.cancelPendingPromotion,
+      this.commitPromotionMove});
 
   @override
   Widget build(BuildContext context) {
     final mainZoneSize = size * 0.88;
     final mainZonePadding = size * 0.06;
     final blackTurn = fen.split(" ")[1] == 'b';
+
+    var stackChildren = <Widget>[
+      ChessBoardMainZone(
+        fen: fen,
+        size: mainZoneSize,
+        blackAtBottom: blackAtBottom,
+        onMove: onDragMove,
+        userCanMovePieces: userCanMovePieces,
+      )
+    ];
+
+    if (pendingPromotion) {
+      final blackTurn = fen.split(' ')[1] == 'b';
+      stackChildren.add(blackTurn
+          ? ChessBoardPromotionZoneBlack(
+              size: size,
+              cancelPendingPromotion: cancelPendingPromotion,
+              commitPromotionMove: commitPromotionMove)
+          : ChessBoardPromotionZoneWhite(
+              size: size,
+              cancelPendingPromotion: cancelPendingPromotion,
+              commitPromotionMove: commitPromotionMove));
+    }
 
     return Container(
       width: size,
@@ -54,12 +87,8 @@ class ChessBoard extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.all(mainZonePadding),
-            child: ChessBoardMainZone(
-              fen: fen,
-              size: mainZoneSize,
-              blackAtBottom: blackAtBottom,
-              onMove: onDragMove,
-              userCanMovePieces: userCanMovePieces,
+            child: Stack(
+              children: stackChildren,
             ),
           )
         ],
