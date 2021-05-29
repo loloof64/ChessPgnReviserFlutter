@@ -10,6 +10,7 @@ class ChessBoardMainZone extends StatefulWidget {
   final String fen;
   final double size;
   final bool blackAtBottom;
+  final bool userCanMovePieces;
   final void Function(String startCell, String endCell) onMove;
 
   ChessBoardMainZone({
@@ -17,6 +18,7 @@ class ChessBoardMainZone extends StatefulWidget {
     @required this.size,
     this.blackAtBottom,
     this.onMove,
+    this.userCanMovePieces,
   });
 
   _ChessBoardMainZoneState createState() => _ChessBoardMainZoneState();
@@ -66,7 +68,10 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
               color: color,
               pieceType: pieces[rank][file],
               squareName: squareName,
+              userCanMovePieces: widget.userCanMovePieces,
               onDrop: (startCell, endCell) {
+                if (widget.userCanMovePieces == null ||
+                    !widget.userCanMovePieces) return;
                 setState(() {
                   _hoveredCell = null;
                   _startCell = null;
@@ -79,16 +84,22 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
                 }
               },
               onHover: (squareName) {
+                if (widget.userCanMovePieces == null ||
+                    !widget.userCanMovePieces) return;
                 setState(() {
                   _hoveredCell = Cell.fromAlgebraic(squareName);
                 });
               },
               onLeave: () {
+                if (widget.userCanMovePieces == null ||
+                    !widget.userCanMovePieces) return;
                 setState(() {
                   _hoveredCell = null;
                 });
               },
               onStartDrag: (squareName) {
+                if (widget.userCanMovePieces == null ||
+                    !widget.userCanMovePieces) return;
                 setState(() {
                   _startCell = Cell.fromAlgebraic(squareName);
                 });

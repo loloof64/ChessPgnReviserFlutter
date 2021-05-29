@@ -244,6 +244,7 @@ class _GamePageState extends State<GamePage> {
       board.ChessBoard(
         fen: _boardState.fen,
         size: size,
+        userCanMovePieces: true,
         onDragMove: (startCell, endCell) {
           checkAndMakeMove(startCell, endCell);
         },

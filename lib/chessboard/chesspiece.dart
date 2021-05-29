@@ -8,29 +8,33 @@ class ChessPiece extends StatelessWidget {
   final String type;
   final double size;
   final String cellName;
+  final bool userCanMovePieces;
   final Function(String startCell) onStartDrag;
 
   ChessPiece(
       {@required this.type,
       @required this.size,
       @required this.cellName,
+      this.userCanMovePieces,
       this.onStartDrag});
 
   @override
   Widget build(BuildContext context) {
     final pieceWidget = _buildPiece();
 
-    return Draggable<DragAndDropData>(
-      data: DragAndDropData(cellName, type),
-      child: pieceWidget,
-      feedback: pieceWidget,
-      childWhenDragging: ChessSquare(
-        size: size,
-      ),
-      onDragStarted: () {
-        if (onStartDrag != null) onStartDrag(cellName);
-      },
-    );
+    return (userCanMovePieces != null && userCanMovePieces == true)
+        ? Draggable<DragAndDropData>(
+            data: DragAndDropData(cellName, type),
+            child: pieceWidget,
+            feedback: pieceWidget,
+            childWhenDragging: ChessSquare(
+              size: size,
+            ),
+            onDragStarted: () {
+              if (onStartDrag != null) onStartDrag(cellName);
+            },
+          )
+        : pieceWidget;
   }
 
   Widget _buildPiece() {

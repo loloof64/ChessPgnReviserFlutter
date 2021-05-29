@@ -15,6 +15,8 @@ class ChessBoard extends StatelessWidget {
   final int lastMoveEndFile;
   final int lastMoveEndRank;
 
+  final bool userCanMovePieces;
+
   final Function(String startCell, String endCell) onDragMove;
 
   ChessBoard(
@@ -26,7 +28,8 @@ class ChessBoard extends StatelessWidget {
       this.lastMoveStartRank,
       this.lastMoveEndFile,
       this.lastMoveEndRank,
-      this.onDragMove});
+      this.onDragMove,
+      this.userCanMovePieces});
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +59,7 @@ class ChessBoard extends StatelessWidget {
               size: mainZoneSize,
               blackAtBottom: blackAtBottom,
               onMove: onDragMove,
+              userCanMovePieces: userCanMovePieces,
             ),
           )
         ],

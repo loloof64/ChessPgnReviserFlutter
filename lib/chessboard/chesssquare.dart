@@ -9,6 +9,7 @@ class ChessSquare extends StatelessWidget {
   final Color color;
   final String pieceType;
   final String squareName;
+  final bool userCanMovePieces;
   final void Function(String startCell, String endCell) onDrop;
   final void Function(String hoveredCell) onHover;
   final void Function() onLeave;
@@ -23,6 +24,7 @@ class ChessSquare extends StatelessWidget {
     this.onHover,
     this.onLeave,
     this.onStartDrag,
+    this.userCanMovePieces,
   });
 
   @override
@@ -55,6 +57,7 @@ class ChessSquare extends StatelessWidget {
                   type: pieceType,
                   cellName: squareName,
                   onStartDrag: onStartDrag,
+                  userCanMovePieces: userCanMovePieces,
                 )
               : Container(width: 0.0, height: 0.0),
         );
