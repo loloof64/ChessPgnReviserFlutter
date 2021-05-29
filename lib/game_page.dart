@@ -13,6 +13,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:chess_pgn_reviser/pgn_parser.dart';
 import 'package:chess_pgn_reviser/game_selector.dart';
 import 'package:chess_pgn_reviser/chessboard_coordinates.dart';
+import 'package:chess_pgn_reviser/chessboard_lastmovearrow.dart';
 
 class GamePage extends StatefulWidget {
   GamePage({Key key}) : super(key: key);
@@ -26,6 +27,11 @@ class _GamePageState extends State<GamePage> {
   var _pendingPromotion = false;
   var _boardReversed = false;
   board.ShortMove _pendingPromotionMove;
+  var _lastMoveVisible = false;
+  var _lastMoveStartFile = -10;
+  var _lastMoveStartRank = -10;
+  var _lastMoveEndFile = -10;
+  var _lastMoveEndRank = -10;
 
   loadPgn(BuildContext context) async {
     final XTypeGroup pgnTypeGroup = XTypeGroup(
@@ -73,6 +79,7 @@ class _GamePageState extends State<GamePage> {
       setState(() {
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = game["moves"]["pgn"][0]["turn"] == "b";
+        _lastMoveVisible = false;
       });
     } catch (ex, stacktrace) {
       Completer().completeError(ex, stacktrace);
@@ -130,8 +137,11 @@ class _GamePageState extends State<GamePage> {
       } else {
         _boardState.move({'from': move.from, 'to': move.to});
         setState(() {
-          // We need to notify that state has been updated.
-          // Nothing to add here.
+          _lastMoveVisible = true;
+          _lastMoveStartFile = move.from.codeUnitAt(0) - 'a'.codeUnitAt(0);
+          _lastMoveStartRank = move.from.codeUnitAt(1) - '1'.codeUnitAt(0);
+          _lastMoveEndFile = move.to.codeUnitAt(0) - 'a'.codeUnitAt(0);
+          _lastMoveEndRank = move.to.codeUnitAt(1) - '1'.codeUnitAt(0);
         });
         notifyGameFinishedIfNecessary();
       }
@@ -152,8 +162,15 @@ class _GamePageState extends State<GamePage> {
       'promotion': type
     });
     setState(() {
-      // We need to notify that state has been updated.
-      // Nothing to add here.
+      _lastMoveVisible = true;
+      _lastMoveStartFile =
+          _pendingPromotionMove.from.codeUnitAt(0) - 'a'.codeUnitAt(0);
+      _lastMoveStartRank =
+          _pendingPromotionMove.from.codeUnitAt(1) - '1'.codeUnitAt(0);
+      _lastMoveEndFile =
+          _pendingPromotionMove.to.codeUnitAt(0) - 'a'.codeUnitAt(0);
+      _lastMoveEndRank =
+          _pendingPromotionMove.to.codeUnitAt(1) - '1'.codeUnitAt(0);
     });
     cancelPendingPromotion();
     notifyGameFinishedIfNecessary();
@@ -196,6 +213,29 @@ class _GamePageState extends State<GamePage> {
     final size = min(viewport.height * 0.6, viewport.width);
     final promotionPieceSize = size / 7.0;
 
+    var mainZoneChildren = <Widget>[
+      board.Chessboard(
+        fen: _boardState.fen,
+        size: size,
+        onMove: (move) {
+          checkAndMakeMove(move);
+        },
+        orientation: _boardReversed ? board.Color.BLACK : board.Color.WHITE,
+      ),
+    ];
+
+    if (_lastMoveVisible) {
+      mainZoneChildren.add(ChessBoardLastMoveArrow(
+        size: size,
+        visible: _lastMoveVisible,
+        reversed: _boardReversed,
+        startFile: _lastMoveStartFile,
+        startRank: _lastMoveStartRank,
+        endFile: _lastMoveEndFile,
+        endRank: _lastMoveEndRank,
+      ));
+    }
+
     var children = <Widget>[
       Stack(
         children: [
@@ -205,17 +245,8 @@ class _GamePageState extends State<GamePage> {
             blackTurn: _boardState.turn == board_logic.Color.BLACK,
           ),
           Padding(
-            padding: EdgeInsets.all(size * 0.055),
-            child: board.Chessboard(
-              fen: _boardState.fen,
-              size: size,
-              onMove: (move) {
-                checkAndMakeMove(move);
-              },
-              orientation:
-                  _boardReversed ? board.Color.BLACK : board.Color.WHITE,
-            ),
-          )
+              padding: EdgeInsets.all(size * 0.055),
+              child: Stack(children: mainZoneChildren)),
         ],
       )
     ];
