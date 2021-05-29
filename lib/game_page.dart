@@ -78,6 +78,12 @@ class _GamePageState extends State<GamePage> {
       final fen = (game["tags"] ?? {})["FEN"] ?? board_logic.Chess().fen;
 
       setState(() {
+        _lastMoveArrowBlinkingStarted = false;
+        _lastMoveVisible = false;
+        _lastMoveStartFile = -10;
+        _lastMoveStartRank = -10;
+        _lastMoveEndFile = -10;
+        _lastMoveEndRank = -10;
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = game["moves"]["pgn"][0]["turn"] == "b";
       });
@@ -143,10 +149,10 @@ class _GamePageState extends State<GamePage> {
           _lastMoveEndRank = move.to.codeUnitAt(1) - '1'.codeUnitAt(0);
         });
         if (!_lastMoveArrowBlinkingStarted) {
-          blinkLastMoveArrowIn();
           setState(() {
-            _lastMoveArrowBlinkingStarted = false;
+            _lastMoveArrowBlinkingStarted = true;
           });
+          blinkLastMoveArrowIn();
         }
         notifyGameFinishedIfNecessary();
       }
@@ -177,16 +183,17 @@ class _GamePageState extends State<GamePage> {
           _pendingPromotionMove.to.codeUnitAt(1) - '1'.codeUnitAt(0);
     });
     if (!_lastMoveArrowBlinkingStarted) {
-      blinkLastMoveArrowIn();
       setState(() {
-        _lastMoveArrowBlinkingStarted = false;
+        _lastMoveArrowBlinkingStarted = true;
       });
+      blinkLastMoveArrowIn();
     }
     cancelPendingPromotion();
     notifyGameFinishedIfNecessary();
   }
 
   blinkLastMoveArrowIn() async {
+    if (!_lastMoveArrowBlinkingStarted) return;
     setState(() {
       _lastMoveVisible = true;
     });
@@ -195,6 +202,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   blinkLastMoveArrowOut() async {
+    if (!_lastMoveArrowBlinkingStarted) return;
     setState(() {
       _lastMoveVisible = false;
     });
