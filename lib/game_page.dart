@@ -10,9 +10,8 @@ import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:chess_pgn_reviser/pgn_parser.dart';
 import 'package:chess_pgn_reviser/game_selector.dart';
-import 'package:chess_pgn_reviser/chessboard.dart' as board;
-import 'package:chess_pgn_reviser/chessboard_coordinates.dart';
-import 'package:chess_pgn_reviser/chessboard_types.dart';
+import 'package:chess_pgn_reviser/chessboard/chessboard.dart' as board;
+import 'package:chess_pgn_reviser/chessboard/chessboard_types.dart';
 
 class GamePage extends StatefulWidget {
   GamePage({Key key}) : super(key: key);
@@ -242,29 +241,19 @@ class _GamePageState extends State<GamePage> {
     final promotionPieceSize = size / 7.0;
 
     var children = <Widget>[
-      Stack(
-        children: [
-          ChessBoardCoordinates(
-            size: size * 1.11,
-            reversed: _boardReversed,
-            blackTurn: _boardState.turn == board_logic.Color.BLACK,
-            lastMoveVisible: _lastMoveVisible,
-            lastMoveStartFile: _lastMoveStartFile,
-            lastMoveStartRank: _lastMoveStartRank,
-            lastMoveEndFile: _lastMoveEndFile,
-            lastMoveEndRank: _lastMoveEndRank,
-          ),
-          Padding(
-              padding: EdgeInsets.all(size * 0.055),
-              child: board.ChessBoard(
-                  fen: _boardState.fen,
-                  size: size,
-                  onMove: (startCell, endCell) {
-                    checkAndMakeMove(startCell, endCell);
-                  },
-                  blackAtBottom: _boardReversed)),
-        ],
-      )
+      board.ChessBoard(
+        fen: _boardState.fen,
+        size: size,
+        onDragMove: (startCell, endCell) {
+          checkAndMakeMove(startCell, endCell);
+        },
+        blackAtBottom: _boardReversed,
+        lastMoveVisible: _lastMoveVisible,
+        lastMoveStartFile: _lastMoveStartFile,
+        lastMoveStartRank: _lastMoveStartRank,
+        lastMoveEndFile: _lastMoveEndFile,
+        lastMoveEndRank: _lastMoveEndRank,
+      ),
     ];
 
     if (_pendingPromotion) {

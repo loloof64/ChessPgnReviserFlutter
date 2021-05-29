@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 final zeroToSeven = List.generate(8, (index) => index);
 
-class ChessBoardCoordinates extends StatelessWidget {
+class ChessBoardWrapper extends StatelessWidget {
   final double size;
   final bool reversed;
   final bool blackTurn;
@@ -17,7 +17,7 @@ class ChessBoardCoordinates extends StatelessWidget {
   final int lastMoveEndFile;
   final int lastMoveEndRank;
 
-  ChessBoardCoordinates(
+  ChessBoardWrapper(
       {@required this.size,
       this.reversed,
       this.blackTurn,
@@ -31,7 +31,7 @@ class ChessBoardCoordinates extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       size: Size.square(size),
-      painter: ChessBoardCoordinatesPainter(
+      painter: ChessBoardWrapperPainter(
           reversed,
           size,
           blackTurn,
@@ -44,7 +44,7 @@ class ChessBoardCoordinates extends StatelessWidget {
   }
 }
 
-class ChessBoardCoordinatesPainter extends CustomPainter {
+class ChessBoardWrapperPainter extends CustomPainter {
   final bool reversed;
   final double size;
   final bool blackTurn;
@@ -55,7 +55,7 @@ class ChessBoardCoordinatesPainter extends CustomPainter {
   final int lastMoveEndFile;
   final int lastMoveEndRank;
 
-  ChessBoardCoordinatesPainter(
+  ChessBoardWrapperPainter(
       this.reversed,
       this.size,
       this.blackTurn,
@@ -140,7 +140,7 @@ class ChessBoardCoordinatesPainter extends CustomPainter {
 
     final circlePaint = Paint()
       ..style = PaintingStyle.fill
-      ..color = blackTurn ? Colors.black : Colors.white;
+      ..color = blackTurn != null && blackTurn ? Colors.black : Colors.white;
     canvas.drawCircle(
         Offset(cellSize * 8.68, cellSize * 8.68), cellSize * 0.24, circlePaint);
   }
@@ -184,8 +184,8 @@ class ChessBoardCoordinatesPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    if (!(oldDelegate is ChessBoardCoordinatesPainter)) return false;
-    final castedDelegate = oldDelegate as ChessBoardCoordinatesPainter;
+    if (!(oldDelegate is ChessBoardWrapperPainter)) return false;
+    final castedDelegate = oldDelegate as ChessBoardWrapperPainter;
     return reversed != castedDelegate.reversed ||
         size != castedDelegate.size ||
         blackTurn != castedDelegate.blackTurn ||

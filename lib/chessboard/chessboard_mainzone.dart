@@ -1,30 +1,28 @@
 // @dart=2.9
 
-import 'package:chess_pgn_reviser/chesssquare.dart';
+import 'package:chess_pgn_reviser/chessboard/chesssquare.dart';
 import 'package:flutter/material.dart';
-import 'package:chess_pgn_reviser/chessboard_types.dart';
+import 'package:chess_pgn_reviser/chessboard/chessboard_types.dart';
 
 final zeroToSeven = List.generate(8, (index) => index);
 
-class ChessBoard extends StatefulWidget {
+class ChessBoardMainZone extends StatefulWidget {
   final String fen;
   final double size;
   final bool blackAtBottom;
   final void Function(String startCell, String endCell) onMove;
-  final void Function() onLeave;
 
-  ChessBoard({
+  ChessBoardMainZone({
     @required this.fen,
     @required this.size,
     this.blackAtBottom,
     this.onMove,
-    this.onLeave,
   });
 
-  _ChessBoardState createState() => _ChessBoardState();
+  _ChessBoardMainZoneState createState() => _ChessBoardMainZoneState();
 }
 
-class _ChessBoardState extends State<ChessBoard> {
+class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
   Cell _hoveredCell;
   Cell _startCell;
 
