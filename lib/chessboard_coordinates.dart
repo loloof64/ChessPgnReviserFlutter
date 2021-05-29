@@ -150,7 +150,7 @@ class ChessBoardCoordinatesPainter extends CustomPainter {
     final cellSize = cellSizeFrom(size);
 
     final paint = Paint()
-      ..color = Colors.blue[900]
+      ..color = Colors.black
       ..strokeWidth = cellSize * 0.1;
 
     final realOriginCol = reversed ? 7 - lastMoveStartFile : lastMoveStartFile;
