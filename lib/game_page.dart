@@ -229,6 +229,19 @@ class _GamePageState extends State<GamePage> {
               startNewGame(context);
             },
           ),
+          TextButton.icon(
+            label: Text(''),
+            icon: Image(
+              image: AssetImage('images/reverse_arrows.png'),
+              width: commonHeight,
+              height: commonHeight,
+            ),
+            onPressed: () {
+              setState(() {
+                _boardReversed = !_boardReversed;
+              });
+            },
+          ),
         ],
       ),
     );
