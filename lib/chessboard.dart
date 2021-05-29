@@ -32,12 +32,12 @@ class _ChessBoardState extends State<ChessBoard> {
   Widget build(BuildContext context) {
     final cellSize = widget.size / 8.0;
 
-    final whiteCellColor = Color(0xffffce9e);
-    final blackCellColor = Color(0xffd18b47);
+    final whiteCellColor = Color(0x93ffce9e);
+    final blackCellColor = Color(0x93d18b47);
 
-    final startCellColor = Color(0xffd63b60);
-    final targetCellColor = Color(0xff70d123);
-    final dndCrossCellColor = Color(0xffb22ee6);
+    final startCellColor = Color(0x93d63b60);
+    final targetCellColor = Color(0x9370d123);
+    final dndCrossCellColor = Color(0x93b22ee6);
 
     var pieces = getPieces();
 

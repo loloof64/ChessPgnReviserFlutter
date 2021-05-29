@@ -26,6 +26,11 @@ class _GamePageState extends State<GamePage> {
   var _pendingPromotion = false;
   Move _pendingPromotionMove;
   var _boardReversed = false;
+  var _lastMoveVisible = false;
+  var _lastMoveStartFile = -10;
+  var _lastMoveStartRank = -10;
+  var _lastMoveEndFile = -10;
+  var _lastMoveEndRank = -10;
 
   loadPgn(BuildContext context) async {
     final XTypeGroup pgnTypeGroup = XTypeGroup(
@@ -74,6 +79,7 @@ class _GamePageState extends State<GamePage> {
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = game["moves"]["pgn"][0]["turn"] == "b";
       });
+      clearLastMoveArrow();
     } catch (ex, stacktrace) {
       Completer().completeError(ex, stacktrace);
       Toast.show("Failed to read pgn content, cancelled new game !", context,
@@ -131,8 +137,14 @@ class _GamePageState extends State<GamePage> {
         });
       } else {
         _boardState.move({'from': startCellStr, 'to': endCellStr});
+        final startCell = Cell.fromAlgebraic(startCellStr);
+        final endCell = Cell.fromAlgebraic(endCellStr);
         setState(() {
-          // Just in order to update UI.
+          _lastMoveVisible = true;
+          _lastMoveStartFile = startCell.file;
+          _lastMoveStartRank = startCell.rank;
+          _lastMoveEndFile = endCell.file;
+          _lastMoveEndRank = endCell.rank;
         });
         notifyGameFinishedIfNecessary();
       }
@@ -153,7 +165,24 @@ class _GamePageState extends State<GamePage> {
       'promotion': type
     });
     cancelPendingPromotion();
+    setState(() {
+      _lastMoveVisible = true;
+      _lastMoveStartFile = _pendingPromotionMove.start.file;
+      _lastMoveStartRank = _pendingPromotionMove.start.rank;
+      _lastMoveEndFile = _pendingPromotionMove.end.file;
+      _lastMoveEndRank = _pendingPromotionMove.end.rank;
+    });
     notifyGameFinishedIfNecessary();
+  }
+
+  clearLastMoveArrow() {
+    setState(() {
+      _lastMoveVisible = false;
+      _lastMoveStartFile = -10;
+      _lastMoveStartRank = -10;
+      _lastMoveEndFile = -10;
+      _lastMoveEndRank = -10;
+    });
   }
 
   Widget headerBar(BuildContext context) {
@@ -219,6 +248,11 @@ class _GamePageState extends State<GamePage> {
             size: size * 1.11,
             reversed: _boardReversed,
             blackTurn: _boardState.turn == board_logic.Color.BLACK,
+            lastMoveVisible: _lastMoveVisible,
+            lastMoveStartFile: _lastMoveStartFile,
+            lastMoveStartRank: _lastMoveStartRank,
+            lastMoveEndFile: _lastMoveEndFile,
+            lastMoveEndRank: _lastMoveEndRank,
           ),
           Padding(
               padding: EdgeInsets.all(size * 0.055),
