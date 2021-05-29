@@ -8,9 +8,13 @@ class ChessPiece extends StatelessWidget {
   final String type;
   final double size;
   final String cellName;
+  final Function(String startCell) onStartDrag;
 
   ChessPiece(
-      {@required this.type, @required this.size, @required this.cellName});
+      {@required this.type,
+      @required this.size,
+      @required this.cellName,
+      this.onStartDrag});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +27,9 @@ class ChessPiece extends StatelessWidget {
       childWhenDragging: ChessSquare(
         size: size,
       ),
+      onDragStarted: () {
+        if (onStartDrag != null) onStartDrag(cellName);
+      },
     );
   }
 

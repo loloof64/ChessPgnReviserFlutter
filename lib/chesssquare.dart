@@ -10,6 +10,9 @@ class ChessSquare extends StatelessWidget {
   final String pieceType;
   final String squareName;
   final void Function(String startCell, String endCell) onDrop;
+  final void Function(String hoveredCell) onHover;
+  final void Function() onLeave;
+  final Function(String startCell) onStartDrag;
 
   ChessSquare({
     @required this.size,
@@ -17,6 +20,9 @@ class ChessSquare extends StatelessWidget {
     this.pieceType,
     this.squareName,
     this.onDrop,
+    this.onHover,
+    this.onLeave,
+    this.onStartDrag,
   });
 
   @override
@@ -30,6 +36,14 @@ class ChessSquare extends StatelessWidget {
           onDrop(data.startCellName, squareName);
         }
       },
+      onMove: (data) {
+        if (onHover != null) {
+          onHover(squareName);
+        }
+      },
+      onLeave: (target) {
+        if (onLeave != null) onLeave();
+      },
       builder: (context, candidateData, rejectedData) {
         return Container(
           width: size,
@@ -40,6 +54,7 @@ class ChessSquare extends StatelessWidget {
                   size: size,
                   type: pieceType,
                   cellName: squareName,
+                  onStartDrag: onStartDrag,
                 )
               : Container(width: 0.0, height: 0.0),
         );

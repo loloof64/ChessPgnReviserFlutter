@@ -2,41 +2,65 @@
 
 import 'package:chess_pgn_reviser/chesssquare.dart';
 import 'package:flutter/material.dart';
+import 'package:chess_pgn_reviser/chessboard_types.dart';
 
 final zeroToSeven = List.generate(8, (index) => index);
 
-class ChessBoard extends StatelessWidget {
+class ChessBoard extends StatefulWidget {
   final String fen;
   final double size;
   final bool blackAtBottom;
   final void Function(String startCell, String endCell) onMove;
+  final void Function() onLeave;
 
-  ChessBoard(
-      {@required this.fen,
-      @required this.size,
-      this.blackAtBottom,
-      this.onMove});
+  ChessBoard({
+    @required this.fen,
+    @required this.size,
+    this.blackAtBottom,
+    this.onMove,
+    this.onLeave,
+  });
+
+  _ChessBoardState createState() => _ChessBoardState();
+}
+
+class _ChessBoardState extends State<ChessBoard> {
+  Cell _hoveredCell;
+  Cell _startCell;
 
   @override
   Widget build(BuildContext context) {
-    final cellSize = size / 8.0;
+    final cellSize = widget.size / 8.0;
 
     final whiteCellColor = Color(0xffffce9e);
     final blackCellColor = Color(0xffd18b47);
 
-    final pieces = getPieces();
+    final startCellColor = Color(0xffd63b60);
+    final targetCellColor = Color(0xff70d123);
+    final dndCrossCellColor = Color(0xffb22ee6);
+
+    var pieces = getPieces();
 
     return Container(
-      width: size,
-      height: size,
+      width: widget.size,
+      height: widget.size,
       child: Column(
         children: zeroToSeven.map((row) {
-          final rank = blackAtBottom ? row : 7 - row;
+          final rank = widget.blackAtBottom ? row : 7 - row;
           return Row(
               children: zeroToSeven.map((col) {
-            final file = blackAtBottom ? 7 - col : col;
+            final file = widget.blackAtBottom ? 7 - col : col;
             final isWhiteCell = (col + row) % 2 != 0;
-            final color = isWhiteCell ? whiteCellColor : blackCellColor;
+            final isDndCrossCell = (_hoveredCell != null) &&
+                (file == _hoveredCell.file || rank == _hoveredCell.rank);
+            final isTargetCell = (_hoveredCell != null) &&
+                (file == _hoveredCell.file && rank == _hoveredCell.rank);
+            final isStartCell = (_startCell != null) &&
+                (file == _startCell.file && rank == _startCell.rank);
+            var color = isWhiteCell ? whiteCellColor : blackCellColor;
+            if (isStartCell) color = startCellColor;
+            if (isDndCrossCell) color = dndCrossCellColor;
+            if (isTargetCell) color = targetCellColor;
             final squareName =
                 "${String.fromCharCode('a'.codeUnitAt(0) + file)}${String.fromCharCode('1'.codeUnitAt(0) + rank)}";
             return ChessSquare(
@@ -44,7 +68,33 @@ class ChessBoard extends StatelessWidget {
               color: color,
               pieceType: pieces[rank][file],
               squareName: squareName,
-              onDrop: onMove,
+              onDrop: (startCell, endCell) {
+                setState(() {
+                  _hoveredCell = null;
+                  _startCell = null;
+                });
+                if (widget.onMove != null) {
+                  widget.onMove(startCell, endCell);
+                  setState(() {
+                    pieces = getPieces();
+                  });
+                }
+              },
+              onHover: (squareName) {
+                setState(() {
+                  _hoveredCell = Cell.fromAlgebraic(squareName);
+                });
+              },
+              onLeave: () {
+                setState(() {
+                  _hoveredCell = null;
+                });
+              },
+              onStartDrag: (squareName) {
+                setState(() {
+                  _startCell = Cell.fromAlgebraic(squareName);
+                });
+              },
             );
           }).toList());
         }).toList(),
@@ -54,7 +104,7 @@ class ChessBoard extends StatelessWidget {
 
   List<List<String>> getPieces() {
     final valuesArray =
-        fen.split(" ")[0].split("/").map((line) => line.split(""));
+        widget.fen.split(" ")[0].split("/").map((line) => line.split(""));
     var results = <List<String>>[];
     valuesArray.forEach((line) {
       var lineResults = <String>[];
