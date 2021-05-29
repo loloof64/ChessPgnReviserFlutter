@@ -213,6 +213,7 @@ class _GamePageState extends State<GamePage> {
   Widget headerBar(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
     final commonHeight = viewport.height * 0.09;
+    final commonPadding = 10.0;
 
     return Container(
       width: viewport.width * 0.8,
@@ -226,30 +227,35 @@ class _GamePageState extends State<GamePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          TextButton.icon(
-            label: Text(''),
-            icon: Image(
-              image: AssetImage('images/racing_flag.png'),
-              width: commonHeight,
-              height: commonHeight,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: commonPadding),
+            child: TextButton.icon(
+              label: Text(''),
+              icon: Image(
+                image: AssetImage('images/racing_flag.png'),
+                width: commonHeight,
+                height: commonHeight,
+              ),
+              onPressed: () {
+                startNewGame(context);
+              },
             ),
-            onPressed: () {
-              startNewGame(context);
-            },
           ),
-          TextButton.icon(
-            label: Text(''),
-            icon: Image(
-              image: AssetImage('images/reverse_arrows.png'),
-              width: commonHeight,
-              height: commonHeight,
-            ),
-            onPressed: () {
-              setState(() {
-                _boardReversed = !_boardReversed;
-              });
-            },
-          ),
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: commonPadding),
+              child: TextButton.icon(
+                label: Text(''),
+                icon: Image(
+                  image: AssetImage('images/reverse_arrows.png'),
+                  width: commonHeight,
+                  height: commonHeight,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _boardReversed = !_boardReversed;
+                  });
+                },
+              )),
         ],
       ),
     );
