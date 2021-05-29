@@ -2,7 +2,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:quiver/iterables.dart';
+
+final zeroToSeven = List.generate(8, (index) => index);
 
 class ChessBoardCoordinates extends StatelessWidget {
   final double size;
@@ -41,7 +42,7 @@ class ChessBoardCoordinatesPainter extends CustomPainter {
       fontSize: cellSize * 0.3,
     );
 
-    for (var col in range(8)) {
+    zeroToSeven.forEach((col) {
       final x = cellSize * (0.9 + col);
       final y1 = cellSize * 0.05;
       final y2 = cellSize * 8.55;
@@ -60,9 +61,9 @@ class ChessBoardCoordinatesPainter extends CustomPainter {
       textPainter.layout();
       textPainter.paint(canvas, Offset(x, y1));
       textPainter.paint(canvas, Offset(x, y2));
-    }
+    });
 
-    for (var row in range(8)) {
+    zeroToSeven.forEach((row) {
       final y = cellSize * (0.85 + row);
       final x1 = cellSize * 0.15;
       final x2 = cellSize * 8.65;
@@ -81,7 +82,7 @@ class ChessBoardCoordinatesPainter extends CustomPainter {
       textPainter.layout();
       textPainter.paint(canvas, Offset(x1, y));
       textPainter.paint(canvas, Offset(x2, y));
-    }
+    });
 
     final circlePaint = Paint()
       ..style = PaintingStyle.fill

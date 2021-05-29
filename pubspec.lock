@@ -111,13 +111,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_stateless_chessboard:
-    dependency: "direct main"
-    description:
-      name: flutter_stateless_chessboard
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.6"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -206,7 +199,7 @@ packages:
     source: hosted
     version: "1.4.4"
   quiver:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: quiver
       url: "https://pub.dartlang.org"

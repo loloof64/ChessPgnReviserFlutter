@@ -4,16 +4,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
-import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart'
-    as board;
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:chess_pgn_reviser/pgn_parser.dart';
 import 'package:chess_pgn_reviser/game_selector.dart';
+import 'package:chess_pgn_reviser/chessboard.dart' as board;
 import 'package:chess_pgn_reviser/chessboard_coordinates.dart';
-import 'package:chess_pgn_reviser/chessboard_lastmovearrow.dart';
+import 'package:chess_pgn_reviser/chessboard_types.dart';
 
 class GamePage extends StatefulWidget {
   GamePage({Key key}) : super(key: key);
@@ -25,14 +24,8 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   var _boardState = board_logic.Chess();
   var _pendingPromotion = false;
+  Move _pendingPromotionMove;
   var _boardReversed = false;
-  board.ShortMove _pendingPromotionMove;
-  var _lastMoveVisible = false;
-  var _lastMoveStartFile = -10;
-  var _lastMoveStartRank = -10;
-  var _lastMoveEndFile = -10;
-  var _lastMoveEndRank = -10;
-  var _lastMoveArrowBlinkingStarted = false;
 
   loadPgn(BuildContext context) async {
     final XTypeGroup pgnTypeGroup = XTypeGroup(
@@ -78,12 +71,6 @@ class _GamePageState extends State<GamePage> {
       final fen = (game["tags"] ?? {})["FEN"] ?? board_logic.Chess().fen;
 
       setState(() {
-        _lastMoveArrowBlinkingStarted = false;
-        _lastMoveVisible = false;
-        _lastMoveStartFile = -10;
-        _lastMoveStartRank = -10;
-        _lastMoveEndFile = -10;
-        _lastMoveEndRank = -10;
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = game["moves"]["pgn"][0]["turn"] == "b";
       });
@@ -119,41 +106,34 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  checkAndMakeMove(board.ShortMove move) {
+  checkAndMakeMove(String startCellStr, String endCellStr) {
     var boardLogicClone = board_logic.Chess();
     boardLogicClone.load(_boardState.fen);
     final legalMove = boardLogicClone
-        .move({'from': move.from, 'to': move.to, 'promotion': 'q'});
+        .move({'from': startCellStr, 'to': endCellStr, 'promotion': 'q'});
     if (legalMove) {
+      final startCell = Cell.fromAlgebraic(startCellStr);
+      final endCell = Cell.fromAlgebraic(endCellStr);
       final isPawn =
-          _boardState.get(move.from).type == board_logic.PieceType.PAWN;
+          _boardState.get(startCellStr).type == board_logic.PieceType.PAWN;
       final isWhitePromotion = _boardState.turn == board_logic.Color.WHITE &&
-          move.from.characters.elementAt(1) == "7" &&
-          move.to.characters.elementAt(1) == "8";
+          startCell.rank == 6 &&
+          endCell.rank == 7;
       final isBlackPromotion = _boardState.turn == board_logic.Color.BLACK &&
-          move.from.characters.elementAt(1) == "2" &&
-          move.to.characters.elementAt(1) == "1";
+          startCell.rank == 1 &&
+          endCell.rank == 0;
       final isPromotion = isPawn && (isWhitePromotion || isBlackPromotion);
 
       if (isPromotion) {
         setState(() {
           _pendingPromotion = true;
-          _pendingPromotionMove = move;
+          _pendingPromotionMove = Move(startCell, endCell);
         });
       } else {
-        _boardState.move({'from': move.from, 'to': move.to});
+        _boardState.move({'from': startCellStr, 'to': endCellStr});
         setState(() {
-          _lastMoveStartFile = move.from.codeUnitAt(0) - 'a'.codeUnitAt(0);
-          _lastMoveStartRank = move.from.codeUnitAt(1) - '1'.codeUnitAt(0);
-          _lastMoveEndFile = move.to.codeUnitAt(0) - 'a'.codeUnitAt(0);
-          _lastMoveEndRank = move.to.codeUnitAt(1) - '1'.codeUnitAt(0);
+          // Just in order to update UI.
         });
-        if (!_lastMoveArrowBlinkingStarted) {
-          setState(() {
-            _lastMoveArrowBlinkingStarted = true;
-          });
-          blinkLastMoveArrowIn();
-        }
         notifyGameFinishedIfNecessary();
       }
     }
@@ -168,46 +148,12 @@ class _GamePageState extends State<GamePage> {
 
   commitPromotionMove(String type) {
     _boardState.move({
-      'from': _pendingPromotionMove.from,
-      'to': _pendingPromotionMove.to,
+      'from': _pendingPromotionMove.start.toAlgebraic(),
+      'to': _pendingPromotionMove.end.toAlgebraic(),
       'promotion': type
     });
-    setState(() {
-      _lastMoveStartFile =
-          _pendingPromotionMove.from.codeUnitAt(0) - 'a'.codeUnitAt(0);
-      _lastMoveStartRank =
-          _pendingPromotionMove.from.codeUnitAt(1) - '1'.codeUnitAt(0);
-      _lastMoveEndFile =
-          _pendingPromotionMove.to.codeUnitAt(0) - 'a'.codeUnitAt(0);
-      _lastMoveEndRank =
-          _pendingPromotionMove.to.codeUnitAt(1) - '1'.codeUnitAt(0);
-    });
-    if (!_lastMoveArrowBlinkingStarted) {
-      setState(() {
-        _lastMoveArrowBlinkingStarted = true;
-      });
-      blinkLastMoveArrowIn();
-    }
     cancelPendingPromotion();
     notifyGameFinishedIfNecessary();
-  }
-
-  blinkLastMoveArrowIn() async {
-    if (!_lastMoveArrowBlinkingStarted) return;
-    setState(() {
-      _lastMoveVisible = true;
-    });
-
-    Future.delayed(Duration(milliseconds: 700), () => blinkLastMoveArrowOut());
-  }
-
-  blinkLastMoveArrowOut() async {
-    if (!_lastMoveArrowBlinkingStarted) return;
-    setState(() {
-      _lastMoveVisible = false;
-    });
-
-    Future.delayed(Duration(milliseconds: 1100), () => blinkLastMoveArrowIn());
   }
 
   Widget headerBar(BuildContext context) {
@@ -266,29 +212,6 @@ class _GamePageState extends State<GamePage> {
     final size = min(viewport.height * 0.6, viewport.width);
     final promotionPieceSize = size / 7.0;
 
-    var mainZoneChildren = <Widget>[
-      board.Chessboard(
-        fen: _boardState.fen,
-        size: size,
-        onMove: (move) {
-          checkAndMakeMove(move);
-        },
-        orientation: _boardReversed ? board.Color.BLACK : board.Color.WHITE,
-      ),
-    ];
-
-    if (_lastMoveVisible) {
-      mainZoneChildren.add(ChessBoardLastMoveArrow(
-        size: size,
-        visible: _lastMoveVisible,
-        reversed: _boardReversed,
-        startFile: _lastMoveStartFile,
-        startRank: _lastMoveStartRank,
-        endFile: _lastMoveEndFile,
-        endRank: _lastMoveEndRank,
-      ));
-    }
-
     var children = <Widget>[
       Stack(
         children: [
@@ -299,7 +222,13 @@ class _GamePageState extends State<GamePage> {
           ),
           Padding(
               padding: EdgeInsets.all(size * 0.055),
-              child: Stack(children: mainZoneChildren)),
+              child: board.ChessBoard(
+                  fen: _boardState.fen,
+                  size: size,
+                  onMove: (startCell, endCell) {
+                    checkAndMakeMove(startCell, endCell);
+                  },
+                  blackAtBottom: _boardReversed)),
         ],
       )
     ];

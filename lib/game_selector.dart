@@ -1,9 +1,8 @@
 // @dart=2.9
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart'
-    as board;
 import 'package:chess/chess.dart' as board_logic;
+import 'package:chess_pgn_reviser/chessboard.dart' as board;
 import 'package:chess_pgn_reviser/chessboard_coordinates.dart';
 
 class GameSelector extends StatefulWidget {
@@ -177,13 +176,10 @@ class _GameSelectorState extends State<GameSelector> {
                   ),
                   Padding(
                     padding: EdgeInsets.all(size * 0.055),
-                    child: board.Chessboard(
-                      size: size,
-                      fen: fen,
-                      orientation: widget.whiteTurn()
-                          ? board.Color.WHITE
-                          : board.Color.BLACK,
-                    ),
+                    child: board.ChessBoard(
+                        size: size,
+                        fen: fen,
+                        blackAtBottom: widget.whiteTurn()),
                   )
                 ],
               ),
