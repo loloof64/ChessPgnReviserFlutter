@@ -5,7 +5,8 @@ class PgnGrammarDefinition extends GrammarDefinition {
 
   Parser games() =>
       ref0(ws) & (ref0(game) & (ref0(ws) & ref0(game)).star()).optional();
-  Parser game() => ref0(tags).optional() & ref0(comment).optional() & ref0(pgn);
+  Parser game() =>
+      ref0(tags).optional() & ref0(comment).optional() & ref0(topLevelPgn);
   Parser tags() => ref0(tag).plus();
 
   Parser tag() => ref0(bl) & ref0(tagKeyValue) & ref0(br);
@@ -296,8 +297,12 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser integerString() =>
       ref0(quotationMark) & digit().plus().flatten() & ref0(quotationMark);
 
-  Parser pgn() =>
-      (ref0(innerPgnWhite) | ref0(innerPgnBlack)) & ref0(result).optional();
+  Parser topLevelPgn() =>
+      (ref0(innerPgnWhite) | ref0(innerPgnBlack)).optional() & ref0(result);
+
+  Parser variationPgn() =>
+      (ref0(innerPgnWhite) | ref0(innerPgnBlack)).optional() &
+      ref0(result).optional();
 
   Parser innerPgnWhite() =>
       ref0(comment).optional() &
@@ -341,7 +346,7 @@ class PgnGrammarDefinition extends GrammarDefinition {
   Parser br() => char(']').trim();
   Parser semicolon() => char(';').trim();
 
-  Parser variation() => ref0(pl) & ref0(pgn) & ref0(pr);
+  Parser variation() => ref0(pl) & ref0(variationPgn) & ref0(pr);
 
   Parser pl() => char('(').trim();
   Parser pr() => char(')').trim();

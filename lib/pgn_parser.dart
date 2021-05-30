@@ -147,11 +147,34 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         }
       });
 
-  Parser pgn() => super.pgn().map((values) {
+  Parser topLevelPgn() => super.topLevelPgn().map((values) {
         final inner = values[0];
         final result = values[1];
 
-        return {'pgn': inner, 'result': result};
+        final pgn = inner != null ? inner[0] : null;
+
+        ////////////////////////////////
+        print("Top level pgn");
+        print("pgn => $pgn");
+        print("result => $result");
+        ////////////////////////////////
+
+        return {'pgn': pgn, 'result': result};
+      });
+
+  Parser variationPgn() => super.variationPgn().map((values) {
+        final inner = values[0];
+        final result = values[1];
+
+        final pgn = inner != null ? inner[0] : null;
+
+        ////////////////////////////////
+        print("Variation pgn");
+        print("pgn => $pgn");
+        print("result => $result");
+        ////////////////////////////////
+
+        return {'pgn': pgn, 'result': result};
       });
 
   Parser innerPgnWhite() => super.innerPgnWhite().map((values) {
