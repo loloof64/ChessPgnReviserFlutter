@@ -19,7 +19,7 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
-  var _boardState = board_logic.Chess();
+  var _boardState = board_logic.Chess.fromFEN("8/8/8/8/8/8/8/8 w - - 0 1");
   var _pendingPromotion = false;
   Move _pendingPromotionMove;
   var _boardReversed = false;
