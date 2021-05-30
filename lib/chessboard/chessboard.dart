@@ -57,7 +57,7 @@ class ChessBoard extends StatelessWidget {
       )
     ];
 
-    if (pendingPromotion) {
+    if (pendingPromotion != null && pendingPromotion) {
       final blackTurn = fen.split(' ')[1] == 'b';
       stackChildren.add(blackTurn
           ? ChessBoardPromotionZoneBlack(
