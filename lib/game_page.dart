@@ -74,7 +74,7 @@ class _GamePageState extends State<GamePage> {
 
       setState(() {
         _boardState = board_logic.Chess.fromFEN(fen);
-        _boardReversed = game["moves"]["pgn"][0]["turn"] == "b";
+        _boardReversed = fen.split(" ")[1] == "b";
       });
       clearLastMoveArrow();
     } catch (ex, stacktrace) {

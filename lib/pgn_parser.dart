@@ -153,12 +153,6 @@ class PgnParserDefinition extends PgnGrammarDefinition {
 
         final pgn = inner != null ? inner[0] : null;
 
-        ////////////////////////////////
-        print("Top level pgn");
-        print("pgn => $pgn");
-        print("result => $result");
-        ////////////////////////////////
-
         return {'pgn': pgn, 'result': result};
       });
 
@@ -167,12 +161,6 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         final result = values[1];
 
         final pgn = inner != null ? inner[0] : null;
-
-        ////////////////////////////////
-        print("Variation pgn");
-        print("pgn => $pgn");
-        print("result => $result");
-        ////////////////////////////////
 
         return {'pgn': pgn, 'result': result};
       });
