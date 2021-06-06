@@ -211,13 +211,21 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  stopCurrentGame(BuildContext contex) {
+  stopCurrentGame(BuildContext contex) async {
     if (_gameInProgress) {
-      setState(() {
-        _gameInProgress = false;
-        Toast.show("Game stopped.", context,
-            duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-      });
+      if (await confirm(
+        context,
+        title: Text('Stop current game ?'),
+        content: Text('Do you want to start stop current game ?'),
+        textOK: Text('Yes'),
+        textCancel: Text('No'),
+      )) {
+        setState(() {
+          _gameInProgress = false;
+          Toast.show("Game stopped.", context,
+              duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+        });
+      }
     }
   }
 
