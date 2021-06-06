@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:chess/chess.dart' as board_logic;
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
@@ -11,6 +12,8 @@ import 'package:chess_pgn_reviser/game_selector.dart';
 import 'package:chess_pgn_reviser/chessboard/chessboard.dart' as board;
 import 'package:chess_pgn_reviser/chessboard/chessboard_types.dart';
 
+const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
+
 class GamePage extends StatefulWidget {
   GamePage({Key key}) : super(key: key);
 
@@ -19,7 +22,7 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
-  var _boardState = board_logic.Chess.fromFEN("8/8/8/8/8/8/8/8 w - - 0 1");
+  var _boardState = board_logic.Chess.fromFEN(EMPTY_BOARD);
   var _pendingPromotion = false;
   Move _pendingPromotionMove;
   var _boardReversed = false;
@@ -190,8 +193,22 @@ class _GamePageState extends State<GamePage> {
       throw Exception("Too many black queens !");
   }
 
-  startNewGame(BuildContext context) {
-    loadPgn(context);
+  startNewGame(BuildContext context) async {
+    final boardNotEmpty = _boardState.fen != EMPTY_BOARD;
+    if (boardNotEmpty) {
+      if (await confirm(
+        context,
+        title: Text('Start new game ?'),
+        content:
+            Text('Do you want to start a new game and leave the current one ?'),
+        textOK: Text('Yes'),
+        textCancel: Text('No'),
+      )) {
+        loadPgn(context);
+      }
+    } else {
+      loadPgn(context);
+    }
   }
 
   stopCurrentGame(BuildContext contex) {
