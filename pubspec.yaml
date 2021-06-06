@@ -63,6 +63,7 @@ flutter:
     - images/last_item.png
     - images/previous_item.png
     - images/reverse_arrows.png
+    - images/stop.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -29,6 +29,7 @@ class _GamePageState extends State<GamePage> {
   var _lastMoveEndFile = -10;
   var _lastMoveEndRank = -10;
   var _goalString = "";
+  var _gameInProgress = false;
 
   String _getGameGoal(gamePgn) {
     final goalString = gamePgn["tags"]["Goal"] ?? "";
@@ -94,6 +95,7 @@ class _GamePageState extends State<GamePage> {
         _goalString = _getGameGoal(game);
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = fen.split(" ")[1] == "b";
+        _gameInProgress = true;
       });
       clearLastMoveArrow();
     } catch (ex, stacktrace) {
@@ -192,22 +194,47 @@ class _GamePageState extends State<GamePage> {
     loadPgn(context);
   }
 
-  notifyGameFinishedIfNecessary() {
+  stopCurrentGame(BuildContext contex) {
+    if (_gameInProgress) {
+      setState(() {
+        _gameInProgress = false;
+        Toast.show("Game stopped.", context,
+            duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+      });
+    }
+  }
+
+  handleGameFinishedIfNecessary() {
     if (_boardState.in_checkmate) {
+      setState(() {
+        _gameInProgress = false;
+      });
       final actor =
           _boardState.turn == board_logic.Color.WHITE ? 'Blacks' : 'Whites';
       Toast.show("$actor have won by checkmate.", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     } else if (_boardState.in_stalemate) {
+      setState(() {
+        _gameInProgress = false;
+      });
       Toast.show("Draw by stalemate.", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     } else if (_boardState.in_threefold_repetition) {
+      setState(() {
+        _gameInProgress = false;
+      });
       Toast.show("Draw by three fold repetition.", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     } else if (_boardState.insufficient_material) {
+      setState(() {
+        _gameInProgress = false;
+      });
       Toast.show("Draw by insufficient material.", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     } else if (_boardState.in_draw) {
+      setState(() {
+        _gameInProgress = false;
+      });
       Toast.show("Draw by 50-moves rule.", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     }
@@ -247,7 +274,7 @@ class _GamePageState extends State<GamePage> {
           _lastMoveEndFile = endCell.file;
           _lastMoveEndRank = endCell.rank;
         });
-        notifyGameFinishedIfNecessary();
+        handleGameFinishedIfNecessary();
       }
     }
   }
@@ -273,7 +300,7 @@ class _GamePageState extends State<GamePage> {
       _lastMoveEndRank = _pendingPromotionMove.end.rank;
     });
     cancelPendingPromotion();
-    notifyGameFinishedIfNecessary();
+    handleGameFinishedIfNecessary();
   }
 
   clearLastMoveArrow() {
@@ -318,6 +345,20 @@ class _GamePageState extends State<GamePage> {
             ),
           ),
           Padding(
+            padding: EdgeInsets.symmetric(horizontal: commonPadding),
+            child: TextButton.icon(
+              label: Text(''),
+              icon: Image(
+                image: AssetImage('images/stop.png'),
+                width: commonHeight,
+                height: commonHeight,
+              ),
+              onPressed: () {
+                stopCurrentGame(context);
+              },
+            ),
+          ),
+          Padding(
               padding: EdgeInsets.symmetric(horizontal: commonPadding),
               child: TextButton.icon(
                 label: Text(''),
@@ -357,7 +398,7 @@ class _GamePageState extends State<GamePage> {
           board.ChessBoard(
             fen: _boardState.fen,
             size: minSize * 0.7,
-            userCanMovePieces: true,
+            userCanMovePieces: _gameInProgress,
             onDragMove: (startCell, endCell) {
               checkAndMakeMove(startCell, endCell);
             },
