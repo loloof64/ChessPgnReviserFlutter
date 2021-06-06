@@ -11,6 +11,7 @@ import 'package:chess_pgn_reviser/pgn_parser.dart';
 import 'package:chess_pgn_reviser/game_selector.dart';
 import 'package:chess_pgn_reviser/chessboard/chessboard.dart' as board;
 import 'package:chess_pgn_reviser/chessboard/chessboard_types.dart';
+import 'package:chess_pgn_reviser/history.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -420,22 +421,29 @@ class _GamePageState extends State<GamePage> {
             _goalString,
             style: TextStyle(fontSize: minSize * 0.04),
           ),
-          board.ChessBoard(
-            fen: _boardState.fen,
-            size: minSize * 0.7,
-            userCanMovePieces: _gameInProgress,
-            onDragMove: (startCell, endCell) {
-              checkAndMakeMove(startCell, endCell);
-            },
-            blackAtBottom: _boardReversed,
-            lastMoveVisible: _lastMoveVisible,
-            lastMoveStartFile: _lastMoveStartFile,
-            lastMoveStartRank: _lastMoveStartRank,
-            lastMoveEndFile: _lastMoveEndFile,
-            lastMoveEndRank: _lastMoveEndRank,
-            pendingPromotion: _pendingPromotion,
-            commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
-            cancelPendingPromotion: () => cancelPendingPromotion(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              board.ChessBoard(
+                fen: _boardState.fen,
+                size: minSize * 0.7,
+                userCanMovePieces: _gameInProgress,
+                onDragMove: (startCell, endCell) {
+                  checkAndMakeMove(startCell, endCell);
+                },
+                blackAtBottom: _boardReversed,
+                lastMoveVisible: _lastMoveVisible,
+                lastMoveStartFile: _lastMoveStartFile,
+                lastMoveStartRank: _lastMoveStartRank,
+                lastMoveEndFile: _lastMoveEndFile,
+                lastMoveEndRank: _lastMoveEndRank,
+                pendingPromotion: _pendingPromotion,
+                commitPromotionMove: (pieceType) =>
+                    commitPromotionMove(pieceType),
+                cancelPendingPromotion: () => cancelPendingPromotion(),
+              ),
+              HistoryWidget(minSize * 0.7, minSize * 0.7)
+            ],
           ),
         ],
       )),
