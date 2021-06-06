@@ -28,6 +28,15 @@ class _GamePageState extends State<GamePage> {
   var _lastMoveStartRank = -10;
   var _lastMoveEndFile = -10;
   var _lastMoveEndRank = -10;
+  var _goalString = "";
+
+  String _getGameGoal(gamePgn) {
+    final goalString = gamePgn["tags"]["Goal"] ?? "";
+    if (goalString == "1-0") return "White should win";
+    if (goalString == "0-1") return "Black should win";
+    if (goalString.startsWith("1/2")) return "It should be draw";
+    return goalString;
+  }
 
   loadPgn(BuildContext context) async {
     final XTypeGroup pgnTypeGroup = XTypeGroup(
@@ -82,6 +91,7 @@ class _GamePageState extends State<GamePage> {
       }
 
       setState(() {
+        _goalString = _getGameGoal(game);
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = fen.split(" ")[1] == "b";
       });
@@ -340,6 +350,10 @@ class _GamePageState extends State<GamePage> {
           child: Column(
         children: [
           headerBar(context),
+          Text(
+            _goalString,
+            style: TextStyle(fontSize: minSize * 0.04),
+          ),
           board.ChessBoard(
             fen: _boardState.fen,
             size: minSize * 0.7,

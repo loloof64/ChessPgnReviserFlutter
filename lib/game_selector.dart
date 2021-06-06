@@ -101,10 +101,6 @@ class _GameSelectorState extends State<GameSelector> {
     TextEditingController textController =
         TextEditingController(text: "${widget.gameIndex + 1}");
 
-    /////////////////////////
-    print(getGameGoal());
-    ////////////////////////
-
     return Scaffold(
         appBar: AppBar(title: Text('Game selector')),
         body: Center(
