@@ -127,9 +127,6 @@ class _GamePageState extends State<GamePage> {
       for (var file = 0; file < 8; file++) {
         final cell = board_logic.Chess.algebraic(16 * rank + file);
         final currentPiece = gameLogic.get(cell);
-        ///////////////////
-        print("$cell, $currentPiece");
-        //////////////////////
         if (currentPiece != null) {
           final currentFen = _pieceTypeToFen(currentPiece);
           if (piecesCounts.containsKey(currentFen)) {
@@ -140,10 +137,6 @@ class _GamePageState extends State<GamePage> {
         }
       }
     }
-
-    ///////////////////////
-    print(piecesCounts);
-    ///////////////////////
 
     if (!piecesCounts.containsKey('K')) {
       throw Exception("No white king !");

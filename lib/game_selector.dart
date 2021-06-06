@@ -76,11 +76,11 @@ class _GameSelectorState extends State<GameSelector> {
   }
 
   String getGameGoal() {
-    final goalString = widget.games[widget.gameIndex]["tags"]["Goal"] ?? "*";
+    final goalString = widget.games[widget.gameIndex]["tags"]["Goal"] ?? "";
     if (goalString == "1-0") return "White should win";
     if (goalString == "0-1") return "Black should win";
     if (goalString.startsWith("1/2")) return "It should be draw";
-    return "";
+    return goalString;
   }
 
   bool isBlackTurn() {
@@ -100,6 +100,10 @@ class _GameSelectorState extends State<GameSelector> {
 
     TextEditingController textController =
         TextEditingController(text: "${widget.gameIndex + 1}");
+
+    /////////////////////////
+    print(getGameGoal());
+    ////////////////////////
 
     return Scaffold(
         appBar: AppBar(title: Text('Game selector')),
