@@ -442,7 +442,11 @@ class _GamePageState extends State<GamePage> {
                     commitPromotionMove(pieceType),
                 cancelPendingPromotion: () => cancelPendingPromotion(),
               ),
-              HistoryWidget(minSize * 0.7, minSize * 0.7)
+              HistoryWidget(
+                width: minSize * 0.7,
+                height: minSize * 0.7,
+                content: ['1.', 'e4', 'e5', '2.', 'Nf3', 'Nc6', '3.', 'Bb5'],
+              )
             ],
           ),
         ],
