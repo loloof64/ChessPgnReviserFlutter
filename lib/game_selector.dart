@@ -106,65 +106,19 @@ class _GameSelectorState extends State<GameSelector> {
         body: Center(
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: size * 0.16,
-                    child: TextField(
-                      controller: textController,
-                      onSubmitted: (value) => tryNavigatingAt(value),
-                      textAlign: TextAlign.end,
-                      style: TextStyle(fontSize: navigationFontSize),
-                    ),
-                  ),
-                  Text("/", style: TextStyle(fontSize: navigationFontSize)),
-                  Text("${widget.games.length}",
-                      style: TextStyle(fontSize: navigationFontSize))
-                ],
+              NavigationProgress(
+                fontSize: navigationFontSize,
+                gamesCount: widget.games.length,
+                indexFieldController: textController,
+                indexFieldWidth: size * 0.16,
+                onIndexFieldSubmitted: (value) => tryNavigatingAt(value),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  TextButton.icon(
-                    label: Text(''),
-                    icon: Image(
-                      image: AssetImage('images/first_item.png'),
-                      width: navigationButtonsSize,
-                      height: navigationButtonsSize,
-                    ),
-                    onPressed: gotoFirst,
-                  ),
-                  TextButton.icon(
-                    label: Text(''),
-                    icon: Image(
-                      image: AssetImage('images/previous_item.png'),
-                      width: navigationButtonsSize,
-                      height: navigationButtonsSize,
-                    ),
-                    onPressed: gotoPrevious,
-                  ),
-                  TextButton.icon(
-                    label: Text(''),
-                    icon: Image(
-                      image: AssetImage('images/next_item.png'),
-                      width: navigationButtonsSize,
-                      height: navigationButtonsSize,
-                    ),
-                    onPressed: gotoNext,
-                  ),
-                  TextButton.icon(
-                    label: Text(''),
-                    icon: Image(
-                      image: AssetImage('images/last_item.png'),
-                      width: navigationButtonsSize,
-                      height: navigationButtonsSize,
-                    ),
-                    onPressed: gotoLast,
-                  )
-                ],
+              NavigationZone(
+                buttonsSize: navigationButtonsSize,
+                onGotoFirst: gotoFirst,
+                onGotoNext: gotoNext,
+                onGotoLast: gotoLast,
+                onGotoPrevious: gotoPrevious,
               ),
               board.ChessBoard(
                   size: size, fen: fen, blackAtBottom: !widget.whiteTurn()),
@@ -176,37 +130,182 @@ class _GameSelectorState extends State<GameSelector> {
                 padding:
                     EdgeInsets.symmetric(vertical: validationButtonsPadding),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: validationButtonsPadding),
-                    child: TextButton(
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(fontSize: validationButtonsFontSize),
-                      ),
-                      style: TextButton.styleFrom(primary: Colors.red),
-                      onPressed: () => cancel(context),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: validationButtonsPadding),
-                    child: TextButton(
-                      child: Text('Ok',
-                          style:
-                              TextStyle(fontSize: validationButtonsFontSize)),
-                      style: TextButton.styleFrom(primary: Colors.blue),
-                      onPressed: () => validate(context),
-                    ),
-                  )
-                ],
-              )
+              ValidationZone(
+                buttonsFontSize: validationButtonsFontSize,
+                buttonsPadding: validationButtonsPadding,
+                onCancel: () => cancel(context),
+                onValidate: () => validate(context),
+              ),
             ],
           ),
         ));
+  }
+}
+
+class NavigationProgress extends StatelessWidget {
+  final double indexFieldWidth;
+  final TextEditingController indexFieldController;
+  final double fontSize;
+  final int gamesCount;
+  final Function onIndexFieldSubmitted;
+
+  NavigationProgress({
+    @required this.fontSize,
+    @required this.gamesCount,
+    this.indexFieldWidth,
+    this.indexFieldController,
+    this.onIndexFieldSubmitted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: indexFieldWidth,
+          child: TextField(
+            controller: indexFieldController,
+            onSubmitted: onIndexFieldSubmitted,
+            textAlign: TextAlign.end,
+            style: TextStyle(fontSize: fontSize),
+          ),
+        ),
+        Text("/", style: TextStyle(fontSize: fontSize)),
+        Text("$gamesCount", style: TextStyle(fontSize: fontSize))
+      ],
+    );
+  }
+}
+
+class ValidationZone extends StatelessWidget {
+  final double buttonsFontSize;
+  final double buttonsPadding;
+  final Function onValidate;
+  final Function onCancel;
+
+  ValidationZone(
+      {this.buttonsFontSize,
+      this.buttonsPadding,
+      this.onValidate,
+      this.onCancel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ValidationButton(
+          label: 'Cancel',
+          fontSize: buttonsFontSize,
+          padding: buttonsPadding,
+          onPressed: onCancel,
+          textColor: Colors.red,
+        ),
+        ValidationButton(
+          label: 'Ok',
+          fontSize: buttonsFontSize,
+          padding: buttonsPadding,
+          onPressed: onValidate,
+          textColor: Colors.blue,
+        ),
+      ],
+    );
+  }
+}
+
+class ValidationButton extends StatelessWidget {
+  final String label;
+  final double padding;
+  final double fontSize;
+  final Function onPressed;
+  final Color textColor;
+
+  ValidationButton(
+      {@required this.label,
+      this.fontSize,
+      this.padding,
+      this.textColor,
+      this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: padding),
+      child: TextButton(
+        child: Text(
+          label,
+          style: TextStyle(fontSize: fontSize),
+        ),
+        style: TextButton.styleFrom(primary: textColor),
+        onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+class NavigationZone extends StatelessWidget {
+  final double buttonsSize;
+  final Function onGotoFirst;
+  final Function onGotoPrevious;
+  final Function onGotoNext;
+  final Function onGotoLast;
+
+  NavigationZone({
+    @required this.buttonsSize,
+    this.onGotoFirst,
+    this.onGotoPrevious,
+    this.onGotoNext,
+    this.onGotoLast,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        NavigationButton(
+            size: buttonsSize,
+            imageReference: 'images/first_item.png',
+            onPressed: onGotoFirst),
+        NavigationButton(
+            size: buttonsSize,
+            imageReference: 'images/previous_item.png',
+            onPressed: onGotoPrevious),
+        NavigationButton(
+            size: buttonsSize,
+            imageReference: 'images/next_item.png',
+            onPressed: onGotoNext),
+        NavigationButton(
+          size: buttonsSize,
+          imageReference: 'images/last_item.png',
+          onPressed: onGotoLast,
+        ),
+      ],
+    );
+  }
+}
+
+class NavigationButton extends StatelessWidget {
+  final double size;
+  final String imageReference;
+  final Function onPressed;
+
+  NavigationButton({@required this.size, this.imageReference, this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      label: Text(''),
+      icon: Image(
+        image: AssetImage(imageReference),
+        width: size,
+        height: size,
+      ),
+      onPressed: onPressed,
+    );
   }
 }
