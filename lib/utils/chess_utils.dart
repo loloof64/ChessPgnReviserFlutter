@@ -85,3 +85,43 @@ checkPiecesCount(board_logic.Chess gameLogic) {
   if (piecesCounts.containsKey('q') && piecesCounts['q'] > 9)
     throw Exception("Too many black queens !");
 }
+
+board_logic.Move findMoveForPosition(board_logic.Chess position,
+    String fromIntoAlgebraic, String toIntoAlgebraic, String promotionString) {
+  final from = cellAlgebraicToInt(fromIntoAlgebraic);
+  final to = cellAlgebraicToInt(toIntoAlgebraic);
+  final promotion =
+      promotionString != null ? pieceStringToPieceType(promotionString) : null;
+
+  final allMoves = position.generate_moves({'legal': true});
+  return allMoves.firstWhere((currentMove) {
+    return currentMove.from == from &&
+        currentMove.to == to &&
+        currentMove.promotion == promotion;
+  }, orElse: () => null);
+}
+
+int cellAlgebraicToInt(String cellAlgebraic) {
+  final file = cellAlgebraic.codeUnitAt(0) - 'a'.codeUnitAt(0);
+  final rank = 7 - (cellAlgebraic.codeUnitAt(1) - '1'.codeUnitAt(0));
+  return file + 16 * rank;
+}
+
+board_logic.PieceType pieceStringToPieceType(String pieceTypeString) {
+  switch (pieceTypeString.toLowerCase()) {
+    case 'p':
+      return board_logic.PieceType.PAWN;
+    case 'n':
+      return board_logic.PieceType.KNIGHT;
+    case 'b':
+      return board_logic.PieceType.BISHOP;
+    case 'r':
+      return board_logic.PieceType.ROOK;
+    case 'q':
+      return board_logic.PieceType.QUEEN;
+    case 'k':
+      return board_logic.PieceType.KING;
+    default:
+      throw 'Unrecognized piece $pieceTypeString';
+  }
+}

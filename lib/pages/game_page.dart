@@ -205,7 +205,10 @@ class _GamePageState extends State<GamePage> {
           _pendingPromotionMove = Move(startCell, endCell);
         });
       } else {
-        _boardState.move({'from': startCellStr, 'to': endCellStr});
+        final move = chess_utils.findMoveForPosition(
+            _boardState, startCellStr, endCellStr, null);
+        _boardState.move(move);
+
         final startCell = Cell.fromAlgebraic(startCellStr);
         final endCell = Cell.fromAlgebraic(endCellStr);
         setState(() {
@@ -228,11 +231,12 @@ class _GamePageState extends State<GamePage> {
   }
 
   commitPromotionMove(String type) {
-    _boardState.move({
-      'from': _pendingPromotionMove.start.toAlgebraic(),
-      'to': _pendingPromotionMove.end.toAlgebraic(),
-      'promotion': type
-    });
+    final move = chess_utils.findMoveForPosition(
+        _boardState,
+        _pendingPromotionMove.start.toAlgebraic(),
+        _pendingPromotionMove.end.toAlgebraic(),
+        type);
+    _boardState.move(move);
     setState(() {
       _lastMoveVisible = true;
       _lastMoveStartFile = _pendingPromotionMove.start.file;
