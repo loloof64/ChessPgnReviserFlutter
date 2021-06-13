@@ -253,19 +253,160 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
-  Widget headerBar(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
-    final commonHeight = viewport.height * 0.09;
+    final minSize =
+        viewport.width < viewport.height ? viewport.width : viewport.height;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Game page"),
+      ),
+      body: Center(
+          child: Column(
+        children: [
+          HeaderBar(
+              width: viewport.width * 0.8,
+              height: viewport.height * 0.1,
+              startGame: () => startNewGame(context),
+              stopGame: () => stopCurrentGame(context),
+              reverseBoard: () {
+                setState(() {
+                  _boardReversed = !_boardReversed;
+                });
+              }),
+          GoalLabel(goalString: _goalString, minSize: minSize),
+          GameComponents(
+            blackAtBottom: _boardReversed,
+            commonSize: minSize * 0.7,
+            fen: _boardState.fen,
+            userCanMovePieces: _gameInProgress,
+            hasPendingPromotion: _pendingPromotion,
+            lastMoveVisible: _lastMoveVisible,
+            lastMoveStartFile: _lastMoveStartFile,
+            lastMoveStartRank: _lastMoveStartRank,
+            lastMoveEndFile: _lastMoveEndFile,
+            lastMoveEndRank: _lastMoveEndRank,
+            onDragMove: (startCell, endCell) {
+              checkAndMakeMove(startCell, endCell);
+            },
+            commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
+            cancelPendingPromotion: cancelPendingPromotion,
+          ),
+        ],
+      )),
+    );
+  }
+}
+
+class GameComponents extends StatelessWidget {
+  final double commonSize;
+  final bool blackAtBottom;
+  final String fen;
+  final bool userCanMovePieces;
+  final bool hasPendingPromotion;
+  final bool lastMoveVisible;
+  final int lastMoveStartFile;
+  final int lastMoveStartRank;
+  final int lastMoveEndFile;
+  final int lastMoveEndRank;
+  final Function onDragMove;
+  final Function commitPromotionMove;
+  final Function cancelPendingPromotion;
+
+  GameComponents({
+    @required this.commonSize,
+    @required this.blackAtBottom,
+    @required this.fen,
+    @required this.userCanMovePieces,
+    @required this.hasPendingPromotion,
+    @required this.lastMoveVisible,
+    @required this.lastMoveStartFile,
+    @required this.lastMoveStartRank,
+    @required this.lastMoveEndFile,
+    @required this.lastMoveEndRank,
+    @required this.onDragMove,
+    @required this.commitPromotionMove,
+    @required this.cancelPendingPromotion,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        board.ChessBoard(
+          fen: fen,
+          size: commonSize,
+          userCanMovePieces: userCanMovePieces,
+          onDragMove: onDragMove,
+          blackAtBottom: blackAtBottom,
+          lastMoveVisible: lastMoveVisible,
+          lastMoveStartFile: lastMoveStartFile,
+          lastMoveStartRank: lastMoveStartRank,
+          lastMoveEndFile: lastMoveEndFile,
+          lastMoveEndRank: lastMoveEndRank,
+          pendingPromotion: hasPendingPromotion,
+          commitPromotionMove: commitPromotionMove,
+          cancelPendingPromotion: cancelPendingPromotion,
+        ),
+        HistoryWidget(
+          width: commonSize,
+          height: commonSize,
+          content: ['1.', 'e4', 'e5', '2.', 'Nf3', 'Nc6', '3.', 'Bb5'],
+        )
+      ],
+    );
+  }
+}
+
+class GoalLabel extends StatelessWidget {
+  const GoalLabel({
+    @required this.goalString,
+    @required this.minSize,
+  });
+
+  final String goalString;
+  final double minSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      goalString,
+      style: TextStyle(fontSize: minSize * 0.04),
+    );
+  }
+}
+
+class HeaderBar extends StatelessWidget {
+  final double width;
+  final double height;
+
+  final Function startGame;
+  final Function reverseBoard;
+  final Function stopGame;
+
+  HeaderBar({
+    @required this.width,
+    @required this.height,
+    @required this.startGame,
+    @required this.stopGame,
+    @required this.reverseBoard,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final commonHeight = height * 0.9;
     final commonPadding = 10.0;
 
     return Container(
-      width: viewport.width * 0.8,
-      height: viewport.height * 0.1,
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(8.0)),
         color: Colors.teal[200],
       ),
-      margin: EdgeInsets.all(viewport.height * 0.025),
+      margin: EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -279,9 +420,7 @@ class _GamePageState extends State<GamePage> {
                 width: commonHeight,
                 height: commonHeight,
               ),
-              onPressed: () {
-                startNewGame(context);
-              },
+              onPressed: startGame,
             ),
           ),
           Padding(
@@ -293,9 +432,7 @@ class _GamePageState extends State<GamePage> {
                 width: commonHeight,
                 height: commonHeight,
               ),
-              onPressed: () {
-                stopCurrentGame(context);
-              },
+              onPressed: stopGame,
             ),
           ),
           Padding(
@@ -307,64 +444,20 @@ class _GamePageState extends State<GamePage> {
                   width: commonHeight,
                   height: commonHeight,
                 ),
-                onPressed: () {
-                  setState(() {
-                    _boardReversed = !_boardReversed;
-                  });
-                },
+                onPressed: reverseBoard,
               )),
         ],
       ),
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    final viewport = MediaQuery.of(context).size;
-    final minSize =
-        viewport.width < viewport.height ? viewport.width : viewport.height;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Game page"),
-      ),
-      body: Center(
-          child: Column(
-        children: [
-          headerBar(context),
-          Text(
-            _goalString,
-            style: TextStyle(fontSize: minSize * 0.04),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              board.ChessBoard(
-                fen: _boardState.fen,
-                size: minSize * 0.7,
-                userCanMovePieces: _gameInProgress,
-                onDragMove: (startCell, endCell) {
-                  checkAndMakeMove(startCell, endCell);
-                },
-                blackAtBottom: _boardReversed,
-                lastMoveVisible: _lastMoveVisible,
-                lastMoveStartFile: _lastMoveStartFile,
-                lastMoveStartRank: _lastMoveStartRank,
-                lastMoveEndFile: _lastMoveEndFile,
-                lastMoveEndRank: _lastMoveEndRank,
-                pendingPromotion: _pendingPromotion,
-                commitPromotionMove: (pieceType) =>
-                    commitPromotionMove(pieceType),
-                cancelPendingPromotion: () => cancelPendingPromotion(),
-              ),
-              HistoryWidget(
-                width: minSize * 0.7,
-                height: minSize * 0.7,
-                content: ['1.', 'e4', 'e5', '2.', 'Nf3', 'Nc6', '3.', 'Bb5'],
-              )
-            ],
-          ),
-        ],
-      )),
-    );
-  }
 }
+
+/*
+Widget HeaderBar(BuildContext context) {
+  final viewport = MediaQuery.of(context).size;
+  final commonHeight = viewport.height * 0.09;
+  final commonPadding = 10.0;
+
+  return;
+}
+*/
