@@ -350,7 +350,7 @@ class _GamePageState extends State<GamePage> {
             commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
             cancelPendingPromotion: cancelPendingPromotion,
             historyWidgetContent: _historyWidgetContent,
-            reactivityEnabled: !_gameInProgress,
+            reactivityEnabled: !_gameInProgress && _startPosition != null,
             handleHistoryPositionRequested: (
                 {String fen,
                 int lastMoveStartFile,
