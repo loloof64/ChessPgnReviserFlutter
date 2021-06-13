@@ -24,7 +24,10 @@ class _HistoryWidgetState extends State<HistoryWidget> {
         children: widget.content
             .map((word) => Text(
                   word,
-                  style: TextStyle(fontSize: widget.width * 0.06),
+                  style: TextStyle(
+                    fontSize: widget.width * 0.06,
+                    fontFamily: 'FreeSerif',
+                  ),
                 ))
             .toList(),
         spacing: widget.width * 0.01,

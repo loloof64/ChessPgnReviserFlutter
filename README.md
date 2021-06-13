@@ -15,3 +15,5 @@ Using some pictures from flaticon.com:
 * stop : downloaded at https://www.flaticon.com/free-icon/stop_827428 and designed by SmashIcons
 
 Adapted PGN PEG rules at https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs from project [pgn-parser](https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs), which is release under Apache License 2.0 (even if some elements - specially special kind of comments - have been removed).
+
+FreeSerif font downloaded from https://fr.fonts2u.com/free-serif.police
