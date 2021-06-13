@@ -108,6 +108,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
               });
             },
             onGotoNextItemRequested: () {
+              final noMove = widget.content.length < 2;
+              if (noMove) return;
               if (_selectedItemIndex < widget.content.length - 1) {
                 setState(() {
                   do {
@@ -119,6 +121,8 @@ class _HistoryWidgetState extends State<HistoryWidget> {
               }
             },
             onGotoLastItemRequested: () {
+              final noMove = widget.content.length < 2;
+              if (noMove) return;
               setState(() {
                 _selectedItemIndex = widget.content.length - 1;
                 while (
