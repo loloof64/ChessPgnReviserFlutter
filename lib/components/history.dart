@@ -39,16 +39,25 @@ class _HistoryWidgetState extends State<HistoryWidget> {
       ),
     );
 
-    return widget.reactivityEnabled
-        ? GestureDetector(
-            child: baseWidget,
-            onTap: () {
-              setState(() {
-                _selectedItemIndex = index;
-              });
-              requestPositionBasedOnCurrentItemIndex();
-            })
-        : baseWidget;
+    if (widget.reactivityEnabled) {
+      final result = GestureDetector(
+          child: baseWidget,
+          onTap: () {
+            setState(() {
+              _selectedItemIndex = index;
+            });
+            requestPositionBasedOnCurrentItemIndex();
+          });
+      if (index == _selectedItemIndex) {
+        return Container(
+          color: Colors.yellow[200],
+          child: result,
+        );
+      } else
+        return result;
+    } else {
+      return baseWidget;
+    }
   }
 
   void requestPositionBasedOnCurrentItemIndex() {
