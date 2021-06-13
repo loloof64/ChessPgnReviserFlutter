@@ -6,6 +6,8 @@ class HistoryWidget extends StatefulWidget {
   final double height;
   final List<HistoryItem> content;
   final bool onTouchActivated;
+  final String startPosition;
+
   final void Function(
       {String fen,
       int lastMoveStartFile,
@@ -18,6 +20,7 @@ class HistoryWidget extends StatefulWidget {
       @required this.height,
       @required this.content,
       @required this.onTouchActivated,
+      @required this.startPosition,
       this.handleHistoryPositionRequested});
 
   @override
@@ -25,7 +28,9 @@ class HistoryWidget extends StatefulWidget {
 }
 
 class _HistoryWidgetState extends State<HistoryWidget> {
-  Widget buildSingleItem(HistoryItem item) {
+  int _selectedItemIndex = -1;
+
+  Widget buildSingleItem(HistoryItem item, int index) {
     final baseWidget = Text(
       item.text,
       style: TextStyle(
@@ -38,31 +43,99 @@ class _HistoryWidgetState extends State<HistoryWidget> {
         ? GestureDetector(
             child: baseWidget,
             onTap: () {
-              if (item.fenAfterMove != null &&
-                  widget.handleHistoryPositionRequested != null) {
-                widget.handleHistoryPositionRequested(
-                  fen: item.fenAfterMove,
-                  lastMoveStartFile: item.lastMoveStartFile,
-                  lastMoveStartRank: item.lastMoveStartRank,
-                  lastMoveEndFile: item.lastMoveEndFile,
-                  lastMoveEndRank: item.lastMoveEndRank,
-                );
-              }
+              setState(() {
+                _selectedItemIndex = index;
+              });
+              requestPositionBasedOnCurrentItemIndex();
             })
         : baseWidget;
   }
 
+  void requestPositionBasedOnCurrentItemIndex() {
+    if (_selectedItemIndex >= 0 && _selectedItemIndex < widget.content.length) {
+      final item = widget.content[_selectedItemIndex];
+
+      if (item.fenAfterMove != null &&
+          widget.handleHistoryPositionRequested != null) {
+        widget.handleHistoryPositionRequested(
+          fen: item.fenAfterMove,
+          lastMoveStartFile: item.lastMoveStartFile,
+          lastMoveStartRank: item.lastMoveStartRank,
+          lastMoveEndFile: item.lastMoveEndFile,
+          lastMoveEndRank: item.lastMoveEndRank,
+        );
+      }
+    }
+  }
+
+  void requestStartPosition() {
+    widget.handleHistoryPositionRequested(
+      fen: widget.startPosition,
+      lastMoveStartFile: null,
+      lastMoveStartRank: null,
+      lastMoveEndFile: null,
+      lastMoveEndRank: null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(10.0),
-      color: Colors.grey[200],
-      width: widget.width,
-      height: widget.height,
-      child: Wrap(
-        children: widget.content.map(buildSingleItem).toList(),
-        spacing: widget.width * 0.01,
-      ),
+    final viewport = MediaQuery.of(context).size;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        HistoryNavigationWidget(
+            height: viewport.height * 0.035,
+            onGotoFirstItemRequested: () {
+              setState(() {
+                _selectedItemIndex = -1;
+                requestStartPosition();
+              });
+            },
+            onGotoPreviousItemRequested: () {
+              setState(() {
+                if (_selectedItemIndex > 0) {
+                  setState(() {
+                    do {
+                      _selectedItemIndex--;
+                    } while (widget.content[_selectedItemIndex].fenAfterMove ==
+                        null);
+                    requestPositionBasedOnCurrentItemIndex();
+                  });
+                }
+              });
+            },
+            onGotoNextItemRequested: () {
+              if (_selectedItemIndex < widget.content.length - 1) {
+                setState(() {
+                  do {
+                    _selectedItemIndex++;
+                  } while (
+                      widget.content[_selectedItemIndex].fenAfterMove == null);
+                  requestPositionBasedOnCurrentItemIndex();
+                });
+              }
+            },
+            onGotoLastItemRequested: () {
+              setState(() {
+                _selectedItemIndex = widget.content.length - 1;
+                while (
+                    widget.content[_selectedItemIndex].fenAfterMove == null) {
+                  _selectedItemIndex--;
+                }
+                requestPositionBasedOnCurrentItemIndex();
+              });
+            }),
+        HistoryMainZoneWidget(
+          width: widget.width,
+          height: widget.height,
+          content: widget.content
+              .asMap()
+              .entries
+              .map((entry) => buildSingleItem(entry.value, entry.key))
+              .toList(),
+        ),
+      ],
     );
   }
 }
@@ -91,4 +164,94 @@ class HistoryItem {
         lastMoveStartRank = null,
         lastMoveEndFile = null,
         lastMoveEndRank = null;
+
+  @override
+  String toString() {
+    return 'HistoryItem(text: $text, fenAfterMove: $fenAfterMove, lastMoveStartFile: $lastMoveStartFile, lastMoveStartRank: $lastMoveStartRank, lastMoveEndFile: $lastMoveEndFile, lastMoveEndRank: $lastMoveEndRank)';
+  }
+}
+
+class HistoryMainZoneWidget extends StatelessWidget {
+  final double width;
+  final double height;
+  final List<Widget> content;
+
+  HistoryMainZoneWidget(
+      {@required this.width, @required this.height, @required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10.0),
+      color: Colors.grey[200],
+      width: width,
+      height: height,
+      child: Wrap(
+        children: content,
+        spacing: width * 0.01,
+      ),
+    );
+  }
+}
+
+class HistoryNavigationWidget extends StatelessWidget {
+  final void Function() onGotoFirstItemRequested;
+  final void Function() onGotoPreviousItemRequested;
+  final void Function() onGotoNextItemRequested;
+  final void Function() onGotoLastItemRequested;
+  final double height;
+
+  HistoryNavigationWidget(
+      {@required this.height,
+      @required this.onGotoFirstItemRequested,
+      @required this.onGotoPreviousItemRequested,
+      @required this.onGotoNextItemRequested,
+      @required this.onGotoLastItemRequested});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          HistoryNavigationButton(
+              imageReference: 'images/first_item.png',
+              onPressed: onGotoFirstItemRequested),
+          HistoryNavigationButton(
+              imageReference: 'images/previous_item.png',
+              onPressed: onGotoPreviousItemRequested),
+          HistoryNavigationButton(
+              imageReference: 'images/next_item.png',
+              onPressed: onGotoNextItemRequested),
+          HistoryNavigationButton(
+              imageReference: 'images/last_item.png',
+              onPressed: onGotoLastItemRequested),
+        ],
+      ),
+    );
+  }
+}
+
+class HistoryNavigationButton extends StatelessWidget {
+  final String imageReference;
+  final void Function() onPressed;
+
+  HistoryNavigationButton({
+    @required this.imageReference,
+    @required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      label: Text(''),
+      icon: Image(
+        fit: BoxFit.contain,
+        image: AssetImage(imageReference),
+      ),
+      onPressed: onPressed,
+    );
+  }
 }

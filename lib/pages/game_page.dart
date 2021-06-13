@@ -28,15 +28,16 @@ class _GamePageState extends State<GamePage> {
   Move _pendingPromotionMove;
   bool _boardReversed = false;
   bool _lastMoveVisible = false;
-  int _lastMoveStartFile = -10;
-  int _lastMoveStartRank = -10;
-  int _lastMoveEndFile = -10;
-  int _lastMoveEndRank = -10;
+  int _lastMoveStartFile;
+  int _lastMoveStartRank;
+  int _lastMoveEndFile;
+  int _lastMoveEndRank;
   String _goalString = "";
   bool _gameInProgress = false;
   List<HistoryItem> _historyWidgetContent = [];
   var _referenceGame;
   int _moveNumber = -1;
+  String _startPosition;
 
   processMoveSan(String moveSan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
@@ -118,8 +119,16 @@ class _GamePageState extends State<GamePage> {
         throw Exception("Cannot load the position : no move can be made !");
       }
 
+      String startFen;
+      final tags = game['tags'];
+      if (tags != null) {
+        if (tags['FEN'] != null) startFen = tags['FEN'];
+      }
+      if (startFen == null) startFen = board_logic.Chess.DEFAULT_POSITION;
+
       setState(() {
         _referenceGame = game;
+        _startPosition = startFen;
         _moveNumber = _referenceGame['moves']['pgn'][0]['moveNumber'];
         final blackTurn = _referenceGame['moves']['pgn'][0]['turn'] != 'w';
         _historyWidgetContent.clear();
@@ -319,8 +328,9 @@ class _GamePageState extends State<GamePage> {
                   _boardReversed = !_boardReversed;
                 });
               }),
-          GoalLabel(goalString: _goalString, minSize: minSize),
+          GoalLabel(goalString: _goalString, fontSize: minSize * 0.03),
           GameComponents(
+            startPosition: _startPosition,
             blackAtBottom: _boardReversed,
             commonSize: minSize * 0.7,
             fen: _boardState.fen,
@@ -348,14 +358,25 @@ class _GamePageState extends State<GamePage> {
                 int lastMoveEndFile,
                 int lastMoveEndRank}) {
               if (!_gameInProgress) {
-                setState(() {
-                  _boardState = board_logic.Chess();
-                  _boardState.load(fen);
-                  _lastMoveStartFile = lastMoveStartFile;
-                  _lastMoveStartRank = lastMoveStartRank;
-                  _lastMoveEndFile = lastMoveEndFile;
-                  _lastMoveEndRank = lastMoveEndRank;
-                });
+                if (fen != null) {
+                  setState(() {
+                    _boardState = board_logic.Chess();
+                    _boardState.load(fen);
+                    _lastMoveStartFile = lastMoveStartFile;
+                    _lastMoveStartRank = lastMoveStartRank;
+                    _lastMoveEndFile = lastMoveEndFile;
+                    _lastMoveEndRank = lastMoveEndRank;
+                  });
+                } else {
+                  setState(() {
+                    _boardState = board_logic.Chess();
+                    _boardState.load(_startPosition);
+                    _lastMoveStartFile = null;
+                    _lastMoveStartRank = null;
+                    _lastMoveEndFile = null;
+                    _lastMoveEndRank = null;
+                  });
+                }
               }
             },
           ),
@@ -381,6 +402,7 @@ class GameComponents extends StatelessWidget {
   final void Function() cancelPendingPromotion;
   final List<HistoryItem> historyWidgetContent;
   final bool onTouchActivated;
+  final String startPosition;
   final void Function(
       {String fen,
       int lastMoveStartFile,
@@ -404,6 +426,7 @@ class GameComponents extends StatelessWidget {
     @required this.cancelPendingPromotion,
     @required this.historyWidgetContent,
     @required this.onTouchActivated,
+    @required this.startPosition,
     this.handleHistoryPositionRequested,
   });
 
@@ -433,6 +456,7 @@ class GameComponents extends StatelessWidget {
           content: historyWidgetContent,
           onTouchActivated: onTouchActivated,
           handleHistoryPositionRequested: handleHistoryPositionRequested,
+          startPosition: startPosition,
         )
       ],
     );
@@ -442,17 +466,17 @@ class GameComponents extends StatelessWidget {
 class GoalLabel extends StatelessWidget {
   const GoalLabel({
     @required this.goalString,
-    @required this.minSize,
+    @required this.fontSize,
   });
 
   final String goalString;
-  final double minSize;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
     return Text(
       goalString,
-      style: TextStyle(fontSize: minSize * 0.04),
+      style: TextStyle(fontSize: fontSize),
     );
   }
 }

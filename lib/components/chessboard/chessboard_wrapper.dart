@@ -147,6 +147,8 @@ class ChessBoardWrapperPainter extends CustomPainter {
 
   void paintLastMoveArrow(Canvas canvas, Size size) {
     if (lastMoveVisible == null || !lastMoveVisible) return;
+    if (lastMoveStartFile == null || lastMoveStartRank == null) return;
+    if (lastMoveEndFile == null || lastMoveEndRank == null) return;
     final cellSize = cellSizeFrom(size);
 
     final paint = Paint()
