@@ -101,6 +101,7 @@ class _GamePageState extends State<GamePage> {
       }
 
       setState(() {
+        _historyWidgetContent.clear();
         _goalString = _getGameGoal(game);
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = fen.split(" ")[1] == "b";
