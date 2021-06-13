@@ -16,8 +16,6 @@ import 'package:chess_pgn_reviser/history.dart';
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
 class GamePage extends StatefulWidget {
-  GamePage({Key key}) : super(key: key);
-
   @override
   _GamePageState createState() => _GamePageState();
 }

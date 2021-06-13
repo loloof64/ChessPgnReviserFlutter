@@ -151,9 +151,7 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         final inner = values[0];
         final result = values[1];
 
-        final pgn = inner != null ? inner[0] : null;
-
-        return {'pgn': pgn, 'result': result};
+        return {'pgn': inner, 'result': result};
       });
 
   Parser variationPgn() => super.variationPgn().map((values) {

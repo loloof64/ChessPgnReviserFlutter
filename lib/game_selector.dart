@@ -6,44 +6,38 @@ import 'package:chess_pgn_reviser/chessboard/chessboard.dart' as board;
 
 class GameSelector extends StatefulWidget {
   final List<dynamic> games;
-  var gameIndex = 0;
-
-  GameSelector(this.games);
-
-  String currentFen() {
-    return (games[gameIndex]["tags"] ?? {})["FEN"] ?? board_logic.Chess().fen;
-  }
-
-  bool whiteTurn() {
-    return currentFen().split(' ')[1] == 'w';
-  }
+  GameSelector(
+    this.games,
+  );
 
   @override
   _GameSelectorState createState() => _GameSelectorState();
 }
 
 class _GameSelectorState extends State<GameSelector> {
+  int _gameIndex = 0;
+
   gotoFirst() {
     setState(() {
-      widget.gameIndex = 0;
+      _gameIndex = 0;
     });
   }
 
   gotoPrevious() {
     setState(() {
-      if (widget.gameIndex > 0) widget.gameIndex -= 1;
+      if (_gameIndex > 0) _gameIndex -= 1;
     });
   }
 
   gotoNext() {
     setState(() {
-      if (widget.gameIndex < widget.games.length - 1) widget.gameIndex += 1;
+      if (_gameIndex < widget.games.length - 1) _gameIndex += 1;
     });
   }
 
   gotoLast() {
     setState(() {
-      widget.gameIndex = widget.games.length - 1;
+      _gameIndex = widget.games.length - 1;
     });
   }
 
@@ -52,7 +46,7 @@ class _GameSelectorState extends State<GameSelector> {
   }
 
   validate(BuildContext context) {
-    Navigator.pop(context, widget.gameIndex);
+    Navigator.pop(context, _gameIndex);
   }
 
   resetText() {
@@ -67,7 +61,7 @@ class _GameSelectorState extends State<GameSelector> {
         return;
       }
       setState(() {
-        widget.gameIndex = gameIndex;
+        _gameIndex = gameIndex;
       });
     } catch (ex) {
       resetText();
@@ -76,7 +70,7 @@ class _GameSelectorState extends State<GameSelector> {
   }
 
   String getGameGoal() {
-    final goalString = widget.games[widget.gameIndex]["tags"]["Goal"] ?? "";
+    final goalString = widget.games[_gameIndex]["tags"]["Goal"] ?? "";
     if (goalString == "1-0") return "White should win";
     if (goalString == "0-1") return "Black should win";
     if (goalString.startsWith("1/2")) return "It should be draw";
@@ -84,22 +78,30 @@ class _GameSelectorState extends State<GameSelector> {
   }
 
   bool isBlackTurn() {
-    final currentGame = widget.games[widget.gameIndex];
-    return currentGame["moves"]["pgn"][0]["turn"] == "b";
+    return widget.games[_gameIndex]["moves"]["pgn"][0]["turn"] == "b";
+  }
+
+  String currentFen() {
+    return (widget.games[_gameIndex]["tags"] ?? {})["FEN"] ??
+        board_logic.Chess().fen;
+  }
+
+  bool whiteTurnInGameSelector() {
+    return currentFen().split(' ')[1] == 'w';
   }
 
   @override
   Widget build(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
     final size = min(viewport.height * 0.6, viewport.width);
-    final fen = widget.currentFen();
+    final fen = currentFen();
     final navigationButtonsSize = size * 0.05;
     final validationButtonsFontSize = size * 0.08;
     final validationButtonsPadding = size * 0.016;
     final navigationFontSize = size * 0.08;
 
     TextEditingController textController =
-        TextEditingController(text: "${widget.gameIndex + 1}");
+        TextEditingController(text: "${_gameIndex + 1}");
 
     return Scaffold(
         appBar: AppBar(title: Text('Game selector')),
@@ -121,7 +123,7 @@ class _GameSelectorState extends State<GameSelector> {
                 onGotoPrevious: gotoPrevious,
               ),
               board.ChessBoard(
-                  size: size, fen: fen, blackAtBottom: !widget.whiteTurn()),
+                  size: size, fen: fen, blackAtBottom: isBlackTurn()),
               Padding(
                 child: Text(
                   getGameGoal(),
