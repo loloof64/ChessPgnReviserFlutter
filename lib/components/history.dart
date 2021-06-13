@@ -1,12 +1,13 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
 
 class HistoryWidget extends StatefulWidget {
   final double width;
   final double height;
-  final List<String> content;
+  final List<HistoryItem> content;
 
   HistoryWidget(
-      {required this.width, required this.height, required this.content});
+      {@required this.width, @required this.height, @required this.content});
 
   @override
   _HistoryWidgetState createState() => _HistoryWidgetState();
@@ -23,7 +24,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
       child: Wrap(
         children: widget.content
             .map((word) => Text(
-                  word,
+                  word.text,
                   style: TextStyle(
                     fontSize: widget.width * 0.06,
                     fontFamily: 'FreeSerif',
@@ -34,4 +35,30 @@ class _HistoryWidgetState extends State<HistoryWidget> {
       ),
     );
   }
+}
+
+class HistoryItem {
+  final String text;
+  final String fenAfterMove;
+  final int lastMoveStartFile;
+  final int lastMoveStartRank;
+  final int lastMoveEndFile;
+  final int lastMoveEndRank;
+
+  HistoryItem({
+    @required this.text,
+    this.fenAfterMove,
+    this.lastMoveStartFile,
+    this.lastMoveStartRank,
+    this.lastMoveEndFile,
+    this.lastMoveEndRank,
+  });
+
+  HistoryItem.moveNumber(int moveNumber, bool blackTurn)
+      : text = '$moveNumber.${blackTurn ? '...' : ''}',
+        fenAfterMove = null,
+        lastMoveStartFile = null,
+        lastMoveStartRank = null,
+        lastMoveEndFile = null,
+        lastMoveEndRank = null;
 }
