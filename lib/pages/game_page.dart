@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:confirm_dialog/confirm_dialog.dart';
+import 'package:alert_dialog/alert_dialog.dart';
 import 'package:chess/chess.dart' as board_logic;
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
@@ -16,6 +17,11 @@ import '../utils/chess_utils.dart' as chess_utils;
 import '../components/header_bar.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
+
+class UnexpectedMoveException implements Exception {
+  final String moveFan;
+  UnexpectedMoveException(this.moveFan);
+}
 
 class GamePage extends StatefulWidget {
   @override
@@ -38,13 +44,12 @@ class _GamePageState extends State<GamePage> {
   var _referenceGame;
   int _moveNumber = -1;
   String _startPosition;
+  int _currentNodeIndex;
+  var _parentNode;
 
-  processMoveSan(String moveSan, bool isWhiteTurn) {
+  processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
-        text: chess_utils.moveFanFromMoveSan(
-          moveSan,
-          isWhiteTurn,
-        ),
+        text: moveFan,
         fenAfterMove: _boardState.fen,
         lastMoveStartFile: _lastMoveStartFile,
         lastMoveStartRank: _lastMoveStartRank,
@@ -128,6 +133,8 @@ class _GamePageState extends State<GamePage> {
 
       setState(() {
         _referenceGame = game;
+        _parentNode = game['moves']['pgn'];
+        _currentNodeIndex = 0;
         _startPosition = startFen;
         _moveNumber = _referenceGame['moves']['pgn'][0]['moveNumber'];
         final blackTurn = _referenceGame['moves']['pgn'][0]['turn'] != 'w';
@@ -145,6 +152,24 @@ class _GamePageState extends State<GamePage> {
       Toast.show("Failed to read pgn content, cancelled new game !", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     }
+  }
+
+  List<String> getAvailableMovesAsSan() {
+    final currentNode = _parentNode[_currentNodeIndex];
+    if (currentNode == null) return [];
+
+    List<String> results = [];
+    results.add(currentNode['halfMove']['notation']);
+
+    if (currentNode['variations'].length > 0) {
+      final variationsSan = currentNode['variations'].map((item) {
+        final pgn = item['pgn'];
+        return pgn.length > 0 ? pgn[0]['halfMove']['notation'] : null;
+      }).where((item) => item != null);
+      results.addAll(List<String>.from(variationsSan));
+    }
+
+    return results;
   }
 
   startNewGame(BuildContext context) async {
@@ -219,7 +244,7 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  String checkAndMakeMove(String startCellStr, String endCellStr) {
+  handleDragReleased(String startCellStr, String endCellStr) {
     var boardLogicClone = board_logic.Chess();
     boardLogicClone.load(_boardState.fen);
     final legalMove = boardLogicClone
@@ -246,18 +271,28 @@ class _GamePageState extends State<GamePage> {
       } else {
         final move = chess_utils.findMoveForPosition(
             _boardState, startCellStr, endCellStr, null);
+
         final moveSan = _boardState.move_to_san(move);
+        final moveFan = chess_utils.moveFanFromMoveSan(
+            moveSan, _boardState.turn == board_logic.Color.WHITE);
+
         _boardState.move(move);
+
+        final matchExpectedMove = checkThatMoveMatchExpected(moveSan);
 
         final startCell = Cell.fromAlgebraic(startCellStr);
         final endCell = Cell.fromAlgebraic(endCellStr);
         setState(() {
+          _currentNodeIndex++;
           _lastMoveVisible = true;
           _lastMoveStartFile = startCell.file;
           _lastMoveStartRank = startCell.rank;
           _lastMoveEndFile = endCell.file;
           _lastMoveEndRank = endCell.rank;
         });
+        processMoveFanIntoHistoryWidgetMoves(
+            moveFan, _boardState.turn != board_logic.Color.WHITE);
+        if (!matchExpectedMove) throw UnexpectedMoveException(moveFan);
         handleGameFinishedIfNecessary();
 
         return moveSan;
@@ -273,19 +308,31 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
+  bool checkThatMoveMatchExpected(String moveSan) {
+    final expectedMoves = getAvailableMovesAsSan();
+    return expectedMoves.contains(moveSan);
+  }
+
   commitPromotionMove(String type) {
     final move = chess_utils.findMoveForPosition(
         _boardState,
         _pendingPromotionMove.start.toAlgebraic(),
         _pendingPromotionMove.end.toAlgebraic(),
         type);
+
     final moveSan = _boardState.move_to_san(move);
+    final moveFan = chess_utils.moveFanFromMoveSan(
+        moveSan, _boardState.turn == board_logic.Color.WHITE);
+
     _boardState.move(move);
 
-    if (moveSan != null)
-      processMoveSan(moveSan, _boardState.turn != board_logic.Color.WHITE);
+    processMoveFanIntoHistoryWidgetMoves(
+        moveFan, _boardState.turn != board_logic.Color.WHITE);
+
+    final matchExpectedMove = checkThatMoveMatchExpected(moveSan);
 
     setState(() {
+      _currentNodeIndex++;
       _lastMoveVisible = true;
       _lastMoveStartFile = _pendingPromotionMove.start.file;
       _lastMoveStartRank = _pendingPromotionMove.start.rank;
@@ -293,6 +340,7 @@ class _GamePageState extends State<GamePage> {
       _lastMoveEndRank = _pendingPromotionMove.end.rank;
     });
     cancelPendingPromotion();
+    if (!matchExpectedMove) throw UnexpectedMoveException(moveFan);
     handleGameFinishedIfNecessary();
   }
 
@@ -304,6 +352,16 @@ class _GamePageState extends State<GamePage> {
       _lastMoveEndFile = -10;
       _lastMoveEndRank = -10;
     });
+  }
+
+  handleUnexpectedMove(BuildContext context, UnexpectedMoveException ex) {
+    setState(() {
+      _gameInProgress = false;
+    });
+    alert(context,
+        title: Text('Bad move'),
+        content: Text('Unexpected move ${ex.moveFan} !'),
+        textOK: Text('Ok'));
   }
 
   @override
@@ -341,13 +399,20 @@ class _GamePageState extends State<GamePage> {
             lastMoveStartRank: _lastMoveStartRank,
             lastMoveEndFile: _lastMoveEndFile,
             lastMoveEndRank: _lastMoveEndRank,
-            onDragMove: (startCell, endCell) {
-              final moveSan = checkAndMakeMove(startCell, endCell);
-              if (moveSan != null)
-                processMoveSan(
-                    moveSan, _boardState.turn != board_logic.Color.WHITE);
+            onDragReleased: (startCell, endCell) {
+              try {
+                handleDragReleased(startCell, endCell);
+              } on UnexpectedMoveException catch (e) {
+                handleUnexpectedMove(context, e);
+              }
             },
-            commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
+            commitPromotionMove: (pieceType) {
+              try {
+                commitPromotionMove(pieceType);
+              } on UnexpectedMoveException catch (e) {
+                handleUnexpectedMove(context, e);
+              }
+            },
             cancelPendingPromotion: cancelPendingPromotion,
             historyWidgetContent: _historyWidgetContent,
             reactivityEnabled: !_gameInProgress && _startPosition != null,
@@ -397,7 +462,7 @@ class GameComponents extends StatelessWidget {
   final int lastMoveStartRank;
   final int lastMoveEndFile;
   final int lastMoveEndRank;
-  final void Function(String startCell, String endCell) onDragMove;
+  final void Function(String startCell, String endCell) onDragReleased;
   final void Function(String pieceType) commitPromotionMove;
   final void Function() cancelPendingPromotion;
   final List<HistoryItem> historyWidgetContent;
@@ -421,7 +486,7 @@ class GameComponents extends StatelessWidget {
     @required this.lastMoveStartRank,
     @required this.lastMoveEndFile,
     @required this.lastMoveEndRank,
-    @required this.onDragMove,
+    @required this.onDragReleased,
     @required this.commitPromotionMove,
     @required this.cancelPendingPromotion,
     @required this.historyWidgetContent,
@@ -439,7 +504,7 @@ class GameComponents extends StatelessWidget {
           fen: fen,
           size: commonSize,
           userCanMovePieces: userCanMovePieces,
-          onDragMove: onDragMove,
+          onDragReleased: onDragReleased,
           blackAtBottom: blackAtBottom,
           lastMoveVisible: lastMoveVisible,
           lastMoveStartFile: lastMoveStartFile,

@@ -21,6 +21,7 @@ dependencies:
   file_selector_linux: ^0.0.2
   file_selector_web: ^0.7.0
   confirm_dialog: ^1.0.0
+  alert_dialog: ^1.0.0
 
 dev_dependencies:
   flutter_test:

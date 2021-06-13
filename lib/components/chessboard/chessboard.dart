@@ -21,7 +21,7 @@ class ChessBoard extends StatelessWidget {
 
   final bool pendingPromotion;
 
-  final Function(String startCell, String endCell) onDragMove;
+  final Function(String startCell, String endCell) onDragReleased;
 
   final void Function() cancelPendingPromotion;
   final void Function(String pieceType) commitPromotionMove;
@@ -35,7 +35,7 @@ class ChessBoard extends StatelessWidget {
       this.lastMoveStartRank,
       this.lastMoveEndFile,
       this.lastMoveEndRank,
-      this.onDragMove,
+      this.onDragReleased,
       this.userCanMovePieces,
       this.pendingPromotion,
       this.cancelPendingPromotion,
@@ -52,7 +52,7 @@ class ChessBoard extends StatelessWidget {
         fen: fen,
         size: mainZoneSize,
         blackAtBottom: blackAtBottom,
-        onMove: onDragMove,
+        onMove: onDragReleased,
         userCanMovePieces: userCanMovePieces,
       )
     ];

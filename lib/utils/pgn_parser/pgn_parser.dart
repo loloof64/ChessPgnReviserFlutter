@@ -158,7 +158,7 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         final inner = values[0];
         final result = values[1];
 
-        final pgn = inner != null ? inner[0] : null;
+        final pgn = inner;
 
         return {'pgn': pgn, 'result': result};
       });
