@@ -16,6 +16,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(10.0),
       color: Colors.grey[200],
       width: widget.width,
       height: widget.height,
