@@ -5,7 +5,7 @@ class HistoryWidget extends StatefulWidget {
   final double width;
   final double height;
   final List<HistoryItem> content;
-  final bool onTouchActivated;
+  final bool reactivityEnabled;
   final String startPosition;
 
   final void Function(
@@ -19,7 +19,7 @@ class HistoryWidget extends StatefulWidget {
       {@required this.width,
       @required this.height,
       @required this.content,
-      @required this.onTouchActivated,
+      @required this.reactivityEnabled,
       @required this.startPosition,
       this.handleHistoryPositionRequested});
 
@@ -39,7 +39,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
       ),
     );
 
-    return widget.onTouchActivated
+    return widget.reactivityEnabled
         ? GestureDetector(
             child: baseWidget,
             onTap: () {
@@ -85,6 +85,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         HistoryNavigationWidget(
+            enabled: widget.reactivityEnabled,
             height: viewport.height * 0.035,
             onGotoFirstItemRequested: () {
               setState(() {
@@ -201,13 +202,15 @@ class HistoryNavigationWidget extends StatelessWidget {
   final void Function() onGotoNextItemRequested;
   final void Function() onGotoLastItemRequested;
   final double height;
+  final bool enabled;
 
   HistoryNavigationWidget(
       {@required this.height,
       @required this.onGotoFirstItemRequested,
       @required this.onGotoPreviousItemRequested,
       @required this.onGotoNextItemRequested,
-      @required this.onGotoLastItemRequested});
+      @required this.onGotoLastItemRequested,
+      @required this.enabled});
 
   @override
   Widget build(BuildContext context) {
@@ -218,15 +221,19 @@ class HistoryNavigationWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           HistoryNavigationButton(
+              enabled: enabled,
               imageReference: 'images/first_item.png',
               onPressed: onGotoFirstItemRequested),
           HistoryNavigationButton(
+              enabled: enabled,
               imageReference: 'images/previous_item.png',
               onPressed: onGotoPreviousItemRequested),
           HistoryNavigationButton(
+              enabled: enabled,
               imageReference: 'images/next_item.png',
               onPressed: onGotoNextItemRequested),
           HistoryNavigationButton(
+              enabled: enabled,
               imageReference: 'images/last_item.png',
               onPressed: onGotoLastItemRequested),
         ],
@@ -238,10 +245,12 @@ class HistoryNavigationWidget extends StatelessWidget {
 class HistoryNavigationButton extends StatelessWidget {
   final String imageReference;
   final void Function() onPressed;
+  final bool enabled;
 
   HistoryNavigationButton({
     @required this.imageReference,
     @required this.onPressed,
+    @required this.enabled,
   });
 
   @override
@@ -252,7 +261,7 @@ class HistoryNavigationButton extends StatelessWidget {
         fit: BoxFit.contain,
         image: AssetImage(imageReference),
       ),
-      onPressed: onPressed,
+      onPressed: enabled ? onPressed : null,
     );
   }
 }

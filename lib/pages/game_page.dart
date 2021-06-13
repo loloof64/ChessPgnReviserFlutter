@@ -350,7 +350,7 @@ class _GamePageState extends State<GamePage> {
             commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
             cancelPendingPromotion: cancelPendingPromotion,
             historyWidgetContent: _historyWidgetContent,
-            onTouchActivated: !_gameInProgress,
+            reactivityEnabled: !_gameInProgress,
             handleHistoryPositionRequested: (
                 {String fen,
                 int lastMoveStartFile,
@@ -401,7 +401,7 @@ class GameComponents extends StatelessWidget {
   final void Function(String pieceType) commitPromotionMove;
   final void Function() cancelPendingPromotion;
   final List<HistoryItem> historyWidgetContent;
-  final bool onTouchActivated;
+  final bool reactivityEnabled;
   final String startPosition;
   final void Function(
       {String fen,
@@ -425,7 +425,7 @@ class GameComponents extends StatelessWidget {
     @required this.commitPromotionMove,
     @required this.cancelPendingPromotion,
     @required this.historyWidgetContent,
-    @required this.onTouchActivated,
+    @required this.reactivityEnabled,
     @required this.startPosition,
     this.handleHistoryPositionRequested,
   });
@@ -454,7 +454,7 @@ class GameComponents extends StatelessWidget {
           width: commonSize,
           height: commonSize,
           content: historyWidgetContent,
-          onTouchActivated: onTouchActivated,
+          reactivityEnabled: reactivityEnabled,
           handleHistoryPositionRequested: handleHistoryPositionRequested,
           startPosition: startPosition,
         )
