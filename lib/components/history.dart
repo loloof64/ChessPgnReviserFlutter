@@ -121,10 +121,18 @@ class _HistoryWidgetState extends State<HistoryWidget> {
               if (noMove) return;
               if (_selectedItemIndex < widget.content.length - 1) {
                 setState(() {
-                  do {
-                    _selectedItemIndex++;
-                  } while (
-                      widget.content[_selectedItemIndex].fenAfterMove == null);
+                  try {
+                    do {
+                      _selectedItemIndex++;
+                    } while (widget.content[_selectedItemIndex].fenAfterMove ==
+                        null);
+                  } on RangeError {
+                    // We must get backward to the last move (last node with a fen defined)
+                    do {
+                      _selectedItemIndex--;
+                    } while (widget.content[_selectedItemIndex].fenAfterMove ==
+                        null);
+                  }
                   requestPositionBasedOnCurrentItemIndex();
                 });
               }
