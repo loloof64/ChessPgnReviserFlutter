@@ -2,7 +2,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
-import 'package:chess_pgn_reviser/chessboard/chessboard.dart' as board;
+import 'chessboard/chessboard.dart' as board;
 
 class GameSelector extends StatefulWidget {
   final List<dynamic> games;

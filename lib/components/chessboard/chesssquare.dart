@@ -1,8 +1,8 @@
 // @dart=2.9
 
 import 'package:flutter/material.dart';
-import 'package:chess_pgn_reviser/chessboard/chesspiece.dart';
-import 'package:chess_pgn_reviser/chessboard/chessboard_types.dart';
+import 'chesspiece.dart';
+import 'chessboard_types.dart';
 
 class ChessSquare extends StatelessWidget {
   final double size;

@@ -1,6 +1,6 @@
 // @dart=2.9
-import 'package:chess_pgn_reviser/chessboard/chessboard_types.dart';
-import 'package:chess_pgn_reviser/chessboard/chesssquare.dart';
+import 'chessboard_types.dart';
+import 'chesssquare.dart';
 import 'package:flutter/material.dart';
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 

@@ -1,10 +1,10 @@
 // @dart=2.9
 import 'package:flutter/material.dart';
 
-import 'package:chess_pgn_reviser/chessboard/chessboard_wrapper.dart';
-import 'package:chess_pgn_reviser/chessboard/chessboard_mainzone.dart';
-import 'package:chess_pgn_reviser/chessboard/chessboard_promotionzone_white.dart';
-import 'package:chess_pgn_reviser/chessboard/chessboard_promotionzone_black.dart';
+import 'chessboard_wrapper.dart';
+import 'chessboard_mainzone.dart';
+import 'chessboard_promotionzone_white.dart';
+import 'chessboard_promotionzone_black.dart';
 
 class ChessBoard extends StatelessWidget {
   final double size;

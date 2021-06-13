@@ -7,11 +7,11 @@ import 'package:chess/chess.dart' as board_logic;
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:chess_pgn_reviser/pgn_parser.dart';
-import 'package:chess_pgn_reviser/game_selector.dart';
-import 'package:chess_pgn_reviser/chessboard/chessboard.dart' as board;
-import 'package:chess_pgn_reviser/chessboard/chessboard_types.dart';
-import 'package:chess_pgn_reviser/history.dart';
+import '../utils/pgn_parser/pgn_parser.dart';
+import '../components/game_selector.dart';
+import '../components/chessboard/chessboard.dart' as board;
+import '../components/chessboard/chessboard_types.dart';
+import '../components/history.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -21,17 +21,17 @@ class GamePage extends StatefulWidget {
 }
 
 class _GamePageState extends State<GamePage> {
-  var _boardState = board_logic.Chess.fromFEN(EMPTY_BOARD);
-  var _pendingPromotion = false;
+  board_logic.Chess _boardState = board_logic.Chess.fromFEN(EMPTY_BOARD);
+  bool _pendingPromotion = false;
   Move _pendingPromotionMove;
-  var _boardReversed = false;
-  var _lastMoveVisible = false;
-  var _lastMoveStartFile = -10;
-  var _lastMoveStartRank = -10;
-  var _lastMoveEndFile = -10;
-  var _lastMoveEndRank = -10;
-  var _goalString = "";
-  var _gameInProgress = false;
+  bool _boardReversed = false;
+  bool _lastMoveVisible = false;
+  int _lastMoveStartFile = -10;
+  int _lastMoveStartRank = -10;
+  int _lastMoveEndFile = -10;
+  int _lastMoveEndRank = -10;
+  String _goalString = "";
+  bool _gameInProgress = false;
 
   String _getGameGoal(gamePgn) {
     final goalString = gamePgn["tags"]["Goal"] ?? "";

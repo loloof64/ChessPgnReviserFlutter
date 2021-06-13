@@ -1,8 +1,8 @@
 // @dart=2.9
 
-import 'package:chess_pgn_reviser/chessboard/chesssquare.dart';
+import 'chesssquare.dart';
 import 'package:flutter/material.dart';
-import 'package:chess_pgn_reviser/chessboard/chessboard_types.dart';
+import 'chessboard_types.dart';
 
 final zeroToSeven = List.generate(8, (index) => index);
 
