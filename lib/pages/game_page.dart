@@ -12,6 +12,7 @@ import '../components/game_selector.dart';
 import '../components/chessboard/chessboard.dart' as board;
 import '../components/chessboard/chessboard_types.dart';
 import '../components/history.dart';
+import '../utils/chess_utils.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -107,34 +108,6 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  String _pieceTypeToFen(board_logic.Piece pieceType) {
-    if (pieceType.type == board_logic.PieceType.PAWN &&
-        pieceType.color == board_logic.Color.WHITE) return 'P';
-    if (pieceType.type == board_logic.PieceType.PAWN &&
-        pieceType.color == board_logic.Color.BLACK) return 'p';
-    if (pieceType.type == board_logic.PieceType.KNIGHT &&
-        pieceType.color == board_logic.Color.WHITE) return 'N';
-    if (pieceType.type == board_logic.PieceType.KNIGHT &&
-        pieceType.color == board_logic.Color.BLACK) return 'n';
-    if (pieceType.type == board_logic.PieceType.BISHOP &&
-        pieceType.color == board_logic.Color.WHITE) return 'B';
-    if (pieceType.type == board_logic.PieceType.BISHOP &&
-        pieceType.color == board_logic.Color.BLACK) return 'b';
-    if (pieceType.type == board_logic.PieceType.ROOK &&
-        pieceType.color == board_logic.Color.WHITE) return 'R';
-    if (pieceType.type == board_logic.PieceType.ROOK &&
-        pieceType.color == board_logic.Color.BLACK) return 'r';
-    if (pieceType.type == board_logic.PieceType.QUEEN &&
-        pieceType.color == board_logic.Color.WHITE) return 'Q';
-    if (pieceType.type == board_logic.PieceType.QUEEN &&
-        pieceType.color == board_logic.Color.BLACK) return 'q';
-    if (pieceType.type == board_logic.PieceType.KING &&
-        pieceType.color == board_logic.Color.WHITE) return 'K';
-    if (pieceType.type == board_logic.PieceType.KING &&
-        pieceType.color == board_logic.Color.BLACK) return 'k';
-    return null;
-  }
-
   _checkPiecesCount(board_logic.Chess gameLogic) {
     final piecesCounts = Map<String, int>();
     for (var rank = 0; rank < 8; rank++) {
@@ -142,7 +115,7 @@ class _GamePageState extends State<GamePage> {
         final cell = board_logic.Chess.algebraic(16 * rank + file);
         final currentPiece = gameLogic.get(cell);
         if (currentPiece != null) {
-          final currentFen = _pieceTypeToFen(currentPiece);
+          final currentFen = pieceTypeToFen(currentPiece);
           if (piecesCounts.containsKey(currentFen)) {
             piecesCounts[currentFen] += 1;
           } else {

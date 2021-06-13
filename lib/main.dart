@@ -1,6 +1,6 @@
 // @dart=2.9
 import 'package:flutter/material.dart';
-import 'game_page.dart';
+import 'pages/game_page.dart';
 
 void main() {
   runApp(MyApp());
