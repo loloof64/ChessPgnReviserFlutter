@@ -35,12 +35,20 @@ class _GamePageState extends State<GamePage> {
   String _goalString = "";
   bool _gameInProgress = false;
   List<String> _historyWidgetContent = [];
+  var _referenceGame;
+  int _moveNumber = -1;
 
   processMoveSan(String moveSan, bool isWhiteTurn) {
     _historyWidgetContent.add(chess_utils.moveFanFromMoveSan(
       moveSan,
       isWhiteTurn,
     ));
+    if (!isWhiteTurn) {
+      setState(() {
+        _moveNumber += 1;
+      });
+      _historyWidgetContent.add('$_moveNumber.');
+    }
   }
 
   String _getGameGoal(gamePgn) {
@@ -104,7 +112,11 @@ class _GamePageState extends State<GamePage> {
       }
 
       setState(() {
+        _referenceGame = game;
+        _moveNumber = _referenceGame['moves']['pgn'][0]['moveNumber'];
+        final blackTurn = _referenceGame['moves']['pgn'][0]['turn'] != 'w';
         _historyWidgetContent.clear();
+        _historyWidgetContent.add('$_moveNumber.${blackTurn ? '..' : ''}');
         _goalString = _getGameGoal(game);
         _boardState = board_logic.Chess.fromFEN(fen);
         _boardReversed = fen.split(" ")[1] == "b";
