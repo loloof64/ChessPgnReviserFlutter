@@ -411,53 +411,56 @@ class HeaderBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: commonPadding),
-            child: TextButton.icon(
-              label: Text(''),
-              icon: Image(
-                image: AssetImage('images/racing_flag.png'),
-                width: commonHeight,
-                height: commonHeight,
-              ),
-              onPressed: startGame,
-            ),
+          HeaderBarButton(
+            imageReference: 'images/racing_flag.png',
+            imagePadding: commonPadding,
+            imageHeight: commonHeight,
+            onPressed: startGame,
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: commonPadding),
-            child: TextButton.icon(
-              label: Text(''),
-              icon: Image(
-                image: AssetImage('images/stop.png'),
-                width: commonHeight,
-                height: commonHeight,
-              ),
-              onPressed: stopGame,
-            ),
+          HeaderBarButton(
+            imageReference: 'images/stop.png',
+            imagePadding: commonPadding,
+            imageHeight: commonHeight,
+            onPressed: stopGame,
           ),
-          Padding(
-              padding: EdgeInsets.symmetric(horizontal: commonPadding),
-              child: TextButton.icon(
-                label: Text(''),
-                icon: Image(
-                  image: AssetImage('images/reverse_arrows.png'),
-                  width: commonHeight,
-                  height: commonHeight,
-                ),
-                onPressed: reverseBoard,
-              )),
+          HeaderBarButton(
+            imageReference: 'images/reverse_arrows.png',
+            imagePadding: commonPadding,
+            imageHeight: commonHeight,
+            onPressed: reverseBoard,
+          ),
         ],
       ),
     );
   }
 }
 
-/*
-Widget HeaderBar(BuildContext context) {
-  final viewport = MediaQuery.of(context).size;
-  final commonHeight = viewport.height * 0.09;
-  final commonPadding = 10.0;
+class HeaderBarButton extends StatelessWidget {
+  const HeaderBarButton({
+    @required this.imagePadding,
+    @required this.imageHeight,
+    @required this.onPressed,
+    @required this.imageReference,
+  });
 
-  return;
+  final double imagePadding;
+  final double imageHeight;
+  final Function onPressed;
+  final String imageReference;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: imagePadding),
+      child: TextButton.icon(
+        label: Text(''),
+        icon: Image(
+          image: AssetImage(imageReference),
+          width: imageHeight,
+          height: imageHeight,
+        ),
+        onPressed: onPressed,
+      ),
+    );
+  }
 }
-*/
