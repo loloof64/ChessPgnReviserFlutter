@@ -376,9 +376,9 @@ class GameComponents extends StatelessWidget {
   final int lastMoveStartRank;
   final int lastMoveEndFile;
   final int lastMoveEndRank;
-  final Function onDragMove;
-  final Function commitPromotionMove;
-  final Function cancelPendingPromotion;
+  final void Function(String startCell, String endCell) onDragMove;
+  final void Function(String pieceType) commitPromotionMove;
+  final void Function() cancelPendingPromotion;
   final List<HistoryItem> historyWidgetContent;
   final bool onTouchActivated;
   final void Function(

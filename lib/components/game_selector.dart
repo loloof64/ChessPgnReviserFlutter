@@ -149,7 +149,7 @@ class NavigationProgress extends StatelessWidget {
   final TextEditingController indexFieldController;
   final double fontSize;
   final int gamesCount;
-  final Function onIndexFieldSubmitted;
+  final void Function(String) onIndexFieldSubmitted;
 
   NavigationProgress({
     @required this.fontSize,
@@ -184,8 +184,8 @@ class NavigationProgress extends StatelessWidget {
 class ValidationZone extends StatelessWidget {
   final double buttonsFontSize;
   final double buttonsPadding;
-  final Function onValidate;
-  final Function onCancel;
+  final void Function() onValidate;
+  final void Function() onCancel;
 
   ValidationZone(
       {this.buttonsFontSize,
@@ -222,7 +222,7 @@ class ValidationButton extends StatelessWidget {
   final String label;
   final double padding;
   final double fontSize;
-  final Function onPressed;
+  final void Function() onPressed;
   final Color textColor;
 
   ValidationButton(
@@ -250,10 +250,10 @@ class ValidationButton extends StatelessWidget {
 
 class NavigationZone extends StatelessWidget {
   final double buttonsSize;
-  final Function onGotoFirst;
-  final Function onGotoPrevious;
-  final Function onGotoNext;
-  final Function onGotoLast;
+  final void Function() onGotoFirst;
+  final void Function() onGotoPrevious;
+  final void Function() onGotoNext;
+  final void Function() onGotoLast;
 
   NavigationZone({
     @required this.buttonsSize,
@@ -294,7 +294,7 @@ class NavigationZone extends StatelessWidget {
 class NavigationButton extends StatelessWidget {
   final double size;
   final String imageReference;
-  final Function onPressed;
+  final void Function() onPressed;
 
   NavigationButton({@required this.size, this.imageReference, this.onPressed});
 

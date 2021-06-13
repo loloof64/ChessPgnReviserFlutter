@@ -5,9 +5,9 @@ class HeaderBar extends StatelessWidget {
   final double width;
   final double height;
 
-  final Function startGame;
-  final Function reverseBoard;
-  final Function stopGame;
+  final void Function() startGame;
+  final void Function() reverseBoard;
+  final void Function() stopGame;
 
   HeaderBar({
     @required this.width,
@@ -68,7 +68,7 @@ class HeaderBarButton extends StatelessWidget {
 
   final double imagePadding;
   final double imageHeight;
-  final Function onPressed;
+  final void Function() onPressed;
   final String imageReference;
 
   @override
