@@ -94,14 +94,15 @@ class _HistoryWidgetState extends State<HistoryWidget> {
             },
             onGotoPreviousItemRequested: () {
               setState(() {
-                if (_selectedItemIndex > 0) {
-                  setState(() {
-                    do {
-                      _selectedItemIndex--;
-                    } while (widget.content[_selectedItemIndex].fenAfterMove ==
-                        null);
-                    requestPositionBasedOnCurrentItemIndex();
-                  });
+                if (_selectedItemIndex > 1) {
+                  do {
+                    _selectedItemIndex--;
+                  } while (_selectedItemIndex >= 0 &&
+                      widget.content[_selectedItemIndex].fenAfterMove == null);
+                  requestPositionBasedOnCurrentItemIndex();
+                } else if (_selectedItemIndex == 1) {
+                  _selectedItemIndex = -1;
+                  requestStartPosition();
                 }
               });
             },
