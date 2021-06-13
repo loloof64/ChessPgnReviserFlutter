@@ -34,6 +34,11 @@ class _GamePageState extends State<GamePage> {
   int _lastMoveEndRank = -10;
   String _goalString = "";
   bool _gameInProgress = false;
+  List<String> _historyWidgetContent = [];
+
+  processMoveSan(String moveSan) {
+    _historyWidgetContent.add(moveSan);
+  }
 
   String _getGameGoal(gamePgn) {
     final goalString = gamePgn["tags"]["Goal"] ?? "";
@@ -181,7 +186,7 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  checkAndMakeMove(String startCellStr, String endCellStr) {
+  String checkAndMakeMove(String startCellStr, String endCellStr) {
     var boardLogicClone = board_logic.Chess();
     boardLogicClone.load(_boardState.fen);
     final legalMove = boardLogicClone
@@ -204,9 +209,11 @@ class _GamePageState extends State<GamePage> {
           _pendingPromotion = true;
           _pendingPromotionMove = Move(startCell, endCell);
         });
+        return null;
       } else {
         final move = chess_utils.findMoveForPosition(
             _boardState, startCellStr, endCellStr, null);
+        final moveSan = _boardState.move_to_san(move);
         _boardState.move(move);
 
         final startCell = Cell.fromAlgebraic(startCellStr);
@@ -219,8 +226,11 @@ class _GamePageState extends State<GamePage> {
           _lastMoveEndRank = endCell.rank;
         });
         handleGameFinishedIfNecessary();
+
+        return moveSan;
       }
     }
+    return null;
   }
 
   cancelPendingPromotion() {
@@ -236,7 +246,11 @@ class _GamePageState extends State<GamePage> {
         _pendingPromotionMove.start.toAlgebraic(),
         _pendingPromotionMove.end.toAlgebraic(),
         type);
+    final moveSan = _boardState.move_to_san(move);
     _boardState.move(move);
+
+    if (moveSan != null) processMoveSan(moveSan);
+
     setState(() {
       _lastMoveVisible = true;
       _lastMoveStartFile = _pendingPromotionMove.start.file;
@@ -293,10 +307,12 @@ class _GamePageState extends State<GamePage> {
             lastMoveEndFile: _lastMoveEndFile,
             lastMoveEndRank: _lastMoveEndRank,
             onDragMove: (startCell, endCell) {
-              checkAndMakeMove(startCell, endCell);
+              final moveSan = checkAndMakeMove(startCell, endCell);
+              if (moveSan != null) processMoveSan(moveSan);
             },
             commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
             cancelPendingPromotion: cancelPendingPromotion,
+            historyWidgetContent: _historyWidgetContent,
           ),
         ],
       )),
@@ -318,6 +334,7 @@ class GameComponents extends StatelessWidget {
   final Function onDragMove;
   final Function commitPromotionMove;
   final Function cancelPendingPromotion;
+  final List<String> historyWidgetContent;
 
   GameComponents({
     @required this.commonSize,
@@ -333,6 +350,7 @@ class GameComponents extends StatelessWidget {
     @required this.onDragMove,
     @required this.commitPromotionMove,
     @required this.cancelPendingPromotion,
+    @required this.historyWidgetContent,
   });
 
   @override
@@ -358,7 +376,7 @@ class GameComponents extends StatelessWidget {
         HistoryWidget(
           width: commonSize,
           height: commonSize,
-          content: ['1.', 'e4', 'e5', '2.', 'Nf3', 'Nc6', '3.', 'Bb5'],
+          content: historyWidgetContent,
         )
       ],
     );
