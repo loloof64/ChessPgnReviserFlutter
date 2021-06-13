@@ -39,7 +39,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
       ),
     );
 
-    if (widget.reactivityEnabled) {
+    if (widget.reactivityEnabled && item.fenAfterMove != null) {
       final result = GestureDetector(
           child: baseWidget,
           onTap: () {
