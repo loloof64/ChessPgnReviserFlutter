@@ -340,6 +340,24 @@ class _GamePageState extends State<GamePage> {
             commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
             cancelPendingPromotion: cancelPendingPromotion,
             historyWidgetContent: _historyWidgetContent,
+            onTouchActivated: !_gameInProgress,
+            handleHistoryPositionRequested: (
+                {String fen,
+                int lastMoveStartFile,
+                int lastMoveStartRank,
+                int lastMoveEndFile,
+                int lastMoveEndRank}) {
+              if (!_gameInProgress) {
+                setState(() {
+                  _boardState = board_logic.Chess();
+                  _boardState.load(fen);
+                  _lastMoveStartFile = lastMoveStartFile;
+                  _lastMoveStartRank = lastMoveStartRank;
+                  _lastMoveEndFile = lastMoveEndFile;
+                  _lastMoveEndRank = lastMoveEndRank;
+                });
+              }
+            },
           ),
         ],
       )),
@@ -362,6 +380,13 @@ class GameComponents extends StatelessWidget {
   final Function commitPromotionMove;
   final Function cancelPendingPromotion;
   final List<HistoryItem> historyWidgetContent;
+  final bool onTouchActivated;
+  final void Function(
+      {String fen,
+      int lastMoveStartFile,
+      int lastMoveStartRank,
+      int lastMoveEndFile,
+      int lastMoveEndRank}) handleHistoryPositionRequested;
 
   GameComponents({
     @required this.commonSize,
@@ -378,6 +403,8 @@ class GameComponents extends StatelessWidget {
     @required this.commitPromotionMove,
     @required this.cancelPendingPromotion,
     @required this.historyWidgetContent,
+    @required this.onTouchActivated,
+    this.handleHistoryPositionRequested,
   });
 
   @override
@@ -404,6 +431,8 @@ class GameComponents extends StatelessWidget {
           width: commonSize,
           height: commonSize,
           content: historyWidgetContent,
+          onTouchActivated: onTouchActivated,
+          handleHistoryPositionRequested: handleHistoryPositionRequested,
         )
       ],
     );
