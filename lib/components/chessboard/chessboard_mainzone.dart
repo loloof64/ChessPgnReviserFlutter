@@ -50,7 +50,7 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
           return Row(
               children: zeroToSeven.map((col) {
             final file = widget.blackAtBottom ? 7 - col : col;
-            final isWhiteCell = (col + row) % 2 != 0;
+            final isWhiteCell = (col + row) % 2 == 0;
             final isDndCrossCell = (_hoveredCell != null) &&
                 (file == _hoveredCell.file || rank == _hoveredCell.rank);
             final isTargetCell = (_hoveredCell != null) &&
