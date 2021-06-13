@@ -125,3 +125,60 @@ board_logic.PieceType pieceStringToPieceType(String pieceTypeString) {
       throw 'Unrecognized piece $pieceTypeString';
   }
 }
+
+const List<String> pieceChars = [
+  'N',
+  'B',
+  'R',
+  'Q',
+  'K',
+  'n',
+  'b',
+  'r',
+  'q',
+  'k'
+];
+
+String moveFanFromMoveSan(String moveSan, bool whiteTurn) {
+  int firstPieceCharIndex;
+
+  for (int i = 0; i < moveSan.length; i++) {
+    final currentChar = moveSan.substring(i, i + 1);
+    final matchesExpectedPieceChar = pieceChars.contains(currentChar);
+
+    if (matchesExpectedPieceChar) {
+      firstPieceCharIndex = i;
+      break;
+    }
+  }
+
+  if (firstPieceCharIndex == null) return moveSan;
+
+  final firstPieceChar =
+      moveSan.substring(firstPieceCharIndex, firstPieceCharIndex + 1);
+  final firstPart = moveSan.substring(0, firstPieceCharIndex);
+  final lastPart = moveSan.substring(firstPieceCharIndex + 1);
+
+  String middlePart;
+
+  switch (firstPieceChar) {
+    case 'N':
+      middlePart = whiteTurn ? '\u2658' : '\u265e';
+      break;
+    case 'B':
+      middlePart = whiteTurn ? '\u2657' : '\u265d';
+      break;
+    case 'R':
+      middlePart = whiteTurn ? '\u2656' : '\u265c';
+      break;
+    case 'Q':
+      middlePart = whiteTurn ? '\u2655' : '\u265b';
+      break;
+    case 'K':
+      middlePart = whiteTurn ? '\u2654' : '\u265a';
+      break;
+  }
+
+  if (middlePart == null) return moveSan;
+  return '$firstPart$middlePart$lastPart';
+}

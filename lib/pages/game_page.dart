@@ -36,8 +36,11 @@ class _GamePageState extends State<GamePage> {
   bool _gameInProgress = false;
   List<String> _historyWidgetContent = [];
 
-  processMoveSan(String moveSan) {
-    _historyWidgetContent.add(moveSan);
+  processMoveSan(String moveSan, bool isWhiteTurn) {
+    _historyWidgetContent.add(chess_utils.moveFanFromMoveSan(
+      moveSan,
+      isWhiteTurn,
+    ));
   }
 
   String _getGameGoal(gamePgn) {
@@ -250,7 +253,8 @@ class _GamePageState extends State<GamePage> {
     final moveSan = _boardState.move_to_san(move);
     _boardState.move(move);
 
-    if (moveSan != null) processMoveSan(moveSan);
+    if (moveSan != null)
+      processMoveSan(moveSan, _boardState.turn != board_logic.Color.WHITE);
 
     setState(() {
       _lastMoveVisible = true;
@@ -309,7 +313,9 @@ class _GamePageState extends State<GamePage> {
             lastMoveEndRank: _lastMoveEndRank,
             onDragMove: (startCell, endCell) {
               final moveSan = checkAndMakeMove(startCell, endCell);
-              if (moveSan != null) processMoveSan(moveSan);
+              if (moveSan != null)
+                processMoveSan(
+                    moveSan, _boardState.turn != board_logic.Color.WHITE);
             },
             commitPromotionMove: (pieceType) => commitPromotionMove(pieceType),
             cancelPendingPromotion: cancelPendingPromotion,
