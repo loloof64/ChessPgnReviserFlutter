@@ -28,3 +28,60 @@ String pieceTypeToFen(board_logic.Piece pieceType) {
       pieceType.color == board_logic.Color.BLACK) return 'k';
   return null;
 }
+
+checkPiecesCount(board_logic.Chess gameLogic) {
+  final piecesCounts = Map<String, int>();
+  for (var rank = 0; rank < 8; rank++) {
+    for (var file = 0; file < 8; file++) {
+      final cell = board_logic.Chess.algebraic(16 * rank + file);
+      final currentPiece = gameLogic.get(cell);
+      if (currentPiece != null) {
+        final currentFen = pieceTypeToFen(currentPiece);
+        if (piecesCounts.containsKey(currentFen)) {
+          piecesCounts[currentFen] += 1;
+        } else {
+          piecesCounts[currentFen] = 1;
+        }
+      }
+    }
+  }
+
+  if (!piecesCounts.containsKey('K')) {
+    throw Exception("No white king !");
+  }
+  if (!piecesCounts.containsKey('k')) {
+    throw Exception("No black king !");
+  }
+
+  if (piecesCounts['K'] != 1) {
+    throw Exception("There must be exactly one white king !");
+  }
+  if (piecesCounts['k'] != 1) {
+    throw Exception("There must be exactly one black king !");
+  }
+
+  if (piecesCounts.containsKey('K') && piecesCounts['K'] > 8)
+    throw Exception("Too many white pawns !");
+  if (piecesCounts.containsKey('k') && piecesCounts['k'] > 8)
+    throw Exception("Too many black pawns !");
+
+  if (piecesCounts.containsKey('N') && piecesCounts['N'] > 10)
+    throw Exception("Too many white knights !");
+  if (piecesCounts.containsKey('n') && piecesCounts['n'] > 10)
+    throw Exception("Too many black knights !");
+
+  if (piecesCounts.containsKey('B') && piecesCounts['B'] > 10)
+    throw Exception("Too many white bishops !");
+  if (piecesCounts.containsKey('b') && piecesCounts['b'] > 10)
+    throw Exception("Too many black bishops !");
+
+  if (piecesCounts.containsKey('R') && piecesCounts['R'] > 10)
+    throw Exception("Too many white rooks !");
+  if (piecesCounts.containsKey('r') && piecesCounts['r'] > 10)
+    throw Exception("Too many black rooks !");
+
+  if (piecesCounts.containsKey('Q') && piecesCounts['Q'] > 9)
+    throw Exception("Too many white queens !");
+  if (piecesCounts.containsKey('q') && piecesCounts['q'] > 9)
+    throw Exception("Too many black queens !");
+}
