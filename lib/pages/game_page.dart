@@ -120,6 +120,7 @@ class _GamePageState extends State<GamePage> {
       return;
     }
 
+    AwesomeDialog dialog;
     List<Widget> movesWidgets = [];
 
     movesSanList.asMap().forEach((index, moveSan) {
@@ -131,6 +132,7 @@ class _GamePageState extends State<GamePage> {
             final selectedMove = movesList[index];
 
             commitSingleMove(selectedMove, moveSan, moveFan);
+            dialog.dismiss();
           },
           child: Text(
             moveSan,
@@ -140,7 +142,7 @@ class _GamePageState extends State<GamePage> {
       );
     });
 
-    AwesomeDialog(
+    dialog = AwesomeDialog(
         context: context,
         dialogType: DialogType.INFO,
         headerAnimationLoop: true,
@@ -149,8 +151,8 @@ class _GamePageState extends State<GamePage> {
         desc: 'There are several moves available, make your choice',
         showCloseIcon: false,
         buttonsTextStyle: TextStyle(color: Colors.black),
-        body: Column(children: movesWidgets))
-      ..show();
+        body: Column(children: movesWidgets));
+    dialog.show();
   }
 
   commitSingleMove(board_logic.Move move, String moveSan, String moveFan) {
