@@ -314,10 +314,13 @@ class _GamePageState extends State<GamePage> {
       if (_currentNodeIndex >= _parentNode.length) {
         _gameInProgress = false;
         alert(context,
-            title: Text('Game finished'),
+            title: Text(
+              'Game finished',
+              style: TextStyle(fontSize: 30.0),
+            ),
             content: Text(
               'Congratulations ! You found all moves.',
-              style: TextStyle(fontSize: 20.0),
+              style: TextStyle(fontSize: 30.0),
             ),
             textOK: Text('Ok'));
       }
@@ -379,10 +382,13 @@ class _GamePageState extends State<GamePage> {
       _gameInProgress = false;
     });
     alert(context,
-        title: Text('Bad move'),
+        title: Text(
+          'Bad move',
+          style: TextStyle(fontSize: 30.0),
+        ),
         content: Text(
           'Unexpected move ${ex.moveFan} !',
-          style: TextStyle(fontSize: 20.0),
+          style: TextStyle(fontSize: 30.0),
         ),
         textOK: Text('Ok'));
   }
