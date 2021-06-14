@@ -1,5 +1,6 @@
 // @dart=2.9
 import 'dart:async';
+import 'dart:math';
 
 import '../constants.dart';
 import 'package:flutter/material.dart';
@@ -75,6 +76,44 @@ class _GamePageState extends State<GamePage> {
     final currentMode = isWhiteTurn ? _whiteMode : _blackMode;
 
     return currentMode == PlayerMode.GuessMove;
+  }
+
+  tryToMakeComputerPlayRandomMove() {
+    if (!_gameInProgress) return;
+
+    final isWhiteTurn = _boardState.turn == board_logic.Color.WHITE;
+    final currentMode = isWhiteTurn ? _whiteMode : _blackMode;
+    if (currentMode != PlayerMode.ReadMoveRandomly) return;
+
+    final movesSanList = getAvailableMovesAsSan();
+    final movesList = getMoveListFromSanList(movesSanList);
+    board_logic.Move selectedMove;
+    int selectedMoveIndex;
+    do {
+      selectedMoveIndex = Random().nextInt(movesList.length);
+      selectedMove = movesList[selectedMoveIndex];
+    } while (selectedMove == null);
+    final moveSan = movesSanList[selectedMoveIndex];
+
+    final moveFan = chess_utils.moveFanFromMoveSan(
+        moveSan, _boardState.turn == board_logic.Color.WHITE);
+
+    final startCell = Cell.fromAlgebraic(selectedMove.fromAlgebraic);
+    final endCell = Cell.fromAlgebraic(selectedMove.toAlgebraic);
+
+    _boardState.move(moveSan);
+    setState(() {
+      _lastMoveVisible = true;
+      _lastMoveStartFile = startCell.file;
+      _lastMoveStartRank = startCell.rank;
+      _lastMoveEndFile = endCell.file;
+      _lastMoveEndRank = endCell.rank;
+    });
+    processMoveFanIntoHistoryWidgetMoves(
+        moveFan, _boardState.turn != board_logic.Color.WHITE);
+    updateCurrentNode(moveSan, moveFan);
+
+    tryToMakeComputerPlayRandomMove();
   }
 
   String _getGameGoal(gamePgn) {
@@ -162,6 +201,7 @@ class _GamePageState extends State<GamePage> {
         _gameInProgress = true;
       });
       clearLastMoveArrow();
+      tryToMakeComputerPlayRandomMove();
     } catch (ex, stacktrace) {
       Completer().completeError(ex, stacktrace);
       Toast.show("Failed to read pgn content, cancelled new game !", context,
@@ -185,6 +225,23 @@ class _GamePageState extends State<GamePage> {
     }
 
     return results;
+  }
+
+  List<board_logic.Move> getMoveListFromSanList(List<String> sanList) {
+    final legalMoves = _boardState.generate_moves({'legal': true});
+    final legalSanList = legalMoves.map((currentMove) {
+      return _boardState.move_to_san(currentMove);
+    }).toList();
+
+    return sanList.map((inputSan) {
+      final int matchingLegalSanIndex = legalSanList.indexWhere((legalSan) {
+        return legalSan == inputSan;
+      });
+      if (matchingLegalSanIndex != null)
+        return legalMoves[matchingLegalSanIndex];
+      else
+        return null;
+    }).toList();
   }
 
   startNewGame(BuildContext context) async {
@@ -276,10 +333,9 @@ class _GamePageState extends State<GamePage> {
             moveFan, _boardState.turn != board_logic.Color.WHITE);
         updateCurrentNode(moveSan, moveFan);
 
-        return moveSan;
+        tryToMakeComputerPlayRandomMove();
       }
     }
-    return null;
   }
 
   void updateCurrentNode(String moveSan, String moveFan) {
@@ -360,6 +416,8 @@ class _GamePageState extends State<GamePage> {
     });
     cancelPendingPromotion();
     updateCurrentNode(moveSan, moveFan);
+
+    tryToMakeComputerPlayRandomMove();
   }
 
   clearLastMoveArrow() {
