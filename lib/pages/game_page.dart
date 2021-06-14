@@ -47,6 +47,7 @@ class _GamePageState extends State<GamePage> {
   String _startPosition;
   int _currentNodeIndex;
   var _parentNode;
+  int _selectedHistoryItemIndex;
 
   processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
@@ -393,6 +394,62 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
+  tryToSetPositionBasedOnCurrentItemIndex() {
+    if (_selectedHistoryItemIndex >= 0 &&
+        _selectedHistoryItemIndex < _historyWidgetContent.length) {
+      final item = _historyWidgetContent[_selectedHistoryItemIndex];
+
+      if (item.fenAfterMove != null) {
+        tryToSetHistoryPosition(
+          fen: item.fenAfterMove,
+          lastMoveStartFile: item.lastMoveStartFile,
+          lastMoveStartRank: item.lastMoveStartRank,
+          lastMoveEndFile: item.lastMoveEndFile,
+          lastMoveEndRank: item.lastMoveEndRank,
+        );
+      }
+    }
+  }
+
+  void tryToSetStartPosition() {
+    tryToSetHistoryPosition(
+      fen: _startPosition,
+      lastMoveStartFile: null,
+      lastMoveStartRank: null,
+      lastMoveEndFile: null,
+      lastMoveEndRank: null,
+    );
+  }
+
+  tryToSetHistoryPosition(
+      {String fen,
+      int lastMoveStartFile,
+      int lastMoveStartRank,
+      int lastMoveEndFile,
+      int lastMoveEndRank}) {
+    if (!_gameInProgress) {
+      if (fen != null) {
+        setState(() {
+          _boardState = board_logic.Chess();
+          _boardState.load(fen);
+          _lastMoveStartFile = lastMoveStartFile;
+          _lastMoveStartRank = lastMoveStartRank;
+          _lastMoveEndFile = lastMoveEndFile;
+          _lastMoveEndRank = lastMoveEndRank;
+        });
+      } else {
+        setState(() {
+          _boardState = board_logic.Chess();
+          _boardState.load(_startPosition);
+          _lastMoveStartFile = null;
+          _lastMoveStartRank = null;
+          _lastMoveEndFile = null;
+          _lastMoveEndRank = null;
+        });
+      }
+    }
+  }
+
   handleUnexpectedMove(BuildContext context, UnexpectedMoveException ex) {
     setState(() {
       _gameInProgress = false;
@@ -433,6 +490,7 @@ class _GamePageState extends State<GamePage> {
               }),
           GoalLabel(goalString: _goalString, fontSize: minSize * 0.03),
           GameComponents(
+            selectedItemIndex: _selectedHistoryItemIndex,
             startPosition: _startPosition,
             blackAtBottom: _boardReversed,
             commonSize: minSize * 0.7,
@@ -461,33 +519,73 @@ class _GamePageState extends State<GamePage> {
             cancelPendingPromotion: cancelPendingPromotion,
             historyWidgetContent: _historyWidgetContent,
             reactivityEnabled: !_gameInProgress && _startPosition != null,
-            handleHistoryPositionRequested: (
-                {String fen,
-                int lastMoveStartFile,
-                int lastMoveStartRank,
-                int lastMoveEndFile,
-                int lastMoveEndRank}) {
-              if (!_gameInProgress) {
-                if (fen != null) {
-                  setState(() {
-                    _boardState = board_logic.Chess();
-                    _boardState.load(fen);
-                    _lastMoveStartFile = lastMoveStartFile;
-                    _lastMoveStartRank = lastMoveStartRank;
-                    _lastMoveEndFile = lastMoveEndFile;
-                    _lastMoveEndRank = lastMoveEndRank;
-                  });
-                } else {
-                  setState(() {
-                    _boardState = board_logic.Chess();
-                    _boardState.load(_startPosition);
-                    _lastMoveStartFile = null;
-                    _lastMoveStartRank = null;
-                    _lastMoveEndFile = null;
-                    _lastMoveEndRank = null;
-                  });
-                }
+            handleHistoryPositionRequested: tryToSetHistoryPosition,
+            handleHistoryItemRequested: (index) {
+              setState(() {
+                _selectedHistoryItemIndex = index;
+                tryToSetPositionBasedOnCurrentItemIndex();
+              });
+            },
+            handleHistoryGotoFirstItemRequested: () {
+              setState(() {
+                _selectedHistoryItemIndex = -1;
+                tryToSetStartPosition();
+              });
+            },
+            handleHistoryGotoPreviousItemRequested: () {
+              setState(
+                () {
+                  if (_selectedHistoryItemIndex > 1) {
+                    do {
+                      _selectedHistoryItemIndex--;
+                    } while (_selectedHistoryItemIndex >= 0 &&
+                        _historyWidgetContent[_selectedHistoryItemIndex]
+                                .fenAfterMove ==
+                            null);
+                    tryToSetPositionBasedOnCurrentItemIndex();
+                  } else if (_selectedHistoryItemIndex == 1) {
+                    _selectedHistoryItemIndex = -1;
+                    tryToSetStartPosition();
+                  }
+                },
+              );
+            },
+            handleHistoryGotoNextItemRequested: () {
+              final noMove = _historyWidgetContent.length < 2;
+              if (noMove) return;
+              if (_selectedHistoryItemIndex <
+                  _historyWidgetContent.length - 1) {
+                setState(() {
+                  try {
+                    do {
+                      _selectedHistoryItemIndex++;
+                    } while (_historyWidgetContent[_selectedHistoryItemIndex]
+                            .fenAfterMove ==
+                        null);
+                  } on RangeError {
+                    // We must get backward to the last move (last node with a fen defined)
+                    do {
+                      _selectedHistoryItemIndex--;
+                    } while (_historyWidgetContent[_selectedHistoryItemIndex]
+                            .fenAfterMove ==
+                        null);
+                  }
+                  tryToSetPositionBasedOnCurrentItemIndex();
+                });
               }
+            },
+            handleHistoryGotoLastItemRequested: () {
+              final noMove = _historyWidgetContent.length < 2;
+              if (noMove) return;
+              setState(() {
+                _selectedHistoryItemIndex = _historyWidgetContent.length - 1;
+                while (_historyWidgetContent[_selectedHistoryItemIndex]
+                        .fenAfterMove ==
+                    null) {
+                  _selectedHistoryItemIndex--;
+                }
+                tryToSetPositionBasedOnCurrentItemIndex();
+              });
             },
           ),
         ],
@@ -513,6 +611,7 @@ class GameComponents extends StatelessWidget {
   final List<HistoryItem> historyWidgetContent;
   final bool reactivityEnabled;
   final String startPosition;
+  final int selectedItemIndex;
   final void Function(
       {String fen,
       int lastMoveStartFile,
@@ -520,25 +619,36 @@ class GameComponents extends StatelessWidget {
       int lastMoveEndFile,
       int lastMoveEndRank}) handleHistoryPositionRequested;
 
-  GameComponents({
-    @required this.commonSize,
-    @required this.blackAtBottom,
-    @required this.fen,
-    @required this.userCanMovePieces,
-    @required this.hasPendingPromotion,
-    @required this.lastMoveVisible,
-    @required this.lastMoveStartFile,
-    @required this.lastMoveStartRank,
-    @required this.lastMoveEndFile,
-    @required this.lastMoveEndRank,
-    @required this.onDragReleased,
-    @required this.commitPromotionMove,
-    @required this.cancelPendingPromotion,
-    @required this.historyWidgetContent,
-    @required this.reactivityEnabled,
-    @required this.startPosition,
-    this.handleHistoryPositionRequested,
-  });
+  final void Function(int index) handleHistoryItemRequested;
+  final void Function() handleHistoryGotoFirstItemRequested;
+  final void Function() handleHistoryGotoPreviousItemRequested;
+  final void Function() handleHistoryGotoNextItemRequested;
+  final void Function() handleHistoryGotoLastItemRequested;
+
+  GameComponents(
+      {@required this.commonSize,
+      @required this.blackAtBottom,
+      @required this.fen,
+      @required this.userCanMovePieces,
+      @required this.hasPendingPromotion,
+      @required this.lastMoveVisible,
+      @required this.lastMoveStartFile,
+      @required this.lastMoveStartRank,
+      @required this.lastMoveEndFile,
+      @required this.lastMoveEndRank,
+      @required this.onDragReleased,
+      @required this.commitPromotionMove,
+      @required this.cancelPendingPromotion,
+      @required this.historyWidgetContent,
+      @required this.reactivityEnabled,
+      @required this.startPosition,
+      @required this.selectedItemIndex,
+      this.handleHistoryPositionRequested,
+      this.handleHistoryItemRequested,
+      this.handleHistoryGotoFirstItemRequested,
+      this.handleHistoryGotoPreviousItemRequested,
+      this.handleHistoryGotoNextItemRequested,
+      this.handleHistoryGotoLastItemRequested});
 
   @override
   Widget build(BuildContext context) {
@@ -561,6 +671,16 @@ class GameComponents extends StatelessWidget {
           cancelPendingPromotion: cancelPendingPromotion,
         ),
         HistoryWidget(
+          handleHistoryItemRequested: handleHistoryItemRequested,
+          handleHistoryGotoFirstItemRequested:
+              handleHistoryGotoFirstItemRequested,
+          handleHistoryGotoPreviousItemRequested:
+              handleHistoryGotoPreviousItemRequested,
+          handleHistoryGotoNextItemRequested:
+              handleHistoryGotoNextItemRequested,
+          handleHistoryGotoLastItemRequested:
+              handleHistoryGotoLastItemRequested,
+          selectedItemIndex: selectedItemIndex,
           width: commonSize,
           height: commonSize,
           content: historyWidgetContent,
