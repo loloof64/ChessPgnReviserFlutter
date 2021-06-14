@@ -147,11 +147,14 @@ class _GamePageState extends State<GamePage> {
         dialogType: DialogType.INFO,
         headerAnimationLoop: true,
         animType: AnimType.BOTTOMSLIDE,
-        title: 'Choose the next move',
-        desc: 'There are several moves available, make your choice',
         showCloseIcon: false,
         buttonsTextStyle: TextStyle(color: Colors.black),
-        body: Column(children: movesWidgets));
+        body: Column(
+          children: <Widget>[
+            Text('There are several moves available, make your choice :'),
+            ...movesWidgets
+          ],
+        ));
     dialog.show();
   }
 
