@@ -216,42 +216,6 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  handleGameFinishedIfNecessary() {
-    if (_boardState.in_checkmate) {
-      setState(() {
-        _gameInProgress = false;
-      });
-      final actor =
-          _boardState.turn == board_logic.Color.WHITE ? 'Blacks' : 'Whites';
-      Toast.show("$actor have won by checkmate.", context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-    } else if (_boardState.in_stalemate) {
-      setState(() {
-        _gameInProgress = false;
-      });
-      Toast.show("Draw by stalemate.", context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-    } else if (_boardState.in_threefold_repetition) {
-      setState(() {
-        _gameInProgress = false;
-      });
-      Toast.show("Draw by three fold repetition.", context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-    } else if (_boardState.insufficient_material) {
-      setState(() {
-        _gameInProgress = false;
-      });
-      Toast.show("Draw by insufficient material.", context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-    } else if (_boardState.in_draw) {
-      setState(() {
-        _gameInProgress = false;
-      });
-      Toast.show("Draw by 50-moves rule.", context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-    }
-  }
-
   handleDragReleased(String startCellStr, String endCellStr) {
     var boardLogicClone = board_logic.Chess();
     boardLogicClone.load(_boardState.fen);
@@ -298,7 +262,6 @@ class _GamePageState extends State<GamePage> {
         processMoveFanIntoHistoryWidgetMoves(
             moveFan, _boardState.turn != board_logic.Color.WHITE);
         updateCurrentNode(moveSan, moveFan);
-        handleGameFinishedIfNecessary();
 
         return moveSan;
       }
@@ -384,7 +347,6 @@ class _GamePageState extends State<GamePage> {
     });
     cancelPendingPromotion();
     updateCurrentNode(moveSan, moveFan);
-    handleGameFinishedIfNecessary();
   }
 
   clearLastMoveArrow() {
