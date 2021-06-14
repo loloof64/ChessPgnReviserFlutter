@@ -208,6 +208,7 @@ class _GamePageState extends State<GamePage> {
       )) {
         setState(() {
           _gameInProgress = false;
+          tryToGoToLastItem();
           Toast.show("Game stopped.", context,
               duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
         });
@@ -317,8 +318,10 @@ class _GamePageState extends State<GamePage> {
         _currentNodeIndex = 1;
       }
 
-      if (_currentNodeIndex >= _parentNode.length) {
+      final noMoreMove = _currentNodeIndex >= _parentNode.length;
+      if (noMoreMove) {
         _gameInProgress = false;
+        tryToGoToLastItem();
         alert(context,
             title: Text(
               'Game finished',
@@ -453,6 +456,7 @@ class _GamePageState extends State<GamePage> {
   handleUnexpectedMove(BuildContext context, UnexpectedMoveException ex) {
     setState(() {
       _gameInProgress = false;
+      tryToGoToLastItem();
     });
     alert(context,
         title: Text(
@@ -527,70 +531,83 @@ class _GamePageState extends State<GamePage> {
               });
             },
             handleHistoryGotoFirstItemRequested: () {
-              setState(() {
-                _selectedHistoryItemIndex = -1;
-                tryToSetStartPosition();
-              });
+              tryToGoToFirstItem();
             },
             handleHistoryGotoPreviousItemRequested: () {
-              setState(
-                () {
-                  if (_selectedHistoryItemIndex > 1) {
-                    do {
-                      _selectedHistoryItemIndex--;
-                    } while (_selectedHistoryItemIndex >= 0 &&
-                        _historyWidgetContent[_selectedHistoryItemIndex]
-                                .fenAfterMove ==
-                            null);
-                    tryToSetPositionBasedOnCurrentItemIndex();
-                  } else if (_selectedHistoryItemIndex == 1) {
-                    _selectedHistoryItemIndex = -1;
-                    tryToSetStartPosition();
-                  }
-                },
-              );
+              tryToGoToPreviousItem();
             },
             handleHistoryGotoNextItemRequested: () {
-              final noMove = _historyWidgetContent.length < 2;
-              if (noMove) return;
-              if (_selectedHistoryItemIndex <
-                  _historyWidgetContent.length - 1) {
-                setState(() {
-                  try {
-                    do {
-                      _selectedHistoryItemIndex++;
-                    } while (_historyWidgetContent[_selectedHistoryItemIndex]
-                            .fenAfterMove ==
-                        null);
-                  } on RangeError {
-                    // We must get backward to the last move (last node with a fen defined)
-                    do {
-                      _selectedHistoryItemIndex--;
-                    } while (_historyWidgetContent[_selectedHistoryItemIndex]
-                            .fenAfterMove ==
-                        null);
-                  }
-                  tryToSetPositionBasedOnCurrentItemIndex();
-                });
-              }
+              tryToGoToNextItem();
             },
             handleHistoryGotoLastItemRequested: () {
-              final noMove = _historyWidgetContent.length < 2;
-              if (noMove) return;
-              setState(() {
-                _selectedHistoryItemIndex = _historyWidgetContent.length - 1;
-                while (_historyWidgetContent[_selectedHistoryItemIndex]
-                        .fenAfterMove ==
-                    null) {
-                  _selectedHistoryItemIndex--;
-                }
-                tryToSetPositionBasedOnCurrentItemIndex();
-              });
+              tryToGoToLastItem();
             },
           ),
         ],
       )),
     );
+  }
+
+  tryToGoToFirstItem() {
+    setState(() {
+      _selectedHistoryItemIndex = -1;
+      tryToSetStartPosition();
+    });
+  }
+
+  tryToGoToPreviousItem() {
+    setState(
+      () {
+        if (_selectedHistoryItemIndex > 1) {
+          do {
+            _selectedHistoryItemIndex--;
+          } while (_selectedHistoryItemIndex >= 0 &&
+              _historyWidgetContent[_selectedHistoryItemIndex].fenAfterMove ==
+                  null);
+          tryToSetPositionBasedOnCurrentItemIndex();
+        } else if (_selectedHistoryItemIndex == 1) {
+          _selectedHistoryItemIndex = -1;
+          tryToSetStartPosition();
+        }
+      },
+    );
+  }
+
+  tryToGoToNextItem() {
+    final noMove = _historyWidgetContent.length < 2;
+    if (noMove) return;
+    if (_selectedHistoryItemIndex < _historyWidgetContent.length - 1) {
+      setState(() {
+        try {
+          do {
+            _selectedHistoryItemIndex++;
+          } while (
+              _historyWidgetContent[_selectedHistoryItemIndex].fenAfterMove ==
+                  null);
+        } on RangeError {
+          // We must get backward to the last move (last node with a fen defined)
+          do {
+            _selectedHistoryItemIndex--;
+          } while (
+              _historyWidgetContent[_selectedHistoryItemIndex].fenAfterMove ==
+                  null);
+        }
+        tryToSetPositionBasedOnCurrentItemIndex();
+      });
+    }
+  }
+
+  tryToGoToLastItem() {
+    final noMove = _historyWidgetContent.length < 2;
+    if (noMove) return;
+    setState(() {
+      _selectedHistoryItemIndex = _historyWidgetContent.length - 1;
+      while (_historyWidgetContent[_selectedHistoryItemIndex].fenAfterMove ==
+          null) {
+        _selectedHistoryItemIndex--;
+      }
+      tryToSetPositionBasedOnCurrentItemIndex();
+    });
   }
 }
 
