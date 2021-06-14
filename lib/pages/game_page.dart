@@ -278,12 +278,9 @@ class _GamePageState extends State<GamePage> {
 
         _boardState.move(move);
 
-        final matchExpectedMove = checkThatMoveMatchExpected(moveSan);
-
         final startCell = Cell.fromAlgebraic(startCellStr);
         final endCell = Cell.fromAlgebraic(endCellStr);
         setState(() {
-          _currentNodeIndex++;
           _lastMoveVisible = true;
           _lastMoveStartFile = startCell.file;
           _lastMoveStartRank = startCell.rank;
@@ -292,13 +289,28 @@ class _GamePageState extends State<GamePage> {
         });
         processMoveFanIntoHistoryWidgetMoves(
             moveFan, _boardState.turn != board_logic.Color.WHITE);
-        if (!matchExpectedMove) throw UnexpectedMoveException(moveFan);
+        updateCurrentNode(moveSan, moveFan);
         handleGameFinishedIfNecessary();
 
         return moveSan;
       }
     }
     return null;
+  }
+
+  void updateCurrentNode(String moveSan, String moveFan) {
+    final moveIndex = getMoveIndexFromExpectedMovesList(moveSan);
+    if (moveIndex < 0) throw UnexpectedMoveException(moveFan);
+
+    setState(() {
+      if (moveIndex == 0) {
+        _currentNodeIndex++;
+      } else {
+        _parentNode =
+            _parentNode[_currentNodeIndex]['variations'][moveIndex - 1]['pgn'];
+        _currentNodeIndex = 1;
+      }
+    });
   }
 
   cancelPendingPromotion() {
@@ -308,9 +320,9 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
-  bool checkThatMoveMatchExpected(String moveSan) {
+  int getMoveIndexFromExpectedMovesList(String moveSan) {
     final expectedMoves = getAvailableMovesAsSan();
-    return expectedMoves.contains(moveSan);
+    return expectedMoves.indexWhere((currentMove) => currentMove == moveSan);
   }
 
   commitPromotionMove(String type) {
@@ -329,10 +341,7 @@ class _GamePageState extends State<GamePage> {
     processMoveFanIntoHistoryWidgetMoves(
         moveFan, _boardState.turn != board_logic.Color.WHITE);
 
-    final matchExpectedMove = checkThatMoveMatchExpected(moveSan);
-
     setState(() {
-      _currentNodeIndex++;
       _lastMoveVisible = true;
       _lastMoveStartFile = _pendingPromotionMove.start.file;
       _lastMoveStartRank = _pendingPromotionMove.start.rank;
@@ -340,7 +349,7 @@ class _GamePageState extends State<GamePage> {
       _lastMoveEndRank = _pendingPromotionMove.end.rank;
     });
     cancelPendingPromotion();
-    if (!matchExpectedMove) throw UnexpectedMoveException(moveFan);
+    updateCurrentNode(moveSan, moveFan);
     handleGameFinishedIfNecessary();
   }
 
