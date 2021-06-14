@@ -310,6 +310,14 @@ class _GamePageState extends State<GamePage> {
             _parentNode[_currentNodeIndex]['variations'][moveIndex - 1]['pgn'];
         _currentNodeIndex = 1;
       }
+
+      if (_currentNodeIndex >= _parentNode.length) {
+        _gameInProgress = false;
+        alert(context,
+            title: Text('Game finished'),
+            content: Text('Congratulations ! You found all moves.'),
+            textOK: Text('Ok'));
+      }
     });
   }
 
