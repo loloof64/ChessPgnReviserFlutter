@@ -20,7 +20,8 @@ const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
 class UnexpectedMoveException implements Exception {
   final String moveFan;
-  UnexpectedMoveException(this.moveFan);
+  final List<String> expectedMovesFanList;
+  UnexpectedMoveException(this.moveFan, this.expectedMovesFanList);
 }
 
 class GamePage extends StatefulWidget {
@@ -300,7 +301,6 @@ class _GamePageState extends State<GamePage> {
 
   void updateCurrentNode(String moveSan, String moveFan) {
     final moveIndex = getMoveIndexFromExpectedMovesList(moveSan);
-    if (moveIndex < 0) throw UnexpectedMoveException(moveFan);
 
     setState(() {
       if (moveIndex == 0) {
@@ -336,7 +336,18 @@ class _GamePageState extends State<GamePage> {
 
   int getMoveIndexFromExpectedMovesList(String moveSan) {
     final expectedMoves = getAvailableMovesAsSan();
-    return expectedMoves.indexWhere((currentMove) => currentMove == moveSan);
+    final moveIndex =
+        expectedMoves.indexWhere((currentMove) => currentMove == moveSan);
+    if (moveIndex < 0) {
+      final moveFan = chess_utils.moveFanFromMoveSan(
+          moveSan, _boardState.turn == board_logic.Color.BLACK);
+      final expectedMovesFanList = expectedMoves
+          .map((currentSan) => chess_utils.moveFanFromMoveSan(
+              currentSan, _boardState.turn == board_logic.Color.BLACK))
+          .toList();
+      throw UnexpectedMoveException(moveFan, expectedMovesFanList);
+    }
+    return moveIndex;
   }
 
   commitPromotionMove(String type) {
@@ -387,7 +398,7 @@ class _GamePageState extends State<GamePage> {
           style: TextStyle(fontSize: 30.0),
         ),
         content: Text(
-          'Unexpected move ${ex.moveFan} !',
+          'Unexpected move ${ex.moveFan} !\nExpected one of [${ex.expectedMovesFanList.join(', ')}].',
           style: TextStyle(fontSize: 30.0),
         ),
         textOK: Text('Ok'));
