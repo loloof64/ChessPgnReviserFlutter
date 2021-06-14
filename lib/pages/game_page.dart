@@ -124,18 +124,18 @@ class _GamePageState extends State<GamePage> {
     List<Widget> movesWidgets = [];
 
     movesSanList.asMap().forEach((index, moveSan) {
+      final moveFan = chess_utils.moveFanFromMoveSan(
+          moveSan, _boardState.turn == board_logic.Color.WHITE);
       movesWidgets.add(
         GestureDetector(
           onTap: () {
-            final moveFan = chess_utils.moveFanFromMoveSan(
-                moveSan, _boardState.turn == board_logic.Color.WHITE);
             final selectedMove = movesList[index];
 
             commitSingleMove(selectedMove, moveSan, moveFan);
             dialog.dismiss();
           },
           child: Text(
-            moveSan,
+            moveFan,
             style: TextStyle(fontSize: 25.0),
           ),
         ),
