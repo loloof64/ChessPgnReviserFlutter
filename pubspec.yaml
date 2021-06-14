@@ -22,6 +22,7 @@ dependencies:
   file_selector_web: ^0.7.0
   confirm_dialog: ^1.0.0
   alert_dialog: ^1.0.0
+  font_awesome_flutter: ^9.1.0
 
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,26 @@
 // @dart=2.9
 import 'dart:math';
+import '../../constants.dart';
 import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
 import 'chessboard/chessboard.dart' as board;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+class GameSelectorResult {
+  final int gameIndex;
+  final PlayerMode whiteMode;
+  final PlayerMode blackMode;
+
+  GameSelectorResult({
+    @required this.gameIndex,
+    @required this.whiteMode,
+    @required this.blackMode,
+  });
+}
 
 class GameSelector extends StatefulWidget {
   final List<dynamic> games;
+
   GameSelector(
     this.games,
   );
@@ -16,6 +31,8 @@ class GameSelector extends StatefulWidget {
 
 class _GameSelectorState extends State<GameSelector> {
   int _gameIndex = 0;
+  PlayerMode _whiteMode = PlayerMode.GuessMove;
+  PlayerMode _blackMode = PlayerMode.GuessMove;
 
   gotoFirst() {
     setState(() {
@@ -46,7 +63,12 @@ class _GameSelectorState extends State<GameSelector> {
   }
 
   validate(BuildContext context) {
-    Navigator.pop(context, _gameIndex);
+    Navigator.pop(
+        context,
+        GameSelectorResult(
+            gameIndex: _gameIndex,
+            whiteMode: _whiteMode,
+            blackMode: _blackMode));
   }
 
   resetText() {
@@ -122,8 +144,33 @@ class _GameSelectorState extends State<GameSelector> {
                 onGotoLast: gotoLast,
                 onGotoPrevious: gotoPrevious,
               ),
-              board.ChessBoard(
-                  size: size, fen: fen, blackAtBottom: isBlackTurn()),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 9.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    board.ChessBoard(
+                      size: size,
+                      fen: fen,
+                      blackAtBottom: isBlackTurn(),
+                    ),
+                    ModeSettingZone(
+                      whiteMode: _whiteMode,
+                      blackMode: _blackMode,
+                      updateWhiteMode: (PlayerMode newValue) {
+                        setState(() {
+                          _whiteMode = newValue;
+                        });
+                      },
+                      updateBlackMode: (PlayerMode newValue) {
+                        setState(() {
+                          _blackMode = newValue;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
               Padding(
                 child: Text(
                   getGameGoal(),
@@ -141,6 +188,108 @@ class _GameSelectorState extends State<GameSelector> {
             ],
           ),
         ));
+  }
+}
+
+class ModeSettingZone extends StatelessWidget {
+  final PlayerMode whiteMode;
+  final PlayerMode blackMode;
+
+  final void Function(PlayerMode mode) updateWhiteMode;
+  final void Function(PlayerMode mode) updateBlackMode;
+
+  ModeSettingZone({
+    @required this.whiteMode,
+    @required this.blackMode,
+    @required this.updateWhiteMode,
+    @required this.updateBlackMode,
+  });
+
+  String textForMode(PlayerMode mode) {
+    switch (mode) {
+      case PlayerMode.GuessMove:
+        return 'Computer lets user guess move';
+      case PlayerMode.ReadMoveByUserChoice:
+        return 'Computer plays moves by user choice';
+      case PlayerMode.ReadMoveRandomly:
+        return 'Computer plays moves randomly';
+      default:
+        throw 'Unrecognized mode $mode !';
+    }
+  }
+
+  IconData iconForMode(PlayerMode mode) {
+    switch (mode) {
+      case PlayerMode.GuessMove:
+        return FontAwesomeIcons.questionCircle;
+      case PlayerMode.ReadMoveByUserChoice:
+        return FontAwesomeIcons.codeBranch;
+      case PlayerMode.ReadMoveRandomly:
+        return FontAwesomeIcons.dice;
+      default:
+        throw 'Unrecognized mode $mode !';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dropDownItems = PlayerMode.values
+        .map((currentValue) => DropdownMenuItem(
+              child: Row(
+                children: [
+                  FaIcon(
+                    iconForMode(currentValue),
+                  ),
+                  SizedBox(
+                    width: 10.0,
+                  ),
+                  Text(
+                    textForMode(currentValue),
+                  ),
+                ],
+              ),
+              value: currentValue,
+            ))
+        .toList();
+
+    return Column(
+      children: <Widget>[
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            Text('White mode'),
+            SizedBox(
+              width: 20.0,
+            ),
+            DropdownButton<PlayerMode>(
+              items: dropDownItems,
+              value: whiteMode,
+              onChanged: (PlayerMode newValue) {
+                updateWhiteMode(newValue);
+              },
+            ),
+          ],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            Text('Black mode'),
+            SizedBox(
+              width: 20.0,
+            ),
+            DropdownButton<PlayerMode>(
+              items: dropDownItems,
+              value: blackMode,
+              onChanged: (PlayerMode newValue) {
+                updateBlackMode(newValue);
+              },
+            ),
+          ],
+        )
+      ],
+    );
   }
 }
 

@@ -1,6 +1,7 @@
 // @dart=2.9
 import 'dart:async';
 
+import '../constants.dart';
 import 'package:flutter/material.dart';
 import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:alert_dialog/alert_dialog.dart';
@@ -48,6 +49,8 @@ class _GamePageState extends State<GamePage> {
   int _currentNodeIndex;
   var _parentNode;
   int _selectedHistoryItemIndex;
+  PlayerMode _whiteMode;
+  PlayerMode _blackMode;
 
   processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
@@ -64,6 +67,14 @@ class _GamePageState extends State<GamePage> {
       _historyWidgetContent.add(HistoryItem.moveNumber(
           _moveNumber, _boardState.turn == board_logic.Color.BLACK));
     }
+  }
+
+  bool shouldChessBoardBetInteractive() {
+    if (!_gameInProgress) return false;
+    final isWhiteTurn = _boardState.turn == board_logic.Color.WHITE;
+    final currentMode = isWhiteTurn ? _whiteMode : _blackMode;
+
+    return currentMode == PlayerMode.GuessMove;
   }
 
   String _getGameGoal(gamePgn) {
@@ -107,14 +118,14 @@ class _GamePageState extends State<GamePage> {
           ? tempValue.last
           : tempValue;
 
-      final gameIndex = await Navigator.push(context,
+      final gameData = await Navigator.push(context,
           MaterialPageRoute(builder: (context) => GameSelector(allGames)));
-      if (gameIndex == null) {
+      if (gameData == null) {
         Toast.show("Cancelled new game !", context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
         return;
       }
-      final game = allGames[gameIndex];
+      final game = allGames[gameData.gameIndex];
       final fen = (game["tags"] ?? {})["FEN"] ?? board_logic.Chess().fen;
 
       final gameLogic = board_logic.Chess.fromFEN(fen);
@@ -135,6 +146,8 @@ class _GamePageState extends State<GamePage> {
 
       setState(() {
         _referenceGame = game;
+        _whiteMode = gameData.whiteMode;
+        _blackMode = gameData.blackMode;
         _parentNode = game['moves']['pgn'];
         _currentNodeIndex = 0;
         _startPosition = startFen;
@@ -461,7 +474,7 @@ class _GamePageState extends State<GamePage> {
             blackAtBottom: _boardReversed,
             commonSize: minSize * 0.7,
             fen: _boardState.fen,
-            userCanMovePieces: _gameInProgress,
+            userCanMovePieces: shouldChessBoardBetInteractive(),
             hasPendingPromotion: _pendingPromotion,
             lastMoveVisible: _lastMoveVisible,
             lastMoveStartFile: _lastMoveStartFile,
