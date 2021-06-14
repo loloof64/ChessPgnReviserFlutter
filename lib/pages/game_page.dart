@@ -178,9 +178,14 @@ class _GamePageState extends State<GamePage> {
     if (boardNotEmpty) {
       if (await confirm(
         context,
-        title: Text('Start new game ?'),
-        content:
-            Text('Do you want to start a new game and leave the current one ?'),
+        title: Text(
+          'Start new game ?',
+          style: TextStyle(fontSize: 30.0),
+        ),
+        content: Text(
+          'Do you want to start a new game and leave the current one ?',
+          style: TextStyle(fontSize: 30.0),
+        ),
         textOK: Text('Yes'),
         textCancel: Text('No'),
       )) {
