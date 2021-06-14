@@ -35,7 +35,6 @@ class _HistoryWidgetState extends State<HistoryWidget> {
       item.text,
       style: TextStyle(
         fontSize: widget.width * 0.06,
-        fontFamily: 'FreeSerif',
       ),
     );
 

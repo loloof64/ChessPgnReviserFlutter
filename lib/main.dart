@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Chess Pgn Reviser',
       theme: ThemeData(
         primarySwatch: Colors.orange,
+        fontFamily: 'FreeSerif',
       ),
       home: GamePage(),
     );

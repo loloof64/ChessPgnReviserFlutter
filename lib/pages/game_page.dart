@@ -315,7 +315,10 @@ class _GamePageState extends State<GamePage> {
         _gameInProgress = false;
         alert(context,
             title: Text('Game finished'),
-            content: Text('Congratulations ! You found all moves.'),
+            content: Text(
+              'Congratulations ! You found all moves.',
+              style: TextStyle(fontSize: 20.0),
+            ),
             textOK: Text('Ok'));
       }
     });
@@ -377,7 +380,10 @@ class _GamePageState extends State<GamePage> {
     });
     alert(context,
         title: Text('Bad move'),
-        content: Text('Unexpected move ${ex.moveFan} !'),
+        content: Text(
+          'Unexpected move ${ex.moveFan} !',
+          style: TextStyle(fontSize: 20.0),
+        ),
         textOK: Text('Ok'));
   }
 
