@@ -136,7 +136,7 @@ class _GamePageState extends State<GamePage> {
           },
           child: Text(
             moveFan,
-            style: TextStyle(fontSize: 25.0),
+            style: TextStyle(fontSize: 40.0),
           ),
         ),
       );
@@ -151,7 +151,10 @@ class _GamePageState extends State<GamePage> {
         buttonsTextStyle: TextStyle(color: Colors.black),
         body: Column(
           children: <Widget>[
-            Text('There are several moves available, make your choice :'),
+            Text(
+              'There are several moves available, make your choice :',
+              style: TextStyle(fontSize: 40.0),
+            ),
             ...movesWidgets
           ],
         ));
