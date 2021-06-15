@@ -138,11 +138,16 @@ class _GamePageState extends State<GamePage> {
         barrierDismissible: false,
         actions: movesActions);
 
-    final selectedMove = movesList[moveIndex];
-    final selectedMoveSan = movesSanList[moveIndex];
-    final moveFan = chess_utils.moveFanFromMoveSan(
-        selectedMoveSan, _boardState.turn == board_logic.Color.WHITE);
-    commitSingleMove(selectedMove, selectedMoveSan, moveFan);
+    try {
+      final selectedMove = movesList[moveIndex];
+      final selectedMoveSan = movesSanList[moveIndex];
+      final moveFan = chess_utils.moveFanFromMoveSan(
+          selectedMoveSan, _boardState.turn == board_logic.Color.WHITE);
+      commitSingleMove(selectedMove, selectedMoveSan, moveFan);
+    } catch (e) {
+      // If user has cancelled, we must show him this dialog again.
+      letUserChooserNextMoveIfAppropriate();
+    }
   }
 
   commitSingleMove(board_logic.Move move, String moveSan, String moveFan) {
