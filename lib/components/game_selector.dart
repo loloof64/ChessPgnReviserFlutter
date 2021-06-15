@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
 import 'chessboard/chessboard.dart' as board;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GameSelectorResult {
   final int gameIndex;
@@ -93,7 +94,8 @@ class _GameSelectorState extends State<GameSelector> {
 
   String getGameGoal() {
     final goalString = widget.games[_gameIndex]["tags"]["Goal"] ?? "";
-    if (goalString == "1-0") return "White should win";
+    if (goalString == "1-0")
+      return AppLocalizations.of(context).gameResultWhiteWin;
     if (goalString == "0-1") return "Black should win";
     if (goalString.startsWith("1/2")) return "It should be draw";
     return goalString;

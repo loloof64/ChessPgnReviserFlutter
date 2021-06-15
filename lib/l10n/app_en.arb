@@ -1,0 +1,6 @@
+{
+    "gameResultWhiteWin": "White should win.",
+    "@gameResultWhiteWin": {
+      "description": "White should win the game, by theory."
+    }
+}

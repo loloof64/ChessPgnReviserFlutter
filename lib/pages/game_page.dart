@@ -17,6 +17,7 @@ import '../components/history.dart';
 import '../utils/chess_utils.dart' as chess_utils;
 import '../components/header_bar.dart';
 import '../components/bottom_bar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -173,7 +174,8 @@ class _GamePageState extends State<GamePage> {
 
   String _getGameGoal(gamePgn) {
     final goalString = gamePgn["tags"]["Goal"] ?? "";
-    if (goalString == "1-0") return "White should win";
+    if (goalString == "1-0")
+      return AppLocalizations.of(context).gameResultWhiteWin;
     if (goalString == "0-1") return "Black should win";
     if (goalString.startsWith("1/2")) return "It should be draw";
     return goalString;
