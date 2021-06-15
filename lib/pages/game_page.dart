@@ -16,6 +16,7 @@ import '../components/chessboard/chessboard_types.dart';
 import '../components/history.dart';
 import '../utils/chess_utils.dart' as chess_utils;
 import '../components/header_bar.dart';
+import '../components/bottom_bar.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -562,7 +563,7 @@ class _GamePageState extends State<GamePage> {
             selectedItemIndex: _selectedHistoryItemIndex,
             startPosition: _startPosition,
             blackAtBottom: _boardReversed,
-            commonSize: minSize * 0.7,
+            commonSize: minSize * 0.65,
             fen: _boardState.fen,
             userCanMovePieces: shouldChessBoardBetInteractive(),
             hasPendingPromotion: _pendingPromotion,
@@ -607,6 +608,11 @@ class _GamePageState extends State<GamePage> {
             handleHistoryGotoLastItemRequested: () {
               tryToGoToLastItem();
             },
+          ),
+          BottomBar(
+            gameInProgress: _gameInProgress,
+            whiteMode: _whiteMode,
+            blackMode: _blackMode,
           ),
         ],
       )),
