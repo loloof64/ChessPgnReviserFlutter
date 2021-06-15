@@ -1,3 +1,14 @@
 {
-    "gameResultWhiteWin": "Los blancos deberían ganar."
+    "gameResultWhiteWin": "Los blancos deberían ganar.",
+    "gameResultBlackWin": "Los negros deberían ganar.",
+    "gameResultDraw": "Debería ser un empate.",
+    "gameSelectorTitle": "Selección de la partida.",
+    "gameModePlayerGuessMove": "Advina los golpes.",
+    "gameModeComputerPlaysRandomly": "La computadora elige los golpes al azar.",
+    "gameModeUserChooseMove": "La computadora le permite elegir los golpes.",
+    "gameNotInProgress": "No hay partida en progreso",
+    "whiteMode": "Blancos",
+    "blackMode": "Negros",
+    "okButton": "Validar",
+    "cancelButton": "Anular"
 }

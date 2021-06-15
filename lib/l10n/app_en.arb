@@ -1,6 +1,56 @@
 {
-    "gameResultWhiteWin": "White should win.",
+  
+  "okButton": "Ok",
+  "@okButton": {
+    "description": "Ok button label"
+  },
+  "cancelButton": "Cancel",
+  "@cancelButton": {
+    "description": "Cancel button label"
+  },
+    
+  
+  
+  "gameResultWhiteWin": "White should win.",
     "@gameResultWhiteWin": {
       "description": "White should win the game, by theory."
+    },
+    "gameResultBlackWin": "Black should win.",
+    "@gameResultBlackWin": {
+      "description": "Black should win the game, by theory."
+    },
+    "gameResultDraw": "It should be draw.",
+    "@gameResultDraw": {
+      "description": "It should be draw, by theory."
+    },
+
+
+    "gameSelectorTitle": "Game selection",
+    "@gameSelectorTitle": {
+      "description": "Title for game selector component."
+    },
+    "gameModePlayerGuessMove": "You guess the moves",
+    "@gameModePlayerGuessMove": {
+      "description": "For the side in question, user must guess the moves."
+    },
+    "gameModeComputerPlaysRandomly": "Computer plays moves randomly",
+    "@gameModeComputerPlaysRandomly": {
+      "description": "For the side in question, computer selects a move randomly."
+    },
+    "gameModeUserChooseMove": "Computer lets you select the moves",
+    "@gameModeUserChooseMove": {
+      "description": "For the side in question, computer let user select a move when needed."
+    },
+    "gameNotInProgress": "Game not in progress",
+    "@gameNotInProgress": {
+      "description": "No running game as for now."
+    },
+    "whiteMode": "Whites",
+    "@whiteMode": {
+      "description": "White player game mode."
+    },
+    "blackMode": "Blacks",
+    "@blackMode": {
+      "description": "Black player game mode."
     }
 }

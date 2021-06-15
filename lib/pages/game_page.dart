@@ -176,8 +176,10 @@ class _GamePageState extends State<GamePage> {
     final goalString = gamePgn["tags"]["Goal"] ?? "";
     if (goalString == "1-0")
       return AppLocalizations.of(context).gameResultWhiteWin;
-    if (goalString == "0-1") return "Black should win";
-    if (goalString.startsWith("1/2")) return "It should be draw";
+    if (goalString == "0-1")
+      return AppLocalizations.of(context).gameResultBlackWin;
+    if (goalString.startsWith("1/2"))
+      return AppLocalizations.of(context).gameResultDraw;
     return goalString;
   }
 

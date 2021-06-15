@@ -1,3 +1,14 @@
 {
-    "gameResultWhiteWin": "Les Blancs devraient gagner."
+    "gameResultWhiteWin": "Les Blancs devraient gagner.",
+    "gameResultBlackWin": "Les Noirs devraient gagner.",
+    "gameResultDraw": "Cela devrait être une partie nulle.",
+    "gameSelectorTitle": "Selection de la partie",
+    "gameModePlayerGuessMove": "Vous devinez les coups",
+    "gameModeComputerPlaysRandomly": "L'ordinateur chosit les coups au hasard.",
+    "gameModeUserChooseMove": "L'ordinateur vous laisse choisir les coups",
+    "gameNotInProgress": "Aucune partie en cours",
+    "whiteMode": "Blancs",
+    "blackMode": "Noirs",
+    "okButton": "Valider",
+    "cancelButton": "Annuler"
 }

@@ -96,8 +96,10 @@ class _GameSelectorState extends State<GameSelector> {
     final goalString = widget.games[_gameIndex]["tags"]["Goal"] ?? "";
     if (goalString == "1-0")
       return AppLocalizations.of(context).gameResultWhiteWin;
-    if (goalString == "0-1") return "Black should win";
-    if (goalString.startsWith("1/2")) return "It should be draw";
+    if (goalString == "0-1")
+      return AppLocalizations.of(context).gameResultBlackWin;
+    if (goalString.startsWith("1/2"))
+      return AppLocalizations.of(context).gameResultDraw;
     return goalString;
   }
 
@@ -128,7 +130,8 @@ class _GameSelectorState extends State<GameSelector> {
         TextEditingController(text: "${_gameIndex + 1}");
 
     return Scaffold(
-        appBar: AppBar(title: Text('Game selector')),
+        appBar:
+            AppBar(title: Text(AppLocalizations.of(context).gameSelectorTitle)),
         body: Center(
           child: Column(
             children: [
@@ -159,6 +162,12 @@ class _GameSelectorState extends State<GameSelector> {
                     ModeSettingZone(
                       whiteMode: _whiteMode,
                       blackMode: _blackMode,
+                      guessMoveString:
+                          AppLocalizations.of(context).gameModePlayerGuessMove,
+                      randomMovesString: AppLocalizations.of(context)
+                          .gameModeComputerPlaysRandomly,
+                      userChoiceString:
+                          AppLocalizations.of(context).gameModeUserChooseMove,
                       updateWhiteMode: (PlayerMode newValue) {
                         setState(() {
                           _whiteMode = newValue;
@@ -196,6 +205,9 @@ class _GameSelectorState extends State<GameSelector> {
 class ModeSettingZone extends StatelessWidget {
   final PlayerMode whiteMode;
   final PlayerMode blackMode;
+  final String guessMoveString;
+  final String userChoiceString;
+  final String randomMovesString;
 
   final void Function(PlayerMode mode) updateWhiteMode;
   final void Function(PlayerMode mode) updateBlackMode;
@@ -205,16 +217,19 @@ class ModeSettingZone extends StatelessWidget {
     @required this.blackMode,
     @required this.updateWhiteMode,
     @required this.updateBlackMode,
+    @required this.guessMoveString,
+    @required this.userChoiceString,
+    @required this.randomMovesString,
   });
 
   String textForMode(PlayerMode mode) {
     switch (mode) {
       case PlayerMode.GuessMove:
-        return 'Computer lets user guess move';
+        return guessMoveString;
       case PlayerMode.ReadMoveByUserChoice:
-        return 'Computer plays moves by user choice';
+        return userChoiceString;
       case PlayerMode.ReadMoveRandomly:
-        return 'Computer plays moves randomly';
+        return randomMovesString;
       default:
         throw 'Unrecognized mode $mode !';
     }
@@ -260,7 +275,7 @@ class ModeSettingZone extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text('White mode'),
+            Text(AppLocalizations.of(context).whiteMode),
             SizedBox(
               width: 20.0,
             ),
@@ -277,7 +292,7 @@ class ModeSettingZone extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text('Black mode'),
+            Text(AppLocalizations.of(context).blackMode),
             SizedBox(
               width: 20.0,
             ),
@@ -351,14 +366,14 @@ class ValidationZone extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ValidationButton(
-          label: 'Cancel',
+          label: AppLocalizations.of(context).cancelButton,
           fontSize: buttonsFontSize,
           padding: buttonsPadding,
           onPressed: onCancel,
           textColor: Colors.red,
         ),
         ValidationButton(
-          label: 'Ok',
+          label: AppLocalizations.of(context).okButton,
           fontSize: buttonsFontSize,
           padding: buttonsPadding,
           onPressed: onValidate,
