@@ -53,7 +53,7 @@ class _GamePageState extends State<GamePage> {
   PlayerMode _whiteMode;
   PlayerMode _blackMode;
 
-  processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
+  void processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
         text: moveFan,
         fenAfterMove: _boardState.fen,
@@ -78,7 +78,7 @@ class _GamePageState extends State<GamePage> {
     return currentMode == PlayerMode.GuessMove;
   }
 
-  tryToMakeComputerPlayRandomMove() {
+  Future<void> tryToMakeComputerPlayRandomMove() async {
     if (!_gameInProgress) return;
 
     final isWhiteTurn = _boardState.turn == board_logic.Color.WHITE;
@@ -98,10 +98,10 @@ class _GamePageState extends State<GamePage> {
     final moveFan = chess_utils.moveFanFromMoveSan(
         moveSan, _boardState.turn == board_logic.Color.WHITE);
 
-    commitSingleMove(selectedMove, moveSan, moveFan);
+    return await commitSingleMove(selectedMove, moveSan, moveFan);
   }
 
-  letUserChooserNextMoveIfAppropriate() async {
+  Future<void> letUserChooserNextMoveIfAppropriate() async {
     if (!_gameInProgress) return;
 
     final isWhiteTurn = _boardState.turn == board_logic.Color.WHITE;
@@ -117,8 +117,7 @@ class _GamePageState extends State<GamePage> {
       final moveSan = _boardState.move_to_san(move);
       final moveFan = chess_utils.moveFanFromMoveSan(
           moveSan, _boardState.turn == board_logic.Color.WHITE);
-      commitSingleMove(move, moveSan, moveFan);
-      return;
+      return await commitSingleMove(move, moveSan, moveFan);
     }
 
     List<AlertDialogAction<int>> movesActions = [];
@@ -144,14 +143,15 @@ class _GamePageState extends State<GamePage> {
       final selectedMoveSan = movesSanList[moveIndex];
       final moveFan = chess_utils.moveFanFromMoveSan(
           selectedMoveSan, _boardState.turn == board_logic.Color.WHITE);
-      commitSingleMove(selectedMove, selectedMoveSan, moveFan);
+      return await commitSingleMove(selectedMove, selectedMoveSan, moveFan);
     } catch (e) {
       // If user has cancelled, we must show him this dialog again.
-      letUserChooserNextMoveIfAppropriate();
+      return await letUserChooserNextMoveIfAppropriate();
     }
   }
 
-  commitSingleMove(board_logic.Move move, String moveSan, String moveFan) {
+  Future<void> commitSingleMove(
+      board_logic.Move move, String moveSan, String moveFan) async {
     final startCell = Cell.fromAlgebraic(move.fromAlgebraic);
     final endCell = Cell.fromAlgebraic(move.toAlgebraic);
 
@@ -167,8 +167,8 @@ class _GamePageState extends State<GamePage> {
         moveFan, _boardState.turn != board_logic.Color.WHITE);
     updateCurrentNode(moveSan, moveFan);
 
-    tryToMakeComputerPlayRandomMove();
-    letUserChooserNextMoveIfAppropriate();
+    await tryToMakeComputerPlayRandomMove();
+    return await letUserChooserNextMoveIfAppropriate();
   }
 
   String _getGameGoal(gamePgn) {
@@ -179,7 +179,7 @@ class _GamePageState extends State<GamePage> {
     return goalString;
   }
 
-  loadPgn(BuildContext context) async {
+  Future<void> loadPgn(BuildContext context) async {
     final XTypeGroup pgnTypeGroup = XTypeGroup(
       label: 'pgn file',
       extensions: ['pgn'],
@@ -256,8 +256,8 @@ class _GamePageState extends State<GamePage> {
         _gameInProgress = true;
       });
       clearLastMoveArrow();
-      tryToMakeComputerPlayRandomMove();
-      letUserChooserNextMoveIfAppropriate();
+      await tryToMakeComputerPlayRandomMove();
+      return await letUserChooserNextMoveIfAppropriate();
     } catch (ex, stacktrace) {
       Completer().completeError(ex, stacktrace);
       Toast.show("Failed to read pgn content, cancelled new game !", context,
@@ -300,7 +300,7 @@ class _GamePageState extends State<GamePage> {
     }).toList();
   }
 
-  startNewGame(BuildContext context) async {
+  Future<void> startNewGame(BuildContext context) async {
     final boardNotEmpty = _boardState.fen != EMPTY_BOARD;
     if (boardNotEmpty) {
       final confirmed = await showOkCancelAlertDialog(
@@ -310,13 +310,13 @@ class _GamePageState extends State<GamePage> {
         okLabel: 'Yes',
         cancelLabel: 'No',
       );
-      if (confirmed == OkCancelResult.ok) loadPgn(context);
+      if (confirmed == OkCancelResult.ok) return await loadPgn(context);
     } else {
-      loadPgn(context);
+      return await loadPgn(context);
     }
   }
 
-  stopCurrentGame(BuildContext contex) async {
+  Future<void> stopCurrentGame(BuildContext contex) async {
     if (_gameInProgress) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
@@ -336,7 +336,8 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  handleDragReleased(String startCellStr, String endCellStr) {
+  Future<void> handleDragReleased(
+      String startCellStr, String endCellStr) async {
     var boardLogicClone = board_logic.Chess();
     boardLogicClone.load(_boardState.fen);
     final legalMove = boardLogicClone
@@ -368,12 +369,16 @@ class _GamePageState extends State<GamePage> {
         final moveFan = chess_utils.moveFanFromMoveSan(
             moveSan, _boardState.turn == board_logic.Color.WHITE);
 
-        commitSingleMove(move, moveSan, moveFan);
+        try {
+          await commitSingleMove(move, moveSan, moveFan);
+        } catch (ex) {
+          await handleUnexpectedMove(context, ex);
+        }
       }
     }
   }
 
-  void updateCurrentNode(String moveSan, String moveFan) async {
+  updateCurrentNode(String moveSan, String moveFan) {
     final moveIndex = getMoveIndexFromExpectedMovesList(moveSan);
 
     setState(() {
@@ -395,7 +400,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   Future<void> congratUser() async {
-    await showOkAlertDialog(
+    return await showOkAlertDialog(
       context: context,
       okLabel: 'Ok',
       title: 'Game finished',
@@ -426,7 +431,7 @@ class _GamePageState extends State<GamePage> {
     return moveIndex;
   }
 
-  commitPromotionMove(String type) {
+  Future<void> commitPromotionMove(String type) async {
     final move = chess_utils.findMoveForPosition(
         _boardState,
         _pendingPromotionMove.start.toAlgebraic(),
@@ -450,10 +455,15 @@ class _GamePageState extends State<GamePage> {
       _lastMoveEndRank = _pendingPromotionMove.end.rank;
     });
     cancelPendingPromotion();
-    updateCurrentNode(moveSan, moveFan);
 
-    tryToMakeComputerPlayRandomMove();
-    letUserChooserNextMoveIfAppropriate();
+    try {
+      updateCurrentNode(moveSan, moveFan);
+
+      await tryToMakeComputerPlayRandomMove();
+      return await letUserChooserNextMoveIfAppropriate();
+    } catch (ex) {
+      return await handleUnexpectedMove(context, ex);
+    }
   }
 
   clearLastMoveArrow() {
@@ -493,7 +503,7 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  tryToSetHistoryPosition(
+  void tryToSetHistoryPosition(
       {String fen,
       int lastMoveStartFile,
       int lastMoveStartRank,
@@ -522,7 +532,8 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  handleUnexpectedMove(BuildContext context, UnexpectedMoveException ex) async {
+  Future<void> handleUnexpectedMove(
+      BuildContext context, UnexpectedMoveException ex) async {
     setState(() {
       _gameInProgress = false;
       tryToGoToLastItem();
@@ -551,8 +562,8 @@ class _GamePageState extends State<GamePage> {
           HeaderBar(
               width: viewport.width * 0.8,
               height: viewport.height * 0.1,
-              startGame: () => startNewGame(context),
-              stopGame: () => stopCurrentGame(context),
+              startGame: () async => await startNewGame(context),
+              stopGame: () async => await stopCurrentGame(context),
               reverseBoard: () {
                 setState(() {
                   _boardReversed = !_boardReversed;
@@ -572,19 +583,11 @@ class _GamePageState extends State<GamePage> {
             lastMoveStartRank: _lastMoveStartRank,
             lastMoveEndFile: _lastMoveEndFile,
             lastMoveEndRank: _lastMoveEndRank,
-            onDragReleased: (startCell, endCell) {
-              try {
-                handleDragReleased(startCell, endCell);
-              } on UnexpectedMoveException catch (e) {
-                handleUnexpectedMove(context, e);
-              }
+            onDragReleased: (startCellStr, endCellStr) async {
+              await handleDragReleased(startCellStr, endCellStr);
             },
-            commitPromotionMove: (pieceType) {
-              try {
-                commitPromotionMove(pieceType);
-              } on UnexpectedMoveException catch (e) {
-                handleUnexpectedMove(context, e);
-              }
+            commitPromotionMove: (pieceType) async {
+              await commitPromotionMove(pieceType);
             },
             cancelPendingPromotion: cancelPendingPromotion,
             historyWidgetContent: _historyWidgetContent,
@@ -619,14 +622,14 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  tryToGoToFirstItem() {
+  void tryToGoToFirstItem() {
     setState(() {
       _selectedHistoryItemIndex = -1;
       tryToSetStartPosition();
     });
   }
 
-  tryToGoToPreviousItem() {
+  void tryToGoToPreviousItem() {
     setState(
       () {
         if (_selectedHistoryItemIndex > 1) {
@@ -644,7 +647,7 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  tryToGoToNextItem() {
+  void tryToGoToNextItem() {
     final noMove = _historyWidgetContent.length < 2;
     if (noMove) return;
     if (_selectedHistoryItemIndex < _historyWidgetContent.length - 1) {
@@ -668,7 +671,7 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  tryToGoToLastItem() {
+  void tryToGoToLastItem() {
     final noMove = _historyWidgetContent.length < 2;
     if (noMove) return;
     setState(() {
