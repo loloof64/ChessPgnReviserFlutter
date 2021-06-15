@@ -131,11 +131,11 @@ class _GamePageState extends State<GamePage> {
     });
 
     final moveIndex = await showConfirmationDialog<int>(
-        title: 'Move choice',
+        title: AppLocalizations.of(context).moveChoiceConfirmationTitle,
         context: context,
-        message: 'There are several moves available, make your choice :',
-        okLabel: 'Ok',
-        cancelLabel: 'Cancel',
+        message: AppLocalizations.of(context).moveChoiceConfirmationMessage,
+        okLabel: AppLocalizations.of(context).okButton,
+        cancelLabel: AppLocalizations.of(context).cancelButton,
         barrierDismissible: false,
         actions: movesActions);
 
@@ -199,7 +199,7 @@ class _GamePageState extends State<GamePage> {
     final XFile file =
         await openFile(acceptedTypeGroups: [pgnTypeGroup, allTypeGroup]);
     if (file == null) {
-      Toast.show("Cancelled new game !", context,
+      Toast.show(AppLocalizations.of(context).cancelledNewGameRequest, context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       return;
     }
@@ -219,7 +219,8 @@ class _GamePageState extends State<GamePage> {
       final gameData = await Navigator.push(context,
           MaterialPageRoute(builder: (context) => GameSelector(allGames)));
       if (gameData == null) {
-        Toast.show("Cancelled new game !", context,
+        Toast.show(
+            AppLocalizations.of(context).cancelledNewGameRequest, context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
         return;
       }
@@ -232,7 +233,7 @@ class _GamePageState extends State<GamePage> {
       final noMoreMove = moves.isEmpty;
 
       if (noMoreMove) {
-        throw Exception("Cannot load the position : no move can be made !");
+        throw Exception(AppLocalizations.of(context).noMoveInLoadedGame);
       }
 
       String startFen;
@@ -264,7 +265,7 @@ class _GamePageState extends State<GamePage> {
       return await letUserChooserNextMoveIfAppropriate();
     } catch (ex, stacktrace) {
       Completer().completeError(ex, stacktrace);
-      Toast.show("Failed to read pgn content, cancelled new game !", context,
+      Toast.show(AppLocalizations.of(context).couldNotLoadPgn, context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     }
   }
@@ -309,10 +310,10 @@ class _GamePageState extends State<GamePage> {
     if (boardNotEmpty) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
-        title: 'Start new game ?',
-        message: 'Do you want to start a new game and leave the current one ?',
-        okLabel: 'Yes',
-        cancelLabel: 'No',
+        title: AppLocalizations.of(context).newGameDialogTitle,
+        message: AppLocalizations.of(context).newGameDialogMessage,
+        okLabel: AppLocalizations.of(context).yesButton,
+        cancelLabel: AppLocalizations.of(context).noButton,
       );
       if (confirmed == OkCancelResult.ok) return await loadPgn(context);
     } else {
@@ -324,16 +325,16 @@ class _GamePageState extends State<GamePage> {
     if (_gameInProgress) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
-        title: 'Stop current game ?',
-        message: 'Do you want to start stop current game ?',
-        okLabel: 'Yes',
-        cancelLabel: 'No',
+        title: AppLocalizations.of(context).stopGameDialogTitle,
+        message: AppLocalizations.of(context).stopGameDialogMessage,
+        okLabel: AppLocalizations.of(context).yesButton,
+        cancelLabel: AppLocalizations.of(context).noButton,
       );
       if (confirmed == OkCancelResult.ok) {
         setState(() {
           _gameInProgress = false;
           tryToGoToLastItem();
-          Toast.show("Game stopped.", context,
+          Toast.show(AppLocalizations.of(context).gameStopped, context,
               duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
         });
       }
@@ -406,9 +407,9 @@ class _GamePageState extends State<GamePage> {
   Future<void> congratUser() async {
     return await showOkAlertDialog(
       context: context,
-      okLabel: 'Ok',
-      title: 'Game finished',
-      message: 'Congratulations ! You found all moves.',
+      okLabel: AppLocalizations.of(context).okButton,
+      title: AppLocalizations.of(context).userCongratulationTitle,
+      message: AppLocalizations.of(context).userCongratulationMessage,
     );
   }
 
@@ -544,10 +545,10 @@ class _GamePageState extends State<GamePage> {
     });
     await showOkAlertDialog(
       context: context,
-      okLabel: 'Ok',
-      message:
-          'Unexpected move ${ex.moveFan} !\nExpected one of [${ex.expectedMovesFanList.join(', ')}].',
-      title: 'Bad move',
+      okLabel: AppLocalizations.of(context).okButton,
+      message: AppLocalizations.of(context)
+          .badMoveMessage(ex.moveFan, ex.expectedMovesFanList),
+      title: AppLocalizations.of(context).badMoveTitle,
     );
   }
 
@@ -558,7 +559,7 @@ class _GamePageState extends State<GamePage> {
         viewport.width < viewport.height ? viewport.width : viewport.height;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Game page"),
+        title: Text(AppLocalizations.of(context).gamePageTitle),
       ),
       body: Center(
           child: Column(

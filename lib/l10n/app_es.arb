@@ -1,4 +1,8 @@
 {
+    "okButton": "Validar",
+    "cancelButton": "Anular",
+    "yesButton": "Si",
+    "noButton": "No",
     "gameResultWhiteWin": "Los blancos deberían ganar.",
     "gameResultBlackWin": "Los negros deberían ganar.",
     "gameResultDraw": "Debería ser un empate.",
@@ -9,6 +13,19 @@
     "gameNotInProgress": "No hay partida en progreso",
     "whiteMode": "Blancos",
     "blackMode": "Negros",
-    "okButton": "Validar",
-    "cancelButton": "Anular"
+    "moveChoiceConfirmationTitle": "Elección del golpe",
+    "moveChoiceConfirmationMessage": "Hay varios golpes disponibles, haga su elección :",
+    "cancelledNewGameRequest": "Nueva partida cancelada.",
+    "noMoveInLoadedGame": "No se puede cargar la partida solicitada: ¡no es posible realizar ningún golpe!",
+    "couldNotLoadPgn": "Error al leer el archivo PGN : nueva partida cancelada.",
+    "newGameDialogTitle": "¿Partida nueva?",
+    "newGameDialogMessage": "¿Quieres salir de la partida actual y empezar una nueva",
+    "stopGameDialogTitle": "¿Detener la partida?",
+    "stopGameDialogMessage": "¿Estás seguro de que quieres detener la partida?",
+    "gameStopped": "Partida terminada.",
+    "userCongratulationTitle": "Partida terminada",
+    "userCongratulationMessage": "¡Felicidades! Has encontrado todas los golpes.",
+    "badMoveTitle": "Mal golpe",
+    "badMoveMessage": "Golpe inesperado {wrongMoveFan}! \nEsperando uno de {expectedMovesFanList}.",
+    "gamePageTitle": "Página de la partida"  
 }

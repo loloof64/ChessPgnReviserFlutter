@@ -8,8 +8,15 @@
   "@cancelButton": {
     "description": "Cancel button label"
   },
-    
-  
+  "yesButton": "Yes",
+  "@yesButton": {
+    "description": "Yes button label"
+  },
+  "noButton": "No",
+  "@noButton": {
+    "description": "No button label"
+  },
+
   
   "gameResultWhiteWin": "White should win.",
     "@gameResultWhiteWin": {
@@ -52,5 +59,74 @@
     "blackMode": "Blacks",
     "@blackMode": {
       "description": "Black player game mode."
+    },
+
+
+    "moveChoiceConfirmationTitle": "Move choice",
+    "@moveChoiceConfirmationTitle": {
+      "description": "Title for the dialog letting user choose move."
+    },
+    "moveChoiceConfirmationMessage": "There are several moves available, make your choice :",
+    "@moveChoiceConfirmationMessage": {
+      "description": "Message for the dialog letting user choose move."
+    },
+
+    "cancelledNewGameRequest": "Cancelled new game.",
+    "@cancelledNewGameRequest": {
+      "description": "Cancelled new game request."
+    },
+    "noMoveInLoadedGame": "Cannot load the position : no move can be made.",
+    "@noMoveInLoadedGame": {
+      "description": "Could not load selected game because it had not any move."
+    },
+    "couldNotLoadPgn": "Failed to read pgn content: cancelled new game.",
+    "@couldNotLoadPgn": {
+      "description": "Could not load selected game because PGN file has not expected format."
+    },
+    "newGameDialogTitle": "Start new game ?",
+    "@newGameDialogTitle": {
+      "description": "New game dialog title."
+    },
+    "newGameDialogMessage": "Do you want to start a new game and leave the current one ?",
+    "@newGameDialogMessage": {
+      "description": "New game dialog message."
+    },
+    "stopGameDialogTitle": "Stop current game ?",
+    "@stopGameDialogTitle": {
+      "description": "Stop current game dialog title."
+    },
+    "stopGameDialogMessage": "Do you want to start stop current game ?",
+    "@stopGameDialogMessage": {
+      "description": "Stop current game dialog message."
+    },
+    "gameStopped": "Game stopped.",
+    "@gameStopped": {
+      "description": "Notifying user that stop request has been processed."
+    },
+    "userCongratulationTitle": "Game finished",
+    "@userCongratulationTitle": {
+      "description": "Title for the dialog of the congratulations."
+    },
+    "userCongratulationMessage": "Congratulations ! You found all moves.",
+    "@userCongratulationMessage": {
+      "description": "Message for the dialog of the congratulations."
+    },
+    "badMoveTitle": "Bad move",
+    "@badMoveTitle": {
+      "description": "Title for the dialog notifying for a bad user move."
+    },
+    "badMoveMessage": "Unexpected move {wrongMoveFan} !\nExpected one of {expectedMovesFanList}.",
+    "@badMoveMessage": {
+      "description": "Message for the dialog notifying for a bad user move.",
+      "placeholders": {
+        "wrongMoveFan": {},
+        "expectedMovesFanList": {}
+      }
+    },
+
+    "gamePageTitle": "Game page",
+    "@gamePageTitle": {
+      "description": "Title for the game page."
     }
+
 }
