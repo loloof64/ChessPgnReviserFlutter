@@ -21,7 +21,7 @@ dependencies:
   file_selector_linux: ^0.0.2
   file_selector_web: ^0.7.0
   font_awesome_flutter: ^9.1.0
-  awesome_dialog: ^2.1.0
+  adaptive_dialog: ^1.0.0
 
 dev_dependencies:
   flutter_test:

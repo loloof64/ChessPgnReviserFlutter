@@ -8,7 +8,7 @@ import 'package:chess/chess.dart' as board_logic;
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import '../utils/pgn_parser/pgn_parser.dart';
 import '../components/game_selector.dart';
 import '../components/chessboard/chessboard.dart' as board;
@@ -84,7 +84,7 @@ class _GamePageState extends State<GamePage> {
     final currentMode = isWhiteTurn ? _whiteMode : _blackMode;
     if (currentMode != PlayerMode.ReadMoveRandomly) return;
 
-    final movesSanList = getAvailableMovesAsSan();
+    final movesSanList = getAvailableMovesAsSanAndFilterByLegalMoves();
     final movesList = getMoveListFromSanList(movesSanList);
     board_logic.Move selectedMove;
     int selectedMoveIndex;
@@ -100,14 +100,14 @@ class _GamePageState extends State<GamePage> {
     commitSingleMove(selectedMove, moveSan, moveFan);
   }
 
-  letUserChooserNextMoveIfAppropriate() {
+  letUserChooserNextMoveIfAppropriate() async {
     if (!_gameInProgress) return;
 
     final isWhiteTurn = _boardState.turn == board_logic.Color.WHITE;
     final currentMode = isWhiteTurn ? _whiteMode : _blackMode;
     if (currentMode != PlayerMode.ReadMoveByUserChoice) return;
 
-    final movesSanList = getAvailableMovesAsSan();
+    final movesSanList = getAvailableMovesAsSanAndFilterByLegalMoves();
     final movesList = getMoveListFromSanList(movesSanList);
 
     final isSingleMove = movesList.length == 1;
@@ -120,45 +120,29 @@ class _GamePageState extends State<GamePage> {
       return;
     }
 
-    AwesomeDialog dialog;
-    List<Widget> movesWidgets = [];
+    List<AlertDialogAction<int>> movesActions = [];
 
     movesSanList.asMap().forEach((index, moveSan) {
       final moveFan = chess_utils.moveFanFromMoveSan(
           moveSan, _boardState.turn == board_logic.Color.WHITE);
-      movesWidgets.add(
-        GestureDetector(
-          onTap: () {
-            final selectedMove = movesList[index];
-
-            commitSingleMove(selectedMove, moveSan, moveFan);
-            dialog.dismiss();
-          },
-          child: Text(
-            moveFan,
-            style: TextStyle(fontSize: 40.0),
-          ),
-        ),
-      );
+      movesActions.add(AlertDialogAction(
+          key: index, label: moveFan, isDefaultAction: false));
     });
 
-    dialog = AwesomeDialog(
+    final moveIndex = await showConfirmationDialog<int>(
+        title: 'Move choice',
         context: context,
-        dialogType: DialogType.INFO,
-        headerAnimationLoop: true,
-        animType: AnimType.BOTTOMSLIDE,
-        showCloseIcon: false,
-        buttonsTextStyle: TextStyle(color: Colors.black),
-        body: Column(
-          children: <Widget>[
-            Text(
-              'There are several moves available, make your choice :',
-              style: TextStyle(fontSize: 40.0),
-            ),
-            ...movesWidgets
-          ],
-        ));
-    dialog.show();
+        message: 'There are several moves available, make your choice :',
+        okLabel: 'Ok',
+        cancelLabel: 'Cancel',
+        barrierDismissible: false,
+        actions: movesActions);
+
+    final selectedMove = movesList[moveIndex];
+    final selectedMoveSan = movesSanList[moveIndex];
+    final moveFan = chess_utils.moveFanFromMoveSan(
+        selectedMoveSan, _boardState.turn == board_logic.Color.WHITE);
+    commitSingleMove(selectedMove, selectedMoveSan, moveFan);
   }
 
   commitSingleMove(board_logic.Move move, String moveSan, String moveFan) {
@@ -275,7 +259,7 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  List<String> getAvailableMovesAsSan() {
+  List<String> getAvailableMovesAsSanAndFilterByLegalMoves() {
     final currentNode = _parentNode[_currentNodeIndex];
     if (currentNode == null) return [];
 
@@ -310,23 +294,17 @@ class _GamePageState extends State<GamePage> {
     }).toList();
   }
 
-  startNewGame(BuildContext context) {
+  startNewGame(BuildContext context) async {
     final boardNotEmpty = _boardState.fen != EMPTY_BOARD;
     if (boardNotEmpty) {
-      AwesomeDialog(
+      final confirmed = await showOkCancelAlertDialog(
         context: context,
-        dialogType: DialogType.QUESTION,
-        headerAnimationLoop: true,
-        animType: AnimType.BOTTOMSLIDE,
         title: 'Start new game ?',
-        desc: 'Do you want to start a new game and leave the current one ?',
-        showCloseIcon: false,
-        buttonsTextStyle: TextStyle(color: Colors.black),
-        btnCancelOnPress: () {},
-        btnOkOnPress: () {
-          loadPgn(context);
-        },
-      )..show();
+        message: 'Do you want to start a new game and leave the current one ?',
+        okLabel: 'Yes',
+        cancelLabel: 'No',
+      );
+      if (confirmed == OkCancelResult.ok) loadPgn(context);
     } else {
       loadPgn(context);
     }
@@ -334,25 +312,21 @@ class _GamePageState extends State<GamePage> {
 
   stopCurrentGame(BuildContext contex) async {
     if (_gameInProgress) {
-      AwesomeDialog(
+      final confirmed = await showOkCancelAlertDialog(
         context: context,
-        dialogType: DialogType.QUESTION,
-        headerAnimationLoop: true,
-        animType: AnimType.BOTTOMSLIDE,
         title: 'Stop current game ?',
-        desc: 'Do you want to start stop current game ?',
-        showCloseIcon: false,
-        buttonsTextStyle: TextStyle(color: Colors.black),
-        btnCancelOnPress: () {},
-        btnOkOnPress: () {
-          setState(() {
-            _gameInProgress = false;
-            tryToGoToLastItem();
-            Toast.show("Game stopped.", context,
-                duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-          });
-        },
-      )..show();
+        message: 'Do you want to start stop current game ?',
+        okLabel: 'Yes',
+        cancelLabel: 'No',
+      );
+      if (confirmed == OkCancelResult.ok) {
+        setState(() {
+          _gameInProgress = false;
+          tryToGoToLastItem();
+          Toast.show("Game stopped.", context,
+              duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+        });
+      }
     }
   }
 
@@ -393,7 +367,7 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  void updateCurrentNode(String moveSan, String moveFan) {
+  void updateCurrentNode(String moveSan, String moveFan) async {
     final moveIndex = getMoveIndexFromExpectedMovesList(moveSan);
 
     setState(() {
@@ -409,19 +383,18 @@ class _GamePageState extends State<GamePage> {
       if (noMoreMove) {
         _gameInProgress = false;
         tryToGoToLastItem();
-        AwesomeDialog(
-          context: context,
-          dialogType: DialogType.SUCCES,
-          headerAnimationLoop: true,
-          animType: AnimType.BOTTOMSLIDE,
-          title: 'Game finished',
-          desc: 'Congratulations ! You found all moves.',
-          showCloseIcon: false,
-          buttonsTextStyle: TextStyle(color: Colors.black),
-          btnOkIcon: Icons.check_circle,
-        )..show();
+        congratUser();
       }
     });
+  }
+
+  Future<void> congratUser() async {
+    await showOkAlertDialog(
+      context: context,
+      okLabel: 'Ok',
+      title: 'Game finished',
+      message: 'Congratulations ! You found all moves.',
+    );
   }
 
   cancelPendingPromotion() {
@@ -432,7 +405,7 @@ class _GamePageState extends State<GamePage> {
   }
 
   int getMoveIndexFromExpectedMovesList(String moveSan) {
-    final expectedMoves = getAvailableMovesAsSan();
+    final expectedMoves = getAvailableMovesAsSanAndFilterByLegalMoves();
     final moveIndex =
         expectedMoves.indexWhere((currentMove) => currentMove == moveSan);
     if (moveIndex < 0) {
@@ -543,22 +516,18 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  handleUnexpectedMove(BuildContext context, UnexpectedMoveException ex) {
+  handleUnexpectedMove(BuildContext context, UnexpectedMoveException ex) async {
     setState(() {
       _gameInProgress = false;
       tryToGoToLastItem();
     });
-    AwesomeDialog(
+    await showOkAlertDialog(
       context: context,
-      dialogType: DialogType.ERROR,
-      headerAnimationLoop: true,
-      animType: AnimType.BOTTOMSLIDE,
-      title: 'Bad move',
-      desc:
+      okLabel: 'Ok',
+      message:
           'Unexpected move ${ex.moveFan} !\nExpected one of [${ex.expectedMovesFanList.join(', ')}].',
-      showCloseIcon: false,
-      buttonsTextStyle: TextStyle(color: Colors.black),
-    )..show();
+      title: 'Bad move',
+    );
   }
 
   @override
