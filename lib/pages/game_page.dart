@@ -250,8 +250,10 @@ class _GamePageState extends State<GamePage> {
         _parentNode = game['moves']['pgn'];
         _currentNodeIndex = 0;
         _startPosition = startFen;
-        _moveNumber = _referenceGame['moves']['pgn'][0]['moveNumber'];
-        final blackTurn = _referenceGame['moves']['pgn'][0]['turn'] != 'w';
+        final firstMove = _referenceGame['moves']['pgn'];
+        _moveNumber = firstMove.length > 0 ? firstMove[0]['moveNumber'] : 1;
+        final blackTurn =
+            firstMove.length > 0 ? firstMove[0]['turn'] != 'w' : false;
         _historyWidgetContent.clear();
         _historyWidgetContent
             .add(HistoryItem.moveNumber(_moveNumber, blackTurn));

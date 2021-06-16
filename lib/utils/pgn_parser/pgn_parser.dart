@@ -151,7 +151,7 @@ class PgnParserDefinition extends PgnGrammarDefinition {
         final inner = values[0];
         final result = values[1];
 
-        return {'pgn': inner, 'result': result};
+        return {'pgn': inner ?? [], 'result': result};
       });
 
   Parser variationPgn() => super.variationPgn().map((values) {
@@ -160,7 +160,7 @@ class PgnParserDefinition extends PgnGrammarDefinition {
 
         final pgn = inner;
 
-        return {'pgn': pgn, 'result': result};
+        return {'pgn': pgn ?? [], 'result': result};
       });
 
   Parser innerPgnWhite() => super.innerPgnWhite().map((values) {

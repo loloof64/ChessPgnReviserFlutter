@@ -104,7 +104,9 @@ class _GameSelectorState extends State<GameSelector> {
   }
 
   bool isBlackTurn() {
-    return widget.games[_gameIndex]["moves"]["pgn"][0]["turn"] == "b";
+    final fen = currentFen();
+    final turnString = fen.split(' ')[1];
+    return turnString == 'b';
   }
 
   String currentFen() {
