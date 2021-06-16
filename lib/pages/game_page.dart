@@ -18,6 +18,7 @@ import '../utils/chess_utils.dart' as chess_utils;
 import '../components/header_bar.dart';
 import '../components/bottom_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -53,6 +54,7 @@ class _GamePageState extends State<GamePage> {
   int _selectedHistoryItemIndex;
   PlayerMode _whiteMode;
   PlayerMode _blackMode;
+  bool _loading = false;
 
   void processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
@@ -204,6 +206,10 @@ class _GamePageState extends State<GamePage> {
       return;
     }
 
+    setState(() {
+      _loading = true;
+    });
+
     try {
       final content = await file.readAsString();
       final definition = PgnParserDefinition();
@@ -264,8 +270,14 @@ class _GamePageState extends State<GamePage> {
       });
       clearLastMoveArrow();
       await tryToMakeComputerPlayRandomMove();
-      return await letUserChooserNextMoveIfAppropriate();
+      await letUserChooserNextMoveIfAppropriate();
+      setState(() {
+        _loading = false;
+      });
     } catch (ex, stacktrace) {
+      setState(() {
+        _loading = false;
+      });
       Completer().completeError(ex, stacktrace);
       Toast.show(AppLocalizations.of(context).couldNotLoadPgn, context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
@@ -562,13 +574,23 @@ class _GamePageState extends State<GamePage> {
     final viewport = MediaQuery.of(context).size;
     final minSize =
         viewport.width < viewport.height ? viewport.width : viewport.height;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).gamePageTitle),
-      ),
-      body: Center(
-          child: Column(
-        children: [
+
+    final spinKit = _loading
+        ? SpinKitWave(
+            itemBuilder: (BuildContext context, int index) {
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                ),
+              );
+            },
+            size: 50.0,
+          )
+        : null;
+
+    List<Widget> children = <Widget>[
+      Column(
+        children: <Widget>[
           HeaderBar(
               width: viewport.width * 0.8,
               height: viewport.height * 0.1,
@@ -626,9 +648,20 @@ class _GamePageState extends State<GamePage> {
             gameInProgress: _gameInProgress,
             whiteMode: _whiteMode,
             blackMode: _blackMode,
-          ),
+          )
         ],
-      )),
+      ),
+    ];
+
+    if (spinKit != null) children.add(spinKit);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).gamePageTitle),
+      ),
+      body: Center(
+        child: Stack(children: children),
+      ),
     );
   }
 
