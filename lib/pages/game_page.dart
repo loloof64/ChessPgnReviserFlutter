@@ -399,7 +399,10 @@ class _GamePageState extends State<GamePage> {
       if (noMoreMove) {
         _gameInProgress = false;
         tryToGoToLastItem();
-        congratUser();
+        if (_whiteMode == PlayerMode.GuessMove ||
+            _blackMode == PlayerMode.GuessMove) {
+          congratUser();
+        }
       }
     });
   }
