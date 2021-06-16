@@ -27,5 +27,7 @@
     "userCongratulationMessage": "¡Felicidades! Has encontrado todas los golpes.",
     "badMoveTitle": "Mal golpe",
     "badMoveMessage": "Golpe inesperado {wrongMoveFan}! \nEsperando uno de {expectedMovesFanList}.",
-    "gamePageTitle": "Página de la partida"  
+    "gamePageTitle": "Página de la partida",
+    "globalOptions": "Opciones",
+    "aboutDialog": "A proposito"
 }

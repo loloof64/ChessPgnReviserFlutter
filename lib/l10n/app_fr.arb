@@ -27,5 +27,7 @@
     "userCongratulationMessage": "Félicitation! Vous avez trouvé tous les coups.",
     "badMoveTitle": "Mauvais coup",
     "badMoveMessage": "Coup inattendu {wrongMoveFan} !\nAttendant un parmi {expectedMovesFanList}.",
-    "gamePageTitle": "Page de jeu"
+    "gamePageTitle": "Page de jeu",
+    "globalOptions": "Options",
+    "aboutDialog": "À propos"
 }

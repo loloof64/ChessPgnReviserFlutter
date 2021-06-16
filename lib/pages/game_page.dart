@@ -657,7 +657,35 @@ class _GamePageState extends State<GamePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).gamePageTitle),
+        title: Text(
+          AppLocalizations.of(context).gamePageTitle,
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                AppLocalizations.of(context).globalOptions,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text(AppLocalizations.of(context).aboutDialog),
+              onTap: () {
+                showAboutDialog(context: context);
+              },
+            ),
+          ],
+        ),
       ),
       body: Center(
         child: Stack(children: children),

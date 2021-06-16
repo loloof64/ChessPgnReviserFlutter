@@ -127,6 +127,14 @@
     "gamePageTitle": "Game page",
     "@gamePageTitle": {
       "description": "Title for the game page."
+    },
+    "globalOptions": "Options",
+    "@globalOptions": {
+      "description": "Options shown in drawer."
+    },
+    "aboutDialog": "About",
+    "@aboutDialog": {
+      "description": "Show about dialog command."
     }
 
 }
