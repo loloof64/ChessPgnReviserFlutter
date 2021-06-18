@@ -1,0 +1,55 @@
+button:
+  ok: "Ok"
+  cancel: "Cancel"
+  yes: "Yes"
+  no: "No"
+
+gameResult:
+  whiteWin: "White should win."
+  blackWin: "Black should win."
+  draw: "It should be draw."
+
+
+gameSelectorTitle: "Game selection"
+gameModePlayerGuessMove: "You guess the moves"
+gameModeComputerPlaysRandomly: "Computer plays moves randomly"
+gameModeUserChooseMove: "Computer lets you select the moves"
+gameNotInProgress: "Game not in progress"
+whiteMode: "Whites"
+blackMode: "Blacks"
+
+
+moveChoiceConfirmationTitle: "Move choice"
+moveChoiceConfirmationMessage: "There are several moves available, make your choice :"
+
+cancelledNewGameRequest: "Cancelled new game."
+noMoveInLoadedGame: "Cannot load the position : no move can be made."
+couldNotLoadPgn: "Failed to read pgn content: cancelled new game."
+newGameDialogTitle: "Start new game ?"
+newGameDialogMessage: "Do you want to start a new game and leave the current one ?"
+stopGameDialogTitle: "Stop current game ?"
+stopGameDialogMessage: "Do you want to start stop current game ?"
+gameStopped: "Game stopped."
+userCongratulationTitle: "Game finished"
+userCongratulationMessage: "Congratulations ! You found all moves."
+badMoveTitle: "Bad move"
+badMoveMessage(String wrongMoveFan, List<String> expectedMovesFanList): "Unexpected move $wrongMoveFan !\nExpected one of $expectedMovesFanList."
+gamePageTitle: "Game page"
+globalOptions: "Options"
+aboutDialog: "About"
+appDescription: "Load your chess PGN file and try to find moves (from your side)."
+creditsSection: "Credits
+
+Using some pictures from flaticon.com:
+* red_cross : downloaded at https://www.flaticon.com/free-icon/cancel_1168643 and designed by FreePik,
+* race_flag : downloaded at https://www.flaticon.com/free-icon/racing-flag_1505471 and designed by SmashIcons,
+* first_item : downloaded at https://www.flaticon.com/free-icon/arrowheads-of-thin-outline-to-the-left_32766 and designed by FreePik,
+* previous_item : downloaded at https://www.flaticon.com/free-icon/black-triangular-arrowhead-pointing-to-left-direction_45050 and designed by FreePik,
+* last_item : downloaded at https://www.flaticon.com/free-icon/right-thin-arrowheads_32738 and designed by FreePik,
+* next_item : downloaded at https://www.flaticon.com/free-icon/right-triangular-arrowhead_44452 and designed by FreePik,
+* reverse_arrows : downloaded at https://www.flaticon.com/free-icon/arrows_685838 and designed by Good Ware,
+* stop : downloaded at https://www.flaticon.com/free-icon/stop_827428 and designed by SmashIcons,
+
+Adapted PGN PEG rules at https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs from project [pgn-parser](https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs), which is release under Apache License 2.0 (even if some elements have been modified/removed).
+
+FreeSerif font downloaded from https://fr.fonts2u.com/free-serif.police"

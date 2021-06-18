@@ -3,7 +3,8 @@
 import 'package:chess_pgn_reviser/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../l10n/messages_handler.dart';
 
 class BottomBar extends StatelessWidget {
   final bool gameInProgress;
@@ -32,17 +33,17 @@ class BottomBar extends StatelessWidget {
       switch (whiteMode) {
         case PlayerMode.GuessMove:
           whiteModeString =
-              ' ${AppLocalizations.of(context).gameModePlayerGuessMove}';
+              ' ${Provider.of<MessagesHandler>(context, listen: false).messages.gameModePlayerGuessMove}';
           whiteIcon = FontAwesomeIcons.questionCircle;
           break;
         case PlayerMode.ReadMoveByUserChoice:
           whiteModeString =
-              ' ${AppLocalizations.of(context).gameModeUserChooseMove}';
+              ' ${Provider.of<MessagesHandler>(context, listen: false).messages.gameModeUserChooseMove}';
           whiteIcon = FontAwesomeIcons.codeBranch;
           break;
         case PlayerMode.ReadMoveRandomly:
           whiteModeString =
-              ' ${AppLocalizations.of(context).gameModeComputerPlaysRandomly}';
+              ' ${Provider.of<MessagesHandler>(context, listen: false).messages.gameModeComputerPlaysRandomly}';
           whiteIcon = FontAwesomeIcons.dice;
           break;
         default:
@@ -52,17 +53,17 @@ class BottomBar extends StatelessWidget {
       switch (blackMode) {
         case PlayerMode.GuessMove:
           blackModeString =
-              ' ${AppLocalizations.of(context).gameModePlayerGuessMove}';
+              ' ${Provider.of<MessagesHandler>(context, listen: false).messages.gameModePlayerGuessMove}';
           blackIcon = FontAwesomeIcons.questionCircle;
           break;
         case PlayerMode.ReadMoveByUserChoice:
           blackModeString =
-              ' ${AppLocalizations.of(context).gameModeUserChooseMove}';
+              ' ${Provider.of<MessagesHandler>(context, listen: false).messages.gameModeUserChooseMove}';
           blackIcon = FontAwesomeIcons.codeBranch;
           break;
         case PlayerMode.ReadMoveRandomly:
           blackModeString =
-              ' ${AppLocalizations.of(context).gameModeComputerPlaysRandomly}';
+              ' ${Provider.of<MessagesHandler>(context, listen: false).messages.gameModeComputerPlaysRandomly}';
           blackIcon = FontAwesomeIcons.dice;
           break;
         default:
@@ -77,7 +78,7 @@ class BottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${AppLocalizations.of(context).whiteMode} : ',
+                '${Provider.of<MessagesHandler>(context, listen: false).messages.whiteMode} : ',
                 style: textStyle,
               ),
               FaIcon(
@@ -94,7 +95,7 @@ class BottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${AppLocalizations.of(context).blackMode} : ',
+                '${Provider.of<MessagesHandler>(context, listen: false).messages.blackMode} : ',
                 style: textStyle,
               ),
               FaIcon(
@@ -111,7 +112,9 @@ class BottomBar extends StatelessWidget {
       );
     } else {
       mainChild = Text(
-        AppLocalizations.of(context).gameNotInProgress,
+        Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .gameNotInProgress,
         style: textStyle,
       );
     }

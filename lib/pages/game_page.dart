@@ -17,8 +17,9 @@ import '../components/history.dart';
 import '../utils/chess_utils.dart' as chess_utils;
 import '../components/header_bar.dart';
 import '../components/bottom_bar.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
+import '../l10n/messages_handler.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -133,11 +134,21 @@ class _GamePageState extends State<GamePage> {
     });
 
     final moveIndex = await showConfirmationDialog<int>(
-        title: AppLocalizations.of(context).moveChoiceConfirmationTitle,
+        title: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .moveChoiceConfirmationTitle,
         context: context,
-        message: AppLocalizations.of(context).moveChoiceConfirmationMessage,
-        okLabel: AppLocalizations.of(context).okButton,
-        cancelLabel: AppLocalizations.of(context).cancelButton,
+        message: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .moveChoiceConfirmationMessage,
+        okLabel: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .button
+            .ok,
+        cancelLabel: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .button
+            .cancel,
         barrierDismissible: false,
         actions: movesActions);
 
@@ -177,11 +188,20 @@ class _GamePageState extends State<GamePage> {
   String _getGameGoal(gamePgn) {
     final goalString = gamePgn["tags"]["Goal"] ?? "";
     if (goalString == "1-0")
-      return AppLocalizations.of(context).gameResultWhiteWin;
+      return Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .gameResult
+          .whiteWin;
     if (goalString == "0-1")
-      return AppLocalizations.of(context).gameResultBlackWin;
+      return Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .gameResult
+          .blackWin;
     if (goalString.startsWith("1/2"))
-      return AppLocalizations.of(context).gameResultDraw;
+      return Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .gameResult
+          .draw;
     return goalString;
   }
 
@@ -201,8 +221,13 @@ class _GamePageState extends State<GamePage> {
     final XFile file =
         await openFile(acceptedTypeGroups: [pgnTypeGroup, allTypeGroup]);
     if (file == null) {
-      Toast.show(AppLocalizations.of(context).cancelledNewGameRequest, context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      Toast.show(
+          Provider.of<MessagesHandler>(context, listen: false)
+              .messages
+              .cancelledNewGameRequest,
+          context,
+          duration: Toast.LENGTH_LONG,
+          gravity: Toast.BOTTOM);
       return;
     }
 
@@ -226,8 +251,12 @@ class _GamePageState extends State<GamePage> {
           MaterialPageRoute(builder: (context) => GameSelector(allGames)));
       if (gameData == null) {
         Toast.show(
-            AppLocalizations.of(context).cancelledNewGameRequest, context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+            Provider.of<MessagesHandler>(context, listen: false)
+                .messages
+                .cancelledNewGameRequest,
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.BOTTOM);
         return;
       }
       final game = allGames[gameData.gameIndex];
@@ -239,7 +268,9 @@ class _GamePageState extends State<GamePage> {
       final noMoreMove = moves.isEmpty;
 
       if (noMoreMove) {
-        throw Exception(AppLocalizations.of(context).noMoveInLoadedGame);
+        throw Exception(Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .noMoveInLoadedGame);
       }
 
       String startFen;
@@ -279,8 +310,13 @@ class _GamePageState extends State<GamePage> {
         _loading = false;
       });
       Completer().completeError(ex, stacktrace);
-      Toast.show(AppLocalizations.of(context).couldNotLoadPgn, context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      Toast.show(
+          Provider.of<MessagesHandler>(context, listen: false)
+              .messages
+              .couldNotLoadPgn,
+          context,
+          duration: Toast.LENGTH_LONG,
+          gravity: Toast.BOTTOM);
     }
   }
 
@@ -324,10 +360,20 @@ class _GamePageState extends State<GamePage> {
     if (boardNotEmpty) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
-        title: AppLocalizations.of(context).newGameDialogTitle,
-        message: AppLocalizations.of(context).newGameDialogMessage,
-        okLabel: AppLocalizations.of(context).yesButton,
-        cancelLabel: AppLocalizations.of(context).noButton,
+        title: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .newGameDialogTitle,
+        message: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .newGameDialogMessage,
+        okLabel: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .button
+            .yes,
+        cancelLabel: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .button
+            .no,
       );
       if (confirmed == OkCancelResult.ok) return await loadPgn(context);
     } else {
@@ -339,17 +385,32 @@ class _GamePageState extends State<GamePage> {
     if (_gameInProgress) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
-        title: AppLocalizations.of(context).stopGameDialogTitle,
-        message: AppLocalizations.of(context).stopGameDialogMessage,
-        okLabel: AppLocalizations.of(context).yesButton,
-        cancelLabel: AppLocalizations.of(context).noButton,
+        title: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .stopGameDialogTitle,
+        message: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .stopGameDialogMessage,
+        okLabel: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .button
+            .yes,
+        cancelLabel: Provider.of<MessagesHandler>(context, listen: false)
+            .messages
+            .button
+            .no,
       );
       if (confirmed == OkCancelResult.ok) {
         setState(() {
           _gameInProgress = false;
           tryToGoToLastItem();
-          Toast.show(AppLocalizations.of(context).gameStopped, context,
-              duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+          Toast.show(
+              Provider.of<MessagesHandler>(context, listen: false)
+                  .messages
+                  .gameStopped,
+              context,
+              duration: Toast.LENGTH_SHORT,
+              gravity: Toast.BOTTOM);
         });
       }
     }
@@ -424,9 +485,16 @@ class _GamePageState extends State<GamePage> {
   Future<void> congratUser() async {
     return await showOkAlertDialog(
       context: context,
-      okLabel: AppLocalizations.of(context).okButton,
-      title: AppLocalizations.of(context).userCongratulationTitle,
-      message: AppLocalizations.of(context).userCongratulationMessage,
+      okLabel: Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .button
+          .ok,
+      title: Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .userCongratulationTitle,
+      message: Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .userCongratulationMessage,
     );
   }
 
@@ -562,11 +630,40 @@ class _GamePageState extends State<GamePage> {
     });
     await showOkAlertDialog(
       context: context,
-      okLabel: AppLocalizations.of(context).okButton,
-      message: AppLocalizations.of(context)
+      okLabel: Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .button
+          .ok,
+      message: Provider.of<MessagesHandler>(context, listen: false)
+          .messages
           .badMoveMessage(ex.moveFan, ex.expectedMovesFanList),
-      title: AppLocalizations.of(context).badMoveTitle,
+      title: Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .badMoveTitle,
     );
+  }
+
+  List<Widget> buildAboutChildren() {
+    List<String> inputs = <String>[
+      'Laurent Bernabé',
+      '2021',
+      '',
+      Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .appDescription,
+      '',
+    ];
+    List<Widget> results = inputs
+        .map(
+          (inputText) => Text(
+            inputText,
+            style: TextStyle(
+              fontSize: 20.0,
+            ),
+          ),
+        )
+        .toList();
+    return results;
   }
 
   @override
@@ -658,7 +755,9 @@ class _GamePageState extends State<GamePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context).gamePageTitle,
+          Provider.of<MessagesHandler>(context, listen: false)
+              .messages
+              .gamePageTitle,
         ),
       ),
       drawer: Drawer(
@@ -670,7 +769,9 @@ class _GamePageState extends State<GamePage> {
                 color: Colors.blue,
               ),
               child: Text(
-                AppLocalizations.of(context).globalOptions,
+                Provider.of<MessagesHandler>(context, listen: false)
+                    .messages
+                    .globalOptions,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -679,9 +780,16 @@ class _GamePageState extends State<GamePage> {
             ),
             ListTile(
               leading: Icon(Icons.message),
-              title: Text(AppLocalizations.of(context).aboutDialog),
+              title: Text(Provider.of<MessagesHandler>(context, listen: false)
+                  .messages
+                  .aboutDialog),
               onTap: () {
-                showAboutDialog(context: context);
+                showAboutDialog(
+                  context: context,
+                  applicationName: 'Chess Pgn reviser',
+                  applicationVersion: '1.0.0',
+                  children: buildAboutChildren(),
+                );
               },
             ),
           ],
