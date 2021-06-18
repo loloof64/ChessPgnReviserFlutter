@@ -8,7 +8,7 @@ Do not forget to generate locals
 
 $> `flutter packages pub run build_runner build`
 
-You may need to clear existing files before
+You may need to clear existing files before (if you encounter some errors)
 
 $> `flutter clean`
 

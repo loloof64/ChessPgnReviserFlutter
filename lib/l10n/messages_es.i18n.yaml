@@ -38,18 +38,18 @@ gamePageTitle: "Página de la partida"
 globalOptions: "Opciones"
 aboutDialog: "A proposito"
 appDescription: "Carga tu archivo PGN e intenta adivinar los golpes (de tu lado)."
-creditsSection: "Créditos
-
-    Utilice algunas imágenes de flaticon.com:
-    * red_cross : descargado de https://www.flaticon.com/free-icon/cancel_1168643 y diseñado por FreePik
-    * race_flag : descargado de https://www.flaticon.com/free-icon/racing-flag_1505471 y diseñado por SmashIcons
-    * first_item : descargado de https://www.flaticon.com/free-icon/arrowheads-of-thin-outline-to-the-left_32766 y diseñado por FreePik
-    * previous_item : descargado de https://www.flaticon.com/free-icon/black-triangular-arrowhead-pointing-to-left-direction_45050 y diseñado por FreePik
-    * last_item : descargado de https://www.flaticon.com/free-icon/right-thin-arrowheads_32738 y diseñado por FreePik
-    * next_item : descargado de https://www.flaticon.com/free-icon/right-triangular-arrowhead_44452 y diseñado por FreePik
-    * reverse_arrows : descargado de https://www.flaticon.com/free-icon/arrows_685838 y diseñado por Good Ware
-    * stop : descargado de https://www.flaticon.com/free-icon/stop_827428 y diseñado por SmashIcons
-
-    Adaptado a las reglas PEG PGN disponibles en https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs del proyecto [pgn-parser](https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs), distribuido bajo la Licencia Apache 2.0 (aunque algunos elementos han sido modificados / eliminados).
-
+creditsSection: "Créditos\n
+    \n
+    Utilice algunas imágenes de flaticon.com:\n
+    * red_cross : descargado de https://www.flaticon.com/free-icon/cancel_1168643 y diseñado por FreePik\n
+    * race_flag : descargado de https://www.flaticon.com/free-icon/racing-flag_1505471 y diseñado por SmashIcons\n
+    * first_item : descargado de https://www.flaticon.com/free-icon/arrowheads-of-thin-outline-to-the-left_32766 y diseñado por FreePik\n
+    * previous_item : descargado de https://www.flaticon.com/free-icon/black-triangular-arrowhead-pointing-to-left-direction_45050 y diseñado por FreePik\n
+    * last_item : descargado de https://www.flaticon.com/free-icon/right-thin-arrowheads_32738 y diseñado por FreePik\n
+    * next_item : descargado de https://www.flaticon.com/free-icon/right-triangular-arrowhead_44452 y diseñado por FreePik\n
+    * reverse_arrows : descargado de https://www.flaticon.com/free-icon/arrows_685838 y diseñado por Good Ware\n
+    * stop : descargado de https://www.flaticon.com/free-icon/stop_827428 y diseñado por SmashIcons\n
+\n
+    Adaptado a las reglas PEG PGN disponibles en https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs del proyecto [pgn-parser](https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs), distribuido bajo la Licencia Apache 2.0 (aunque algunos elementos han sido modificados / eliminados).\n
+\n
     Tipografía FreeSerif descargado de https://fr.fonts2u.com/free-serif.police"

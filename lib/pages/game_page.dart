@@ -652,6 +652,9 @@ class _GamePageState extends State<GamePage> {
           .messages
           .appDescription,
       '',
+      Provider.of<MessagesHandler>(context, listen: false)
+          .messages
+          .creditsSection,
     ];
     List<Widget> results = inputs
         .map(

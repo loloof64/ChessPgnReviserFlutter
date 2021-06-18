@@ -25,9 +25,6 @@ class MyApp extends StatelessWidget {
       home: ChangeNotifierProvider(
         child: GamePage(),
         create: (context) {
-          ///////////////////////////
-          print(Platform.localeName.substring(0, 2));
-          //////////////////////////////
           messagesHandler.setLocale(Platform.localeName.substring(0, 2));
           return messagesHandler;
         },
