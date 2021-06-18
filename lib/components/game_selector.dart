@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
 import 'chessboard/chessboard.dart' as board;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart';
-import '../l10n/messages_handler.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GameSelectorResult {
   final int gameIndex;
@@ -96,20 +95,11 @@ class _GameSelectorState extends State<GameSelector> {
   String getGameGoal() {
     final goalString = widget.games[_gameIndex]["tags"]["Goal"] ?? "";
     if (goalString == "1-0")
-      return Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .gameResult
-          .whiteWin;
+      return AppLocalizations.of(context).gameResultWhiteWin;
     if (goalString == "0-1")
-      return Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .gameResult
-          .blackWin;
+      return AppLocalizations.of(context).gameResultBlackWin;
     if (goalString.startsWith("1/2"))
-      return Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .gameResult
-          .draw;
+      return AppLocalizations.of(context).gameResultDraw;
     return goalString;
   }
 
@@ -142,10 +132,8 @@ class _GameSelectorState extends State<GameSelector> {
         TextEditingController(text: "${_gameIndex + 1}");
 
     return Scaffold(
-        appBar: AppBar(
-            title: Text(Provider.of<MessagesHandler>(context, listen: false)
-                .messages
-                .gameSelectorTitle)),
+        appBar:
+            AppBar(title: Text(AppLocalizations.of(context).gameSelectorTitle)),
         body: Center(
           child: Column(
             children: [
@@ -177,17 +165,11 @@ class _GameSelectorState extends State<GameSelector> {
                       whiteMode: _whiteMode,
                       blackMode: _blackMode,
                       guessMoveString:
-                          Provider.of<MessagesHandler>(context, listen: false)
-                              .messages
-                              .gameModePlayerGuessMove,
-                      randomMovesString:
-                          Provider.of<MessagesHandler>(context, listen: false)
-                              .messages
-                              .gameModeComputerPlaysRandomly,
+                          AppLocalizations.of(context).gameModePlayerGuessMove,
+                      randomMovesString: AppLocalizations.of(context)
+                          .gameModeComputerPlaysRandomly,
                       userChoiceString:
-                          Provider.of<MessagesHandler>(context, listen: false)
-                              .messages
-                              .gameModeUserChooseMove,
+                          AppLocalizations.of(context).gameModeUserChooseMove,
                       updateWhiteMode: (PlayerMode newValue) {
                         setState(() {
                           _whiteMode = newValue;
@@ -295,9 +277,7 @@ class ModeSettingZone extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text(Provider.of<MessagesHandler>(context, listen: false)
-                .messages
-                .whiteMode),
+            Text(AppLocalizations.of(context).whiteMode),
             SizedBox(
               width: 20.0,
             ),
@@ -314,9 +294,7 @@ class ModeSettingZone extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text(Provider.of<MessagesHandler>(context, listen: false)
-                .messages
-                .blackMode),
+            Text(AppLocalizations.of(context).blackMode),
             SizedBox(
               width: 20.0,
             ),
@@ -390,20 +368,14 @@ class ValidationZone extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ValidationButton(
-          label: Provider.of<MessagesHandler>(context, listen: false)
-              .messages
-              .button
-              .cancel,
+          label: AppLocalizations.of(context).cancelButton,
           fontSize: buttonsFontSize,
           padding: buttonsPadding,
           onPressed: onCancel,
           textColor: Colors.red,
         ),
         ValidationButton(
-          label: Provider.of<MessagesHandler>(context, listen: false)
-              .messages
-              .button
-              .ok,
+          label: AppLocalizations.of(context).okButton,
           fontSize: buttonsFontSize,
           padding: buttonsPadding,
           onPressed: onValidate,

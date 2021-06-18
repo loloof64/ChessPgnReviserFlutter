@@ -18,8 +18,7 @@ import '../utils/chess_utils.dart' as chess_utils;
 import '../components/header_bar.dart';
 import '../components/bottom_bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:provider/provider.dart';
-import '../l10n/messages_handler.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -134,21 +133,11 @@ class _GamePageState extends State<GamePage> {
     });
 
     final moveIndex = await showConfirmationDialog<int>(
-        title: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .moveChoiceConfirmationTitle,
+        title: AppLocalizations.of(context).moveChoiceConfirmationTitle,
         context: context,
-        message: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .moveChoiceConfirmationMessage,
-        okLabel: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .button
-            .ok,
-        cancelLabel: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .button
-            .cancel,
+        message: AppLocalizations.of(context).moveChoiceConfirmationMessage,
+        okLabel: AppLocalizations.of(context).okButton,
+        cancelLabel: AppLocalizations.of(context).cancelButton,
         barrierDismissible: false,
         actions: movesActions);
 
@@ -188,20 +177,11 @@ class _GamePageState extends State<GamePage> {
   String _getGameGoal(gamePgn) {
     final goalString = gamePgn["tags"]["Goal"] ?? "";
     if (goalString == "1-0")
-      return Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .gameResult
-          .whiteWin;
+      return AppLocalizations.of(context).gameResultWhiteWin;
     if (goalString == "0-1")
-      return Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .gameResult
-          .blackWin;
+      return AppLocalizations.of(context).gameResultBlackWin;
     if (goalString.startsWith("1/2"))
-      return Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .gameResult
-          .draw;
+      return AppLocalizations.of(context).gameResultDraw;
     return goalString;
   }
 
@@ -221,13 +201,8 @@ class _GamePageState extends State<GamePage> {
     final XFile file =
         await openFile(acceptedTypeGroups: [pgnTypeGroup, allTypeGroup]);
     if (file == null) {
-      Toast.show(
-          Provider.of<MessagesHandler>(context, listen: false)
-              .messages
-              .cancelledNewGameRequest,
-          context,
-          duration: Toast.LENGTH_LONG,
-          gravity: Toast.BOTTOM);
+      Toast.show(AppLocalizations.of(context).cancelledNewGameRequest, context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       return;
     }
 
@@ -251,12 +226,8 @@ class _GamePageState extends State<GamePage> {
           MaterialPageRoute(builder: (context) => GameSelector(allGames)));
       if (gameData == null) {
         Toast.show(
-            Provider.of<MessagesHandler>(context, listen: false)
-                .messages
-                .cancelledNewGameRequest,
-            context,
-            duration: Toast.LENGTH_LONG,
-            gravity: Toast.BOTTOM);
+            AppLocalizations.of(context).cancelledNewGameRequest, context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
         return;
       }
       final game = allGames[gameData.gameIndex];
@@ -268,9 +239,7 @@ class _GamePageState extends State<GamePage> {
       final noMoreMove = moves.isEmpty;
 
       if (noMoreMove) {
-        throw Exception(Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .noMoveInLoadedGame);
+        throw Exception(AppLocalizations.of(context).noMoveInLoadedGame);
       }
 
       String startFen;
@@ -310,13 +279,8 @@ class _GamePageState extends State<GamePage> {
         _loading = false;
       });
       Completer().completeError(ex, stacktrace);
-      Toast.show(
-          Provider.of<MessagesHandler>(context, listen: false)
-              .messages
-              .couldNotLoadPgn,
-          context,
-          duration: Toast.LENGTH_LONG,
-          gravity: Toast.BOTTOM);
+      Toast.show(AppLocalizations.of(context).couldNotLoadPgn, context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     }
   }
 
@@ -360,20 +324,10 @@ class _GamePageState extends State<GamePage> {
     if (boardNotEmpty) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
-        title: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .newGameDialogTitle,
-        message: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .newGameDialogMessage,
-        okLabel: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .button
-            .yes,
-        cancelLabel: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .button
-            .no,
+        title: AppLocalizations.of(context).newGameDialogTitle,
+        message: AppLocalizations.of(context).newGameDialogMessage,
+        okLabel: AppLocalizations.of(context).yesButton,
+        cancelLabel: AppLocalizations.of(context).noButton,
       );
       if (confirmed == OkCancelResult.ok) return await loadPgn(context);
     } else {
@@ -385,32 +339,17 @@ class _GamePageState extends State<GamePage> {
     if (_gameInProgress) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
-        title: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .stopGameDialogTitle,
-        message: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .stopGameDialogMessage,
-        okLabel: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .button
-            .yes,
-        cancelLabel: Provider.of<MessagesHandler>(context, listen: false)
-            .messages
-            .button
-            .no,
+        title: AppLocalizations.of(context).stopGameDialogTitle,
+        message: AppLocalizations.of(context).stopGameDialogMessage,
+        okLabel: AppLocalizations.of(context).yesButton,
+        cancelLabel: AppLocalizations.of(context).noButton,
       );
       if (confirmed == OkCancelResult.ok) {
         setState(() {
           _gameInProgress = false;
           tryToGoToLastItem();
-          Toast.show(
-              Provider.of<MessagesHandler>(context, listen: false)
-                  .messages
-                  .gameStopped,
-              context,
-              duration: Toast.LENGTH_SHORT,
-              gravity: Toast.BOTTOM);
+          Toast.show(AppLocalizations.of(context).gameStopped, context,
+              duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
         });
       }
     }
@@ -485,16 +424,9 @@ class _GamePageState extends State<GamePage> {
   Future<void> congratUser() async {
     return await showOkAlertDialog(
       context: context,
-      okLabel: Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .button
-          .ok,
-      title: Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .userCongratulationTitle,
-      message: Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .userCongratulationMessage,
+      okLabel: AppLocalizations.of(context).okButton,
+      title: AppLocalizations.of(context).userCongratulationTitle,
+      message: AppLocalizations.of(context).userCongratulationMessage,
     );
   }
 
@@ -630,16 +562,10 @@ class _GamePageState extends State<GamePage> {
     });
     await showOkAlertDialog(
       context: context,
-      okLabel: Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .button
-          .ok,
-      message: Provider.of<MessagesHandler>(context, listen: false)
-          .messages
+      okLabel: AppLocalizations.of(context).okButton,
+      message: AppLocalizations.of(context)
           .badMoveMessage(ex.moveFan, ex.expectedMovesFanList),
-      title: Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .badMoveTitle,
+      title: AppLocalizations.of(context).badMoveTitle,
     );
   }
 
@@ -648,13 +574,9 @@ class _GamePageState extends State<GamePage> {
       'Laurent Bernabé',
       '2021',
       '',
-      Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .appDescription,
+      AppLocalizations.of(context).appDescription,
       '',
-      Provider.of<MessagesHandler>(context, listen: false)
-          .messages
-          .creditsSection,
+      AppLocalizations.of(context).creditsSection,
     ];
     List<Widget> results = inputs
         .map(
@@ -758,9 +680,7 @@ class _GamePageState extends State<GamePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          Provider.of<MessagesHandler>(context, listen: false)
-              .messages
-              .gamePageTitle,
+          AppLocalizations.of(context).gamePageTitle,
         ),
       ),
       drawer: Drawer(
@@ -772,9 +692,7 @@ class _GamePageState extends State<GamePage> {
                 color: Colors.blue,
               ),
               child: Text(
-                Provider.of<MessagesHandler>(context, listen: false)
-                    .messages
-                    .globalOptions,
+                AppLocalizations.of(context).globalOptions,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -783,9 +701,7 @@ class _GamePageState extends State<GamePage> {
             ),
             ListTile(
               leading: Icon(Icons.message),
-              title: Text(Provider.of<MessagesHandler>(context, listen: false)
-                  .messages
-                  .aboutDialog),
+              title: Text(AppLocalizations.of(context).aboutDialog),
               onTap: () {
                 showAboutDialog(
                   context: context,
