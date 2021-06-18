@@ -682,37 +682,24 @@ class _GamePageState extends State<GamePage> {
         title: Text(
           AppLocalizations.of(context).gamePageTitle,
         ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                AppLocalizations.of(context).globalOptions,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
+        actions: <Widget>[
+          TextButton.icon(
+            label: Text(''),
+            icon: Image(
+              image: AssetImage('images/info.png'),
+              width: 20.0,
+              height: 20.0,
             ),
-            ListTile(
-              leading: Icon(Icons.message),
-              title: Text(AppLocalizations.of(context).aboutDialog),
-              onTap: () {
-                showAboutDialog(
-                  context: context,
-                  applicationName: 'Chess Pgn reviser',
-                  applicationVersion: '1.0.0',
-                  children: buildAboutChildren(),
-                );
-              },
-            ),
-          ],
-        ),
+            onPressed: () {
+              showAboutDialog(
+                context: context,
+                applicationName: 'Chess Pgn reviser',
+                applicationVersion: '1.0.0',
+                children: buildAboutChildren(),
+              );
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Stack(children: children),

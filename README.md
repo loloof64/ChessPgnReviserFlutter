@@ -13,6 +13,7 @@ Using some pictures from flaticon.com:
 * next_item : downloaded at https://www.flaticon.com/free-icon/right-triangular-arrowhead_44452 and designed by FreePik
 * reverse_arrows : downloaded at https://www.flaticon.com/free-icon/arrows_685838 and designed by Good Ware
 * stop : downloaded at https://www.flaticon.com/free-icon/stop_827428 and designed by SmashIcons
+* info : donwloaded at https://www.flaticon.com/free-icon/info_189664 and designed by RoundIcons
 
 Adapted PGN PEG rules at https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs from project [pgn-parser](https://github.com/mliebelt/pgn-parser/blob/master/src/pgn-rules.pegjs), which is release under Apache License 2.0 (even if some elements - specially special kind of comments - have been removed).
 
