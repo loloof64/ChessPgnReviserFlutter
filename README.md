@@ -2,18 +2,6 @@
 
 Load your chess PGN file and try to find moves (from your side).
 
-## Developpers
-
-Do not forget to generate locals
-
-$> `flutter packages pub run build_runner build`
-
-You may need to clear existing files before (if you encounter some errors)
-
-$> `flutter clean`
-
-$> `flutter packages pub get`
-
 ## Credits
 
 Using some pictures from flaticon.com:
