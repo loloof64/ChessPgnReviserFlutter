@@ -1,5 +1,7 @@
 // @dart=2.9
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/dark_mode_manager.dart';
 
 class HistoryWidget extends StatefulWidget {
   final double width;
@@ -41,12 +43,14 @@ class HistoryWidget extends StatefulWidget {
 }
 
 class _HistoryWidgetState extends State<HistoryWidget> {
-  Widget buildSingleItem(HistoryItem item, int index) {
+  Widget buildSingleItem(BuildContext context, HistoryItem item, int index) {
+    final isDarkMode = Provider.of<DarkModeManager>(context).isActive;
+
     final baseWidget = Text(
       item.text,
       style: TextStyle(
-        fontSize: widget.width * 0.06,
-      ),
+          fontSize: widget.width * 0.06,
+          color: isDarkMode ? Colors.white : Colors.black),
     );
 
     if (widget.reactivityEnabled && item.fenAfterMove != null) {
@@ -59,7 +63,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
           });
       if (index == widget.selectedItemIndex) {
         return Container(
-          color: Colors.yellow[200],
+          color: Colors.yellow[isDarkMode ? 800 : 200],
           child: result,
         );
       } else
@@ -90,7 +94,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
           content: widget.content
               .asMap()
               .entries
-              .map((entry) => buildSingleItem(entry.value, entry.key))
+              .map((entry) => buildSingleItem(context, entry.value, entry.key))
               .toList(),
         ),
       ],
@@ -139,9 +143,11 @@ class HistoryMainZoneWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Provider.of<DarkModeManager>(context).isActive;
+
     return Container(
       padding: EdgeInsets.all(10.0),
-      color: Colors.grey[200],
+      color: Colors.grey[isDarkMode ? 800 : 200],
       width: width,
       height: height,
       child: Wrap(
@@ -211,13 +217,18 @@ class HistoryNavigationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      label: Text(''),
-      icon: Image(
-        fit: BoxFit.contain,
-        image: AssetImage(imageReference),
+    final isDarkMode = Provider.of<DarkModeManager>(context).isActive;
+
+    return Container(
+      child: TextButton.icon(
+        label: Text(''),
+        icon: Image(
+          fit: BoxFit.contain,
+          image: AssetImage(imageReference),
+        ),
+        onPressed: enabled ? onPressed : null,
       ),
-      onPressed: enabled ? onPressed : null,
+      color: isDarkMode ? Colors.white38 : Colors.transparent,
     );
   }
 }

@@ -1,11 +1,15 @@
 // @dart=2.9
 import 'dart:math';
+import 'package:chess_pgn_reviser/models/dark_mode_manager.dart';
+
 import '../../constants.dart';
 import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
 import 'chessboard/chessboard.dart' as board;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../models/dark_mode_manager.dart';
 
 class GameSelectorResult {
   final int gameIndex;
@@ -132,8 +136,9 @@ class _GameSelectorState extends State<GameSelector> {
         TextEditingController(text: "${_gameIndex + 1}");
 
     return Scaffold(
-        appBar:
-            AppBar(title: Text(AppLocalizations.of(context).gameSelectorTitle)),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context).gameSelectorTitle),
+        ),
         body: Center(
           child: Column(
             children: [
@@ -468,14 +473,19 @@ class NavigationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      label: Text(''),
-      icon: Image(
-        image: AssetImage(imageReference),
-        width: size,
-        height: size,
+    final isDarkMode = Provider.of<DarkModeManager>(context).isActive;
+
+    return Container(
+      child: TextButton.icon(
+        label: Text(''),
+        icon: Image(
+          image: AssetImage(imageReference),
+          width: size,
+          height: size,
+        ),
+        onPressed: onPressed,
       ),
-      onPressed: onPressed,
+      color: isDarkMode ? Colors.white38 : Colors.transparent,
     );
   }
 }

@@ -600,6 +600,8 @@ class _GamePageState extends State<GamePage> {
     final minSize =
         viewport.width < viewport.height ? viewport.width : viewport.height;
 
+    final isDarkMode = Provider.of<DarkModeManager>(context).isActive;
+
     final spinKit = _loading
         ? SpinKitWave(
             itemBuilder: (BuildContext context, int index) {
@@ -745,8 +747,7 @@ class _GamePageState extends State<GamePage> {
                 label: Text(''),
               ),
             ],
-            fillColor: Colors.green,
-            color: Colors.red,
+            fillColor: isDarkMode ? Colors.blue : Colors.green,
           ),
           SizedBox(
             width: 50.0,
