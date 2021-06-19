@@ -19,6 +19,8 @@ import '../components/header_bar.dart';
 import '../components/bottom_bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import '../models/dark_mode_manager.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -55,6 +57,7 @@ class _GamePageState extends State<GamePage> {
   PlayerMode _whiteMode;
   PlayerMode _blackMode;
   bool _loading = false;
+  List<bool> _darkModeButtonsSelection = <bool>[true, false];
 
   void processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
@@ -687,8 +690,8 @@ class _GamePageState extends State<GamePage> {
             label: Text(''),
             icon: Image(
               image: AssetImage('images/info.png'),
-              width: 20.0,
-              height: 20.0,
+              width: 40.0,
+              height: 40.0,
             ),
             onPressed: () {
               showAboutDialog(
@@ -699,6 +702,55 @@ class _GamePageState extends State<GamePage> {
               );
             },
           ),
+          ToggleButtons(
+            borderRadius: BorderRadius.all(
+              Radius.circular(10.0),
+            ),
+            isSelected: _darkModeButtonsSelection,
+            onPressed: (int index) {
+              setState(
+                () {
+                  for (int buttonIndex = 0;
+                      buttonIndex < _darkModeButtonsSelection.length;
+                      buttonIndex++) {
+                    if (buttonIndex == index) {
+                      _darkModeButtonsSelection[buttonIndex] = true;
+                    } else {
+                      _darkModeButtonsSelection[buttonIndex] = false;
+                    }
+                  }
+
+                  Provider.of<DarkModeManager>(context, listen: false)
+                      .setActive(_darkModeButtonsSelection[1]);
+                },
+              );
+            },
+            children: <Widget>[
+              TextButton.icon(
+                onPressed: null,
+                icon: Image(
+                  image: AssetImage('images/sun.png'),
+                  width: 40.0,
+                  height: 40.0,
+                ),
+                label: Text(''),
+              ),
+              TextButton.icon(
+                onPressed: null,
+                icon: Image(
+                  image: AssetImage('images/night.png'),
+                  width: 40.0,
+                  height: 40.0,
+                ),
+                label: Text(''),
+              ),
+            ],
+            fillColor: Colors.green,
+            color: Colors.red,
+          ),
+          SizedBox(
+            width: 50.0,
+          )
         ],
       ),
       body: Center(
