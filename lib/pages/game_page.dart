@@ -2,6 +2,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:chess_pgn_reviser/components/app_bar_actions.dart';
+
 import '../constants.dart';
 import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as board_logic;
@@ -692,70 +694,7 @@ class _GamePageState extends State<GamePage> {
           AppLocalizations.of(context).gamePageTitle,
         ),
         actions: <Widget>[
-          TextButton.icon(
-            label: Text(''),
-            icon: Image(
-              image: AssetImage('images/info.png'),
-              width: 40.0,
-              height: 40.0,
-            ),
-            onPressed: () {
-              showAboutDialog(
-                context: context,
-                applicationName: 'Chess Pgn reviser',
-                applicationVersion: '1.0.0',
-                children: buildAboutChildren(),
-              );
-            },
-          ),
-          ToggleButtons(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-            isSelected: _darkModeButtonsSelection,
-            onPressed: (int index) {
-              setState(
-                () {
-                  for (int buttonIndex = 0;
-                      buttonIndex < _darkModeButtonsSelection.length;
-                      buttonIndex++) {
-                    if (buttonIndex == index) {
-                      _darkModeButtonsSelection[buttonIndex] = true;
-                    } else {
-                      _darkModeButtonsSelection[buttonIndex] = false;
-                    }
-                  }
-
-                  Provider.of<DarkModeManager>(context, listen: false)
-                      .setActive(_darkModeButtonsSelection[1]);
-                },
-              );
-            },
-            children: <Widget>[
-              TextButton.icon(
-                onPressed: null,
-                icon: Image(
-                  image: AssetImage('images/sun.png'),
-                  width: 40.0,
-                  height: 40.0,
-                ),
-                label: Text(''),
-              ),
-              TextButton.icon(
-                onPressed: null,
-                icon: Image(
-                  image: AssetImage('images/night.png'),
-                  width: 40.0,
-                  height: 40.0,
-                ),
-                label: Text(''),
-              ),
-            ],
-            fillColor: isDarkMode ? Colors.blue : Colors.green,
-          ),
-          SizedBox(
-            width: 50.0,
-          )
+          AppBarActions(),
         ],
       ),
       body: Center(

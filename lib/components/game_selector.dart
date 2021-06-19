@@ -1,5 +1,6 @@
 // @dart=2.9
 import 'dart:math';
+import 'package:chess_pgn_reviser/components/app_bar_actions.dart';
 import 'package:chess_pgn_reviser/models/dark_mode_manager.dart';
 
 import '../../constants.dart';
@@ -138,6 +139,9 @@ class _GameSelectorState extends State<GameSelector> {
     return Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context).gameSelectorTitle),
+          actions: [
+            AppBarActions(),
+          ],
         ),
         body: Center(
           child: Column(
