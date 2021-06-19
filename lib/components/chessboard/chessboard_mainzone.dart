@@ -94,6 +94,7 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
                 if (widget.userCanMovePieces == null ||
                     !widget.userCanMovePieces) return;
                 setState(() {
+                  _startCell = null;
                   _hoveredCell = null;
                 });
               },
