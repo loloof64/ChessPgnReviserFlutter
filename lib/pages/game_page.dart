@@ -227,7 +227,11 @@ class _GamePageState extends State<GamePage> {
 
       final gameData = await Navigator.push(context,
           MaterialPageRoute(builder: (context) => GameSelector(allGames)));
-      if (gameData == null) {
+      final userCancellation = gameData == null;
+      if (userCancellation) {
+        setState(() {
+          _loading = false;
+        });
         Toast.show(
             AppLocalizations.of(context).cancelledNewGameRequest, context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
