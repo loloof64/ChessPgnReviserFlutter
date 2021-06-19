@@ -37,16 +37,20 @@ class MyApp extends StatelessWidget {
       ],
       theme: isDarkMode
           ? ThemeData.dark().copyWith(
-              primaryColor: Colors.lightGreen,
-              textTheme: TextTheme(
-                bodyText1: TextStyle(fontFamily: 'FreeSerif'),
-              ),
+              primaryColor: Colors.brown.shade200,
+              textTheme: Theme.of(context).textTheme.apply(
+                    fontFamily: 'FreeSerif',
+                    bodyColor: Colors.white,
+                    displayColor: Colors.white,
+                  ),
             )
           : ThemeData.light().copyWith(
-              primaryColor: Colors.orange,
-              textTheme: TextTheme(
-                bodyText1: TextStyle(fontFamily: 'FreeSerif'),
-              ),
+              primaryColor: Colors.lightGreen,
+              textTheme: Theme.of(context).textTheme.apply(
+                    fontFamily: 'FreeSerif',
+                    bodyColor: Colors.black,
+                    displayColor: Colors.black,
+                  ),
             ),
       home: GamePage(),
     );
