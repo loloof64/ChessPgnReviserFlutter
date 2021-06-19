@@ -1,18 +1,12 @@
 // @dart=2.9
+
 import 'package:chess_pgn_reviser/models/dark_mode_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class AppBarActions extends StatefulWidget {
-  @override
-  _AppBarActionsState createState() => _AppBarActionsState();
-}
-
-class _AppBarActionsState extends State<AppBarActions> {
-  List<bool> _darkModeButtonsSelection = <bool>[true, false];
-
-  List<Widget> buildAboutChildren() {
+class AppBarActions extends StatelessWidget {
+  List<Widget> buildAboutChildren(BuildContext context) {
     List<String> inputs = <String>[
       'Laurent Bernabé',
       '2021',
@@ -52,7 +46,7 @@ class _AppBarActionsState extends State<AppBarActions> {
               context: context,
               applicationName: 'Chess Pgn reviser',
               applicationVersion: '1.0.0',
-              children: buildAboutChildren(),
+              children: buildAboutChildren(context),
             );
           },
         ),
@@ -60,24 +54,13 @@ class _AppBarActionsState extends State<AppBarActions> {
           borderRadius: BorderRadius.all(
             Radius.circular(10.0),
           ),
-          isSelected: _darkModeButtonsSelection,
+          isSelected: <bool>[
+            !isDarkMode,
+            isDarkMode,
+          ],
           onPressed: (int index) {
-            setState(
-              () {
-                for (int buttonIndex = 0;
-                    buttonIndex < _darkModeButtonsSelection.length;
-                    buttonIndex++) {
-                  if (buttonIndex == index) {
-                    _darkModeButtonsSelection[buttonIndex] = true;
-                  } else {
-                    _darkModeButtonsSelection[buttonIndex] = false;
-                  }
-                }
-
-                Provider.of<DarkModeManager>(context, listen: false)
-                    .setActive(_darkModeButtonsSelection[1]);
-              },
-            );
+            Provider.of<DarkModeManager>(context, listen: false)
+                .setActive(index == 1);
           },
           children: <Widget>[
             TextButton.icon(

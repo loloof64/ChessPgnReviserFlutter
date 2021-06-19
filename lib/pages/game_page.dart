@@ -21,8 +21,6 @@ import '../components/header_bar.dart';
 import '../components/bottom_bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
-import '../models/dark_mode_manager.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -59,7 +57,6 @@ class _GamePageState extends State<GamePage> {
   PlayerMode _whiteMode;
   PlayerMode _blackMode;
   bool _loading = false;
-  List<bool> _darkModeButtonsSelection = <bool>[true, false];
 
   void processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
@@ -605,8 +602,6 @@ class _GamePageState extends State<GamePage> {
     final viewport = MediaQuery.of(context).size;
     final minSize =
         viewport.width < viewport.height ? viewport.width : viewport.height;
-
-    final isDarkMode = Provider.of<DarkModeManager>(context).isActive;
 
     final spinKit = _loading
         ? SpinKitWave(
