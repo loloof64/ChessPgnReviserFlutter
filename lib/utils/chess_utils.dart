@@ -95,12 +95,17 @@ board_logic.Move? findMoveForPosition(board_logic.Chess position,
       promotionString != null ? pieceStringToPieceType(promotionString) : null;
 
   List<board_logic.Move?> allMoves = position.generate_moves({'legal': true});
-  return allMoves.firstWhere((currentMove) {
-    if (currentMove == null) return false;
-    return currentMove.from == from &&
+  board_logic.Move? result;
+  for (board_logic.Move? currentMove in allMoves) {
+    if (currentMove == null) continue;
+    if (currentMove.from == from &&
         currentMove.to == to &&
-        currentMove.promotion == promotion;
-  }, orElse: () => null);
+        currentMove.promotion == promotion) {
+      result = currentMove;
+      break;
+    }
+  }
+  return result;
 }
 
 int cellAlgebraicToInt(String cellAlgebraic) {

@@ -363,9 +363,9 @@ class _GamePageState extends State<GamePage> {
       String startCellStr, String endCellStr) async {
     var boardLogicClone = board_logic.Chess();
     boardLogicClone.load(_boardState.fen);
-    final legalMove = boardLogicClone
+    final isLegalMove = boardLogicClone
         .move({'from': startCellStr, 'to': endCellStr, 'promotion': 'q'});
-    if (legalMove) {
+    if (isLegalMove) {
       final startCell = Cell.fromAlgebraic(startCellStr);
       final endCell = Cell.fromAlgebraic(endCellStr);
       final isPawn =
@@ -755,7 +755,7 @@ class _GamePageState extends State<GamePage> {
       _selectedHistoryItemIndex = _historyWidgetContent.length - 1;
       while (_historyWidgetContent[_selectedHistoryItemIndex!].fenAfterMove ==
           null) {
-        _selectedHistoryItemIndex = _selectedHistoryItemIndex! + 1;
+        _selectedHistoryItemIndex = _selectedHistoryItemIndex! - 1;
       }
       tryToSetPositionBasedOnCurrentItemIndex();
     });
