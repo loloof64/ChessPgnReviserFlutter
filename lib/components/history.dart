@@ -15,13 +15,13 @@ class HistoryWidget extends StatefulWidget {
       int lastMoveStartFile,
       int lastMoveStartRank,
       int lastMoveEndFile,
-      int lastMoveEndRank}) handleHistoryPositionRequested;
+      int lastMoveEndRank})? handleHistoryPositionRequested;
 
-  final void Function(int index) handleHistoryItemRequested;
-  final void Function() handleHistoryGotoFirstItemRequested;
-  final void Function() handleHistoryGotoPreviousItemRequested;
-  final void Function() handleHistoryGotoNextItemRequested;
-  final void Function() handleHistoryGotoLastItemRequested;
+  final void Function(int index)? handleHistoryItemRequested;
+  final void Function()? handleHistoryGotoFirstItemRequested;
+  final void Function()? handleHistoryGotoPreviousItemRequested;
+  final void Function()? handleHistoryGotoNextItemRequested;
+  final void Function()? handleHistoryGotoLastItemRequested;
 
   HistoryWidget(
       {required this.width,
@@ -57,7 +57,7 @@ class _HistoryWidgetState extends State<HistoryWidget> {
           child: baseWidget,
           onTap: () {
             setState(() {
-              widget.handleHistoryItemRequested(index);
+              widget.handleHistoryItemRequested?.call(index);
             });
           });
       if (index == widget.selectedItemIndex) {
@@ -104,10 +104,10 @@ class _HistoryWidgetState extends State<HistoryWidget> {
 class HistoryItem {
   final String text;
   final String? fenAfterMove;
-  final int lastMoveStartFile;
-  final int lastMoveStartRank;
-  final int lastMoveEndFile;
-  final int lastMoveEndRank;
+  final int? lastMoveStartFile;
+  final int? lastMoveStartRank;
+  final int? lastMoveEndFile;
+  final int? lastMoveEndRank;
 
   HistoryItem({
     required this.text,
@@ -158,20 +158,21 @@ class HistoryMainZoneWidget extends StatelessWidget {
 }
 
 class HistoryNavigationWidget extends StatelessWidget {
-  final void Function() onGotoFirstItemRequested;
-  final void Function() onGotoPreviousItemRequested;
-  final void Function() onGotoNextItemRequested;
-  final void Function() onGotoLastItemRequested;
+  final void Function()? onGotoFirstItemRequested;
+  final void Function()? onGotoPreviousItemRequested;
+  final void Function()? onGotoNextItemRequested;
+  final void Function()? onGotoLastItemRequested;
   final double height;
   final bool enabled;
 
-  HistoryNavigationWidget(
-      {required this.height,
-      required this.onGotoFirstItemRequested,
-      required this.onGotoPreviousItemRequested,
-      required this.onGotoNextItemRequested,
-      required this.onGotoLastItemRequested,
-      required this.enabled});
+  HistoryNavigationWidget({
+    required this.height,
+    required this.enabled,
+    this.onGotoFirstItemRequested,
+    this.onGotoPreviousItemRequested,
+    this.onGotoNextItemRequested,
+    this.onGotoLastItemRequested,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -205,13 +206,13 @@ class HistoryNavigationWidget extends StatelessWidget {
 
 class HistoryNavigationButton extends StatelessWidget {
   final String imageReference;
-  final void Function() onPressed;
+  final void Function()? onPressed;
   final bool enabled;
 
   HistoryNavigationButton({
     required this.imageReference,
-    required this.onPressed,
     required this.enabled,
+    this.onPressed,
   });
 
   @override

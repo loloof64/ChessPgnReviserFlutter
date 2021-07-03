@@ -22,13 +22,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.6.1"
-  benchmark_harness:
-    dependency: transitive
-    description:
-      name: benchmark_harness
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -50,6 +43,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  chess:
+    dependency: "direct main"
+    description:
+      name: chess
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.7.0"
   chess_vectors_flutter:
     dependency: "direct main"
     description:
@@ -57,13 +57,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.16"
-  chessjs:
-    dependency: "direct main"
-    description:
-      name: chessjs
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.1+7"
   clock:
     dependency: transitive
     description:

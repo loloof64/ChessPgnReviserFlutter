@@ -4,7 +4,7 @@ import 'package:chess_pgn_reviser/models/dark_mode_manager.dart';
 
 import '../../constants.dart';
 import 'package:flutter/material.dart';
-import 'package:chessjs/chessjs.dart' as board_logic;
+import "package:chess/chess.dart" as board_logic;
 import 'chessboard/chessboard.dart' as board;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

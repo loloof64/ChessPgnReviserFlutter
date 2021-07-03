@@ -3,13 +3,13 @@ import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 
 class ChessBoardPromotionZoneWhite extends StatelessWidget {
   final double size;
-  final Function(String pieceType) commitPromotionMove;
-  final Function() cancelPendingPromotion;
+  final Function(String pieceType)? commitPromotionMove;
+  final Function()? cancelPendingPromotion;
 
   ChessBoardPromotionZoneWhite(
       {required this.size,
-      required this.commitPromotionMove,
-      required this.cancelPendingPromotion});
+      this.commitPromotionMove,
+      this.cancelPendingPromotion});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class ChessBoardPromotionZoneWhite extends StatelessWidget {
                 size: promotionPieceSize,
               ),
               onPressed: () {
-                if (commitPromotionMove != null) commitPromotionMove('q');
+                if (commitPromotionMove != null) commitPromotionMove?.call('q');
               },
             ),
             TextButton.icon(
@@ -37,7 +37,7 @@ class ChessBoardPromotionZoneWhite extends StatelessWidget {
                 size: promotionPieceSize,
               ),
               onPressed: () {
-                if (commitPromotionMove != null) commitPromotionMove('r');
+                if (commitPromotionMove != null) commitPromotionMove?.call('r');
               },
             ),
             TextButton.icon(
@@ -46,7 +46,7 @@ class ChessBoardPromotionZoneWhite extends StatelessWidget {
                 size: promotionPieceSize,
               ),
               onPressed: () {
-                if (commitPromotionMove != null) commitPromotionMove('b');
+                if (commitPromotionMove != null) commitPromotionMove?.call('b');
               },
             ),
             TextButton.icon(
@@ -55,7 +55,7 @@ class ChessBoardPromotionZoneWhite extends StatelessWidget {
                 size: promotionPieceSize,
               ),
               onPressed: () {
-                if (commitPromotionMove != null) commitPromotionMove('n');
+                if (commitPromotionMove != null) commitPromotionMove?.call('n');
               },
             ),
             TextButton.icon(
@@ -66,7 +66,8 @@ class ChessBoardPromotionZoneWhite extends StatelessWidget {
                 height: promotionPieceSize,
               ),
               onPressed: () {
-                if (cancelPendingPromotion != null) cancelPendingPromotion();
+                if (cancelPendingPromotion != null)
+                  cancelPendingPromotion?.call();
               },
             ),
           ],

@@ -69,8 +69,7 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
               squareName: squareName,
               userCanMovePieces: widget.userCanMovePieces,
               onDrop: (startCell, endCell) {
-                if (widget.userCanMovePieces == null ||
-                    !widget.userCanMovePieces) return;
+                if (!widget.userCanMovePieces) return;
                 setState(() {
                   _hoveredCell = null;
                   _startCell = null;
@@ -81,23 +80,20 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
                 });
               },
               onHover: (squareName) {
-                if (widget.userCanMovePieces == null ||
-                    !widget.userCanMovePieces) return;
+                if (!widget.userCanMovePieces) return;
                 setState(() {
                   _hoveredCell = Cell.fromAlgebraic(squareName);
                 });
               },
               onLeave: () {
-                if (widget.userCanMovePieces == null ||
-                    !widget.userCanMovePieces) return;
+                if (!widget.userCanMovePieces) return;
                 setState(() {
                   _startCell = null;
                   _hoveredCell = null;
                 });
               },
               onStartDrag: (squareName) {
-                if (widget.userCanMovePieces == null ||
-                    !widget.userCanMovePieces) return;
+                if (!widget.userCanMovePieces) return;
                 setState(() {
                   _startCell = Cell.fromAlgebraic(squareName);
                 });

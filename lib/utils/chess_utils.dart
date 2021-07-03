@@ -1,6 +1,6 @@
-import 'package:chessjs/chessjs.dart' as board_logic;
+import "package:chess/chess.dart" as board_logic;
 
-const errorString = '#Error'
+const errorString = '#Error';
 
 String pieceTypeToFen(board_logic.Piece pieceType) {
   if (pieceType.type == board_logic.PieceType.PAWN &&
@@ -39,7 +39,7 @@ checkPiecesCount(board_logic.Chess gameLogic) {
       if (currentPiece != null) {
         final currentFen = pieceTypeToFen(currentPiece);
         if (piecesCounts.containsKey(currentFen)) {
-          piecesCounts[currentFen] += 1;
+          piecesCounts[currentFen] = piecesCounts[currentFen]! + 1;
         } else {
           piecesCounts[currentFen] = 1;
         }
@@ -61,41 +61,42 @@ checkPiecesCount(board_logic.Chess gameLogic) {
     throw Exception("There must be exactly one black king !");
   }
 
-  if (piecesCounts.containsKey('K') && piecesCounts['K'] > 8)
+  if (piecesCounts.containsKey('K') && piecesCounts['K']! > 8)
     throw Exception("Too many white pawns !");
-  if (piecesCounts.containsKey('k') && piecesCounts['k'] > 8)
+  if (piecesCounts.containsKey('k') && piecesCounts['k']! > 8)
     throw Exception("Too many black pawns !");
 
-  if (piecesCounts.containsKey('N') && piecesCounts['N'] > 10)
+  if (piecesCounts.containsKey('N') && piecesCounts['N']! > 10)
     throw Exception("Too many white knights !");
-  if (piecesCounts.containsKey('n') && piecesCounts['n'] > 10)
+  if (piecesCounts.containsKey('n') && piecesCounts['n']! > 10)
     throw Exception("Too many black knights !");
 
-  if (piecesCounts.containsKey('B') && piecesCounts['B'] > 10)
+  if (piecesCounts.containsKey('B') && piecesCounts['B']! > 10)
     throw Exception("Too many white bishops !");
-  if (piecesCounts.containsKey('b') && piecesCounts['b'] > 10)
+  if (piecesCounts.containsKey('b') && piecesCounts['b']! > 10)
     throw Exception("Too many black bishops !");
 
-  if (piecesCounts.containsKey('R') && piecesCounts['R'] > 10)
+  if (piecesCounts.containsKey('R') && piecesCounts['R']! > 10)
     throw Exception("Too many white rooks !");
-  if (piecesCounts.containsKey('r') && piecesCounts['r'] > 10)
+  if (piecesCounts.containsKey('r') && piecesCounts['r']! > 10)
     throw Exception("Too many black rooks !");
 
-  if (piecesCounts.containsKey('Q') && piecesCounts['Q'] > 9)
+  if (piecesCounts.containsKey('Q') && piecesCounts['Q']! > 9)
     throw Exception("Too many white queens !");
-  if (piecesCounts.containsKey('q') && piecesCounts['q'] > 9)
+  if (piecesCounts.containsKey('q') && piecesCounts['q']! > 9)
     throw Exception("Too many black queens !");
 }
 
-board_logic.Move findMoveForPosition(board_logic.Chess position,
+board_logic.Move? findMoveForPosition(board_logic.Chess position,
     String fromIntoAlgebraic, String toIntoAlgebraic, String? promotionString) {
   final from = cellAlgebraicToInt(fromIntoAlgebraic);
   final to = cellAlgebraicToInt(toIntoAlgebraic);
   final promotion =
       promotionString != null ? pieceStringToPieceType(promotionString) : null;
 
-  final allMoves = position.generate_moves({'legal': true});
+  List<board_logic.Move?> allMoves = position.generate_moves({'legal': true});
   return allMoves.firstWhere((currentMove) {
+    if (currentMove == null) return false;
     return currentMove.from == from &&
         currentMove.to == to &&
         currentMove.promotion == promotion;
@@ -141,7 +142,7 @@ const List<String> pieceChars = [
 ];
 
 String moveFanFromMoveSan(String moveSan, bool whiteTurn) {
-  int firstPieceCharIndex;
+  int? firstPieceCharIndex;
 
   for (int i = 0; i < moveSan.length; i++) {
     final currentChar = moveSan.substring(i, i + 1);
@@ -160,7 +161,7 @@ String moveFanFromMoveSan(String moveSan, bool whiteTurn) {
   final firstPart = moveSan.substring(0, firstPieceCharIndex);
   final lastPart = moveSan.substring(firstPieceCharIndex + 1);
 
-  String middlePart;
+  String? middlePart;
 
   switch (firstPieceChar) {
     case 'N':

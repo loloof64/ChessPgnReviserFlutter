@@ -5,7 +5,7 @@ import 'package:chess_pgn_reviser/components/app_bar_actions.dart';
 
 import '../constants.dart';
 import 'package:flutter/material.dart';
-import 'package:chessjs/chessjs.dart' as board_logic;
+import "package:chess/chess.dart" as board_logic;
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
@@ -119,7 +119,7 @@ class _GamePageState extends State<GamePage> {
     final isSingleMove = movesList.length == 1;
     if (isSingleMove) {
       final move = movesList[0];
-      final moveSan = _boardState.moveToSan(move!);
+      final moveSan = _boardState.move_to_san(move!);
       final moveFan = chess_utils.moveFanFromMoveSan(
           moveSan, _boardState.turn == board_logic.Color.WHITE);
       return await commitSingleMove(move, moveSan, moveFan);
@@ -242,7 +242,7 @@ class _GamePageState extends State<GamePage> {
 
       final gameLogic = board_logic.Chess.fromFEN(fen);
       chess_utils.checkPiecesCount(gameLogic);
-      final moves = gameLogic.generateMoves();
+      final moves = gameLogic.generate_moves();
       final noMoreMove = moves.isEmpty;
 
       if (noMoreMove) {
@@ -254,7 +254,7 @@ class _GamePageState extends State<GamePage> {
       if (tags != null) {
         if (tags['FEN'] != null) startFen = tags['FEN'];
       }
-      if (startFen == null) startFen = board_logic.DEFAULT_POSITION;
+      if (startFen == null) startFen = board_logic.Chess.DEFAULT_POSITION;
 
       setState(() {
         _referenceGame = game;
@@ -310,9 +310,9 @@ class _GamePageState extends State<GamePage> {
   }
 
   List<board_logic.Move?> getMoveListFromSanList(List<String> sanList) {
-    final legalMoves = _boardState.generateMoves({'legal': true});
+    final legalMoves = _boardState.generate_moves({'legal': true});
     final legalSanList = legalMoves.map((currentMove) {
-      return _boardState.moveToSan(currentMove);
+      return _boardState.move_to_san(currentMove);
     }).toList();
 
     return sanList.map((inputSan) {
@@ -371,7 +371,8 @@ class _GamePageState extends State<GamePage> {
     if (legalMove) {
       final startCell = Cell.fromAlgebraic(startCellStr);
       final endCell = Cell.fromAlgebraic(endCellStr);
-      final isPawn = _boardState.get(startCellStr)?.type == board_logic.PAWN;
+      final isPawn =
+          _boardState.get(startCellStr)?.type == board_logic.PieceType.PAWN;
       final isWhitePromotion = _boardState.turn == board_logic.Color.WHITE &&
           startCell.rank == 6 &&
           endCell.rank == 7;
@@ -390,7 +391,7 @@ class _GamePageState extends State<GamePage> {
         final move = chess_utils.findMoveForPosition(
             _boardState, startCellStr, endCellStr, null);
 
-        final moveSan = _boardState.moveToSan(move);
+        final moveSan = _boardState.move_to_san(move!);
         final moveFan = chess_utils.moveFanFromMoveSan(
             moveSan, _boardState.turn == board_logic.Color.WHITE);
 
@@ -466,7 +467,7 @@ class _GamePageState extends State<GamePage> {
         _pendingPromotionMove?.end.toAlgebraic() ?? '',
         type);
 
-    final moveSan = _boardState.moveToSan(move);
+    final moveSan = _boardState.move_to_san(move!);
     final moveFan = chess_utils.moveFanFromMoveSan(
         moveSan, _boardState.turn == board_logic.Color.WHITE);
 
@@ -550,10 +551,8 @@ class _GamePageState extends State<GamePage> {
         });
       } else {
         setState(() {
-          if (_startPosition != null) {
-            _boardState = board_logic.Chess();
-            _boardState.load(_startPosition);
-          }
+          _boardState = board_logic.Chess();
+          _boardState.load(_startPosition);
           _lastMoveStartFile = null;
           _lastMoveStartRank = null;
           _lastMoveEndFile = null;
@@ -642,10 +641,10 @@ class _GamePageState extends State<GamePage> {
             userCanMovePieces: shouldChessBoardBetInteractive(),
             hasPendingPromotion: _pendingPromotion,
             lastMoveVisible: _lastMoveVisible,
-            lastMoveStartFile: _lastMoveStartFile,
-            lastMoveStartRank: _lastMoveStartRank,
-            lastMoveEndFile: _lastMoveEndFile,
-            lastMoveEndRank: _lastMoveEndRank,
+            lastMoveStartFile: _lastMoveStartFile ?? -1000,
+            lastMoveStartRank: _lastMoveStartRank ?? -1000,
+            lastMoveEndFile: _lastMoveEndFile ?? -1000,
+            lastMoveEndRank: _lastMoveEndRank ?? -1000,
             onDragReleased: (startCellStr, endCellStr) async {
               await handleDragReleased(startCellStr, endCellStr);
             },
@@ -654,7 +653,7 @@ class _GamePageState extends State<GamePage> {
             },
             cancelPendingPromotion: cancelPendingPromotion,
             historyWidgetContent: _historyWidgetContent,
-            reactivityEnabled: !_gameInProgress && _startPosition != null,
+            reactivityEnabled: !_gameInProgress,
             handleHistoryPositionRequested: tryToSetHistoryPosition,
             handleHistoryItemRequested: (index) {
               setState(() {
@@ -689,7 +688,7 @@ class _GamePageState extends State<GamePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context)?.gamePageTitle,
+          AppLocalizations.of(context)?.gamePageTitle ?? errorString,
         ),
         actions: <Widget>[
           AppBarActions(),
@@ -711,11 +710,12 @@ class _GamePageState extends State<GamePage> {
   void tryToGoToPreviousItem() {
     setState(
       () {
-        if (_selectedHistoryItemIndex > 1) {
+        if (_selectedHistoryItemIndex == null) return;
+        if (_selectedHistoryItemIndex! > 1) {
           do {
-            _selectedHistoryItemIndex--;
-          } while (_selectedHistoryItemIndex >= 0 &&
-              _historyWidgetContent[_selectedHistoryItemIndex].fenAfterMove ==
+            _selectedHistoryItemIndex = _selectedHistoryItemIndex! - 1;
+          } while (_selectedHistoryItemIndex! >= 0 &&
+              _historyWidgetContent[_selectedHistoryItemIndex!].fenAfterMove ==
                   null);
           tryToSetPositionBasedOnCurrentItemIndex();
         } else if (_selectedHistoryItemIndex == 1) {
@@ -729,20 +729,21 @@ class _GamePageState extends State<GamePage> {
   void tryToGoToNextItem() {
     final noMove = _historyWidgetContent.length < 2;
     if (noMove) return;
-    if (_selectedHistoryItemIndex < _historyWidgetContent.length - 1) {
+    if (_selectedHistoryItemIndex == null) return;
+    if (_selectedHistoryItemIndex! < _historyWidgetContent.length - 1) {
       setState(() {
         try {
           do {
-            _selectedHistoryItemIndex++;
+            _selectedHistoryItemIndex = _selectedHistoryItemIndex! + 1;
           } while (
-              _historyWidgetContent[_selectedHistoryItemIndex].fenAfterMove ==
+              _historyWidgetContent[_selectedHistoryItemIndex!].fenAfterMove ==
                   null);
         } on RangeError {
           // We must get backward to the last move (last node with a fen defined)
           do {
-            _selectedHistoryItemIndex--;
+            _selectedHistoryItemIndex = _selectedHistoryItemIndex! + 1;
           } while (
-              _historyWidgetContent[_selectedHistoryItemIndex].fenAfterMove ==
+              _historyWidgetContent[_selectedHistoryItemIndex!].fenAfterMove ==
                   null);
         }
         tryToSetPositionBasedOnCurrentItemIndex();
@@ -755,9 +756,9 @@ class _GamePageState extends State<GamePage> {
     if (noMove) return;
     setState(() {
       _selectedHistoryItemIndex = _historyWidgetContent.length - 1;
-      while (_historyWidgetContent[_selectedHistoryItemIndex].fenAfterMove ==
+      while (_historyWidgetContent[_selectedHistoryItemIndex!].fenAfterMove ==
           null) {
-        _selectedHistoryItemIndex--;
+        _selectedHistoryItemIndex = _selectedHistoryItemIndex! + 1;
       }
       tryToSetPositionBasedOnCurrentItemIndex();
     });
@@ -781,19 +782,19 @@ class GameComponents extends StatelessWidget {
   final List<HistoryItem> historyWidgetContent;
   final bool reactivityEnabled;
   final String startPosition;
-  final int selectedItemIndex;
+  final int? selectedItemIndex;
   final void Function(
       {String fen,
       int lastMoveStartFile,
       int lastMoveStartRank,
       int lastMoveEndFile,
-      int lastMoveEndRank}) handleHistoryPositionRequested;
+      int lastMoveEndRank})? handleHistoryPositionRequested;
 
-  final void Function(int index) handleHistoryItemRequested;
-  final void Function() handleHistoryGotoFirstItemRequested;
-  final void Function() handleHistoryGotoPreviousItemRequested;
-  final void Function() handleHistoryGotoNextItemRequested;
-  final void Function() handleHistoryGotoLastItemRequested;
+  final void Function(int index)? handleHistoryItemRequested;
+  final void Function()? handleHistoryGotoFirstItemRequested;
+  final void Function()? handleHistoryGotoPreviousItemRequested;
+  final void Function()? handleHistoryGotoNextItemRequested;
+  final void Function()? handleHistoryGotoLastItemRequested;
 
   GameComponents(
       {required this.commonSize,
@@ -850,7 +851,7 @@ class GameComponents extends StatelessWidget {
               handleHistoryGotoNextItemRequested,
           handleHistoryGotoLastItemRequested:
               handleHistoryGotoLastItemRequested,
-          selectedItemIndex: selectedItemIndex,
+          selectedItemIndex: selectedItemIndex ?? -1,
           width: commonSize,
           height: commonSize,
           content: historyWidgetContent,

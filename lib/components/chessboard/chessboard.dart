@@ -21,24 +21,24 @@ class ChessBoard extends StatelessWidget {
   final bool? pendingPromotion;
 
   final Function(String startCell, String endCell)? onDragReleased;
-
   final void Function()? cancelPendingPromotion;
   final void Function(String pieceType)? commitPromotionMove;
 
-  ChessBoard(
-      {required this.size,
-      required this.blackAtBottom,
-      required this.fen,
-      this.lastMoveVisible,
-      this.lastMoveStartFile,
-      this.lastMoveStartRank,
-      this.lastMoveEndFile,
-      this.lastMoveEndRank,
-      this.onDragReleased,
-      this.userCanMovePieces,
-      this.pendingPromotion,
-      this.cancelPendingPromotion,
-      this.commitPromotionMove});
+  ChessBoard({
+    required this.size,
+    required this.blackAtBottom,
+    required this.fen,
+    this.lastMoveVisible,
+    this.lastMoveStartFile,
+    this.lastMoveStartRank,
+    this.lastMoveEndFile,
+    this.lastMoveEndRank,
+    this.onDragReleased,
+    this.userCanMovePieces,
+    this.pendingPromotion,
+    this.cancelPendingPromotion,
+    this.commitPromotionMove,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,11 +77,11 @@ class ChessBoard extends StatelessWidget {
           ChessBoardWrapper(
             size: size,
             blackTurn: blackTurn,
-            lastMoveVisible: lastMoveVisible,
-            lastMoveStartFile: lastMoveStartFile,
-            lastMoveStartRank: lastMoveStartRank,
-            lastMoveEndFile: lastMoveEndFile,
-            lastMoveEndRank: lastMoveEndRank,
+            lastMoveVisible: lastMoveVisible ?? false,
+            lastMoveStartFile: lastMoveStartFile ?? -1000,
+            lastMoveStartRank: lastMoveStartRank ?? -1000,
+            lastMoveEndFile: lastMoveEndFile ?? -1000,
+            lastMoveEndRank: lastMoveEndRank ?? -1000,
             reversed: blackAtBottom,
           ),
           Padding(
