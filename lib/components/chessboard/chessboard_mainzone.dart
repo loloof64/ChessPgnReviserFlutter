@@ -58,8 +58,8 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
             final isStartCell = (_startCell != null) &&
                 (file == _startCell!.file && rank == _startCell!.rank);
             var color = isWhiteCell ? whiteCellColor : blackCellColor;
-            if (isStartCell) color = startCellColor;
             if (isDndCrossCell) color = dndCrossCellColor;
+            if (isStartCell) color = startCellColor;
             if (isTargetCell) color = targetCellColor;
 
             final squareName =
