@@ -25,6 +25,7 @@ class ChessBoardMainZone extends StatefulWidget {
 class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
   Cell? _hoveredCell;
   Cell? _startCell;
+  Cell? _cachedStartCell;
 
   @override
   Widget build(BuildContext context) {
@@ -84,12 +85,21 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
                 if (!widget.userCanMovePieces) return;
                 setState(() {
                   _hoveredCell = Cell.fromAlgebraic(squareName);
+                  if (_cachedStartCell != null) _startCell = _cachedStartCell;
                 });
               },
               onStartDrag: (squareName) {
                 if (!widget.userCanMovePieces) return;
                 setState(() {
-                  _startCell = Cell.fromAlgebraic(squareName);
+                  final temp = Cell.fromAlgebraic(squareName);
+                  _startCell = temp;
+                  _cachedStartCell = temp;
+                });
+              },
+              onLeave: () {
+                setState(() {
+                  _hoveredCell = null;
+                  _startCell = null;
                 });
               },
             );
