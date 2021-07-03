@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'pages/game_page.dart';
 import 'package:provider/provider.dart';
+import 'package:oktoast/oktoast.dart';
 
 final DarkModeManager darkModeManager = DarkModeManager();
 
@@ -11,7 +12,7 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => DarkModeManager(),
-      child: MyApp(),
+      child: OKToast(child: MyApp()),
     ),
   );
 }

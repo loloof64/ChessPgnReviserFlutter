@@ -15,18 +15,18 @@ dependencies:
     sdk: flutter
   intl: ^0.17.0
 
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^1.0.3
   chess_vectors_flutter: ^1.0.16
-  toast: ^0.1.5
   petitparser: ^4.1.0
-  file_selector: ^0.7.0
+  file_selector: ^0.8.2
   file_selector_linux: ^0.0.2
-  file_selector_web: ^0.7.0
+  file_selector_web: ^0.8.1
   font_awesome_flutter: ^9.1.0
-  adaptive_dialog: ^1.0.0
-  flutter_spinkit: ^4.1.2
+  adaptive_dialog: ^1.0.1
+  flutter_spinkit: ^5.0.0
   provider: ^5.0.0
   chess: ^0.7.0
+  oktoast: ^3.0.0
 
 dev_dependencies:
   flutter_test:

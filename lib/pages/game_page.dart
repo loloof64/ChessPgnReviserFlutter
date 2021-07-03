@@ -7,7 +7,7 @@ import '../constants.dart';
 import 'package:flutter/material.dart';
 import "package:chess/chess.dart" as board_logic;
 import 'package:petitparser/context.dart';
-import 'package:toast/toast.dart';
+import 'package:oktoast/oktoast.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import '../utils/pgn_parser/pgn_parser.dart';
@@ -204,8 +204,8 @@ class _GamePageState extends State<GamePage> {
     final XFile? file =
         await openFile(acceptedTypeGroups: [pgnTypeGroup, allTypeGroup]);
     if (file == null) {
-      Toast.show(AppLocalizations.of(context)?.cancelledNewGameRequest, context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      showToast(
+          AppLocalizations.of(context)?.cancelledNewGameRequest ?? errorString);
       return;
     }
 
@@ -232,9 +232,8 @@ class _GamePageState extends State<GamePage> {
         setState(() {
           _loading = false;
         });
-        Toast.show(AppLocalizations.of(context)?.cancelledNewGameRequest ?? '',
-            context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+        showToast(AppLocalizations.of(context)?.cancelledNewGameRequest ??
+            errorString);
         return;
       }
       final game = allGames[gameData.gameIndex];
@@ -286,8 +285,7 @@ class _GamePageState extends State<GamePage> {
         _loading = false;
       });
       Completer().completeError(ex, stacktrace);
-      Toast.show(AppLocalizations.of(context)?.couldNotLoadPgn, context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      showToast(AppLocalizations.of(context)?.couldNotLoadPgn ?? errorString);
     }
   }
 
@@ -355,8 +353,7 @@ class _GamePageState extends State<GamePage> {
         setState(() {
           _gameInProgress = false;
           tryToGoToLastItem();
-          Toast.show(AppLocalizations.of(context)?.gameStopped, context,
-              duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+          showToast(AppLocalizations.of(context)?.gameStopped ?? errorString);
         });
       }
     }
