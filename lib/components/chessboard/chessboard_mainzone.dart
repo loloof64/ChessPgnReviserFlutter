@@ -55,11 +55,12 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
             final isTargetCell = (_hoveredCell != null) &&
                 (file == (_hoveredCell?.file) && rank == _hoveredCell?.rank);
             final isStartCell = (_startCell != null) &&
-                (file == _startCell?.file && rank == _startCell?.rank);
+                (file == _startCell!.file && rank == _startCell!.rank);
             var color = isWhiteCell ? whiteCellColor : blackCellColor;
             if (isStartCell) color = startCellColor;
             if (isDndCrossCell) color = dndCrossCellColor;
             if (isTargetCell) color = targetCellColor;
+
             final squareName =
                 "${String.fromCharCode('a'.codeUnitAt(0) + file)}${String.fromCharCode('1'.codeUnitAt(0) + rank)}";
             return ChessSquare(
@@ -83,13 +84,6 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
                 if (!widget.userCanMovePieces) return;
                 setState(() {
                   _hoveredCell = Cell.fromAlgebraic(squareName);
-                });
-              },
-              onLeave: () {
-                if (!widget.userCanMovePieces) return;
-                setState(() {
-                  _startCell = null;
-                  _hoveredCell = null;
                 });
               },
               onStartDrag: (squareName) {

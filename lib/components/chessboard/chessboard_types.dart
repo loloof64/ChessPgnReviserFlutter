@@ -4,6 +4,10 @@ class Cell {
 
   Cell(this.file, this.rank);
 
+  String toString() {
+    return "Cell($file, $rank)";
+  }
+
   String toAlgebraic() {
     return "${String.fromCharCode('a'.codeUnitAt(0) + file)}${String.fromCharCode('1'.codeUnitAt(0) + rank)}";
   }
