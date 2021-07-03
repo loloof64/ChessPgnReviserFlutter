@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'chessboard_types.dart';
 import 'chesssquare.dart';
 import 'package:flutter/material.dart';
@@ -9,29 +8,30 @@ class ChessPiece extends StatelessWidget {
   final double size;
   final String cellName;
   final bool userCanMovePieces;
-  final Function(String startCell) onStartDrag;
+  final Function(String startCell)? onStartDrag;
 
   ChessPiece(
-      {@required this.type,
-      @required this.size,
-      @required this.cellName,
-      this.userCanMovePieces,
+      {required this.type,
+      required this.size,
+      required this.cellName,
+      this.userCanMovePieces = false,
       this.onStartDrag});
 
   @override
   Widget build(BuildContext context) {
     final pieceWidget = _buildPiece();
 
-    return (userCanMovePieces != null && userCanMovePieces == true)
+    return (userCanMovePieces == true)
         ? Draggable<DragAndDropData>(
             data: DragAndDropData(cellName, type),
             child: pieceWidget,
             feedback: pieceWidget,
             childWhenDragging: ChessSquare(
               size: size,
+              squareName: cellName,
             ),
             onDragStarted: () {
-              if (onStartDrag != null) onStartDrag(cellName);
+              onStartDrag?.call(cellName);
             },
           )
         : pieceWidget;
@@ -64,7 +64,7 @@ class ChessPiece extends StatelessWidget {
       case 'p':
         return BlackPawn(size: size);
       default:
-        return null;
+        return Container();
     }
   }
 }

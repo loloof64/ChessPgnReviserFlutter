@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'package:flutter/material.dart';
 
 class HeaderBar extends StatelessWidget {
@@ -10,11 +9,11 @@ class HeaderBar extends StatelessWidget {
   final void Function() stopGame;
 
   HeaderBar({
-    @required this.width,
-    @required this.height,
-    @required this.startGame,
-    @required this.stopGame,
-    @required this.reverseBoard,
+    required this.width,
+    required this.height,
+    required this.startGame,
+    required this.stopGame,
+    required this.reverseBoard,
   });
 
   @override
@@ -60,10 +59,10 @@ class HeaderBar extends StatelessWidget {
 
 class HeaderBarButton extends StatelessWidget {
   const HeaderBarButton({
-    @required this.imagePadding,
-    @required this.imageHeight,
-    @required this.onPressed,
-    @required this.imageReference,
+    required this.imagePadding,
+    required this.imageHeight,
+    required this.onPressed,
+    required this.imageReference,
   });
 
   final double imagePadding;

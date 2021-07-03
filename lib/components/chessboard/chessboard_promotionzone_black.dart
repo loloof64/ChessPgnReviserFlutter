@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 
@@ -8,9 +7,9 @@ class ChessBoardPromotionZoneBlack extends StatelessWidget {
   final Function() cancelPendingPromotion;
 
   ChessBoardPromotionZoneBlack(
-      {@required this.size,
-      @required this.commitPromotionMove,
-      @required this.cancelPendingPromotion});
+      {required this.size,
+      required this.commitPromotionMove,
+      required this.cancelPendingPromotion});
 
   @override
   Widget build(BuildContext context) {

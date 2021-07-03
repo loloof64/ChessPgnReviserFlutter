@@ -1,5 +1,6 @@
-// @dart=2.9
-import 'package:chess/chess.dart' as board_logic;
+import 'package:chessjs/chessjs.dart' as board_logic;
+
+const errorString = '#Error'
 
 String pieceTypeToFen(board_logic.Piece pieceType) {
   if (pieceType.type == board_logic.PieceType.PAWN &&
@@ -26,7 +27,7 @@ String pieceTypeToFen(board_logic.Piece pieceType) {
       pieceType.color == board_logic.Color.WHITE) return 'K';
   if (pieceType.type == board_logic.PieceType.KING &&
       pieceType.color == board_logic.Color.BLACK) return 'k';
-  return null;
+  return errorString;
 }
 
 checkPiecesCount(board_logic.Chess gameLogic) {
@@ -87,7 +88,7 @@ checkPiecesCount(board_logic.Chess gameLogic) {
 }
 
 board_logic.Move findMoveForPosition(board_logic.Chess position,
-    String fromIntoAlgebraic, String toIntoAlgebraic, String promotionString) {
+    String fromIntoAlgebraic, String toIntoAlgebraic, String? promotionString) {
   final from = cellAlgebraicToInt(fromIntoAlgebraic);
   final to = cellAlgebraicToInt(toIntoAlgebraic);
   final promotion =

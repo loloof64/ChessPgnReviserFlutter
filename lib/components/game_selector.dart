@@ -1,11 +1,10 @@
-// @dart=2.9
 import 'dart:math';
 import 'package:chess_pgn_reviser/components/app_bar_actions.dart';
 import 'package:chess_pgn_reviser/models/dark_mode_manager.dart';
 
 import '../../constants.dart';
 import 'package:flutter/material.dart';
-import 'package:chess/chess.dart' as board_logic;
+import 'package:chessjs/chessjs.dart' as board_logic;
 import 'chessboard/chessboard.dart' as board;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -18,9 +17,9 @@ class GameSelectorResult {
   final PlayerMode blackMode;
 
   GameSelectorResult({
-    @required this.gameIndex,
-    @required this.whiteMode,
-    @required this.blackMode,
+    required this.gameIndex,
+    required this.whiteMode,
+    required this.blackMode,
   });
 }
 
@@ -100,11 +99,11 @@ class _GameSelectorState extends State<GameSelector> {
   String getGameGoal() {
     final goalString = widget.games[_gameIndex]["tags"]["Goal"] ?? "";
     if (goalString == "1-0")
-      return AppLocalizations.of(context).gameResultWhiteWin;
+      return AppLocalizations.of(context)?.gameResultWhiteWin ?? errorString;
     if (goalString == "0-1")
-      return AppLocalizations.of(context).gameResultBlackWin;
+      return AppLocalizations.of(context)?.gameResultBlackWin ?? errorString;
     if (goalString.startsWith("1/2"))
-      return AppLocalizations.of(context).gameResultDraw;
+      return AppLocalizations.of(context)?.gameResultDraw ?? errorString;
     return goalString;
   }
 
@@ -138,7 +137,8 @@ class _GameSelectorState extends State<GameSelector> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(AppLocalizations.of(context).gameSelectorTitle),
+          title: Text(
+              AppLocalizations.of(context)?.gameSelectorTitle ?? errorString),
           actions: [
             AppBarActions(),
           ],
@@ -173,12 +173,15 @@ class _GameSelectorState extends State<GameSelector> {
                     ModeSettingZone(
                       whiteMode: _whiteMode,
                       blackMode: _blackMode,
-                      guessMoveString:
-                          AppLocalizations.of(context).gameModePlayerGuessMove,
+                      guessMoveString: AppLocalizations.of(context)
+                              ?.gameModePlayerGuessMove ??
+                          errorString,
                       randomMovesString: AppLocalizations.of(context)
-                          .gameModeComputerPlaysRandomly,
-                      userChoiceString:
-                          AppLocalizations.of(context).gameModeUserChooseMove,
+                              ?.gameModeComputerPlaysRandomly ??
+                          errorString,
+                      userChoiceString: AppLocalizations.of(context)
+                              ?.gameModeUserChooseMove ??
+                          errorString,
                       updateWhiteMode: (PlayerMode newValue) {
                         setState(() {
                           _whiteMode = newValue;
@@ -224,13 +227,13 @@ class ModeSettingZone extends StatelessWidget {
   final void Function(PlayerMode mode) updateBlackMode;
 
   ModeSettingZone({
-    @required this.whiteMode,
-    @required this.blackMode,
-    @required this.updateWhiteMode,
-    @required this.updateBlackMode,
-    @required this.guessMoveString,
-    @required this.userChoiceString,
-    @required this.randomMovesString,
+    required this.whiteMode,
+    required this.blackMode,
+    required this.updateWhiteMode,
+    required this.updateBlackMode,
+    required this.guessMoveString,
+    required this.userChoiceString,
+    required this.randomMovesString,
   });
 
   String textForMode(PlayerMode mode) {
@@ -286,15 +289,15 @@ class ModeSettingZone extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text(AppLocalizations.of(context).whiteMode),
+            Text(AppLocalizations.of(context)?.whiteMode ?? errorString),
             SizedBox(
               width: 20.0,
             ),
             DropdownButton<PlayerMode>(
               items: dropDownItems,
               value: whiteMode,
-              onChanged: (PlayerMode newValue) {
-                updateWhiteMode(newValue);
+              onChanged: (PlayerMode? newValue) {
+                updateWhiteMode(newValue ?? PlayerMode.GuessMove);
               },
             ),
           ],
@@ -303,15 +306,15 @@ class ModeSettingZone extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Text(AppLocalizations.of(context).blackMode),
+            Text(AppLocalizations.of(context)?.blackMode ?? errorString),
             SizedBox(
               width: 20.0,
             ),
             DropdownButton<PlayerMode>(
               items: dropDownItems,
               value: blackMode,
-              onChanged: (PlayerMode newValue) {
-                updateBlackMode(newValue);
+              onChanged: (PlayerMode? newValue) {
+                updateBlackMode(newValue ?? PlayerMode.GuessMove);
               },
             ),
           ],
@@ -322,16 +325,16 @@ class ModeSettingZone extends StatelessWidget {
 }
 
 class NavigationProgress extends StatelessWidget {
-  final double indexFieldWidth;
-  final TextEditingController indexFieldController;
   final double fontSize;
   final int gamesCount;
-  final void Function(String) onIndexFieldSubmitted;
+  final double indexFieldWidth;
+  final TextEditingController? indexFieldController;
+  final void Function(String)? onIndexFieldSubmitted;
 
   NavigationProgress({
-    @required this.fontSize,
-    @required this.gamesCount,
-    this.indexFieldWidth,
+    required this.fontSize,
+    required this.gamesCount,
+    this.indexFieldWidth = 50.0,
     this.indexFieldController,
     this.onIndexFieldSubmitted,
   });
@@ -361,12 +364,12 @@ class NavigationProgress extends StatelessWidget {
 class ValidationZone extends StatelessWidget {
   final double buttonsFontSize;
   final double buttonsPadding;
-  final void Function() onValidate;
-  final void Function() onCancel;
+  final void Function()? onValidate;
+  final void Function()? onCancel;
 
   ValidationZone(
-      {this.buttonsFontSize,
-      this.buttonsPadding,
+      {this.buttonsFontSize = 18.0,
+      this.buttonsPadding = 10.0,
       this.onValidate,
       this.onCancel});
 
@@ -377,17 +380,17 @@ class ValidationZone extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ValidationButton(
-          label: AppLocalizations.of(context).cancelButton,
+          label: AppLocalizations.of(context)?.cancelButton ?? errorString,
           fontSize: buttonsFontSize,
           padding: buttonsPadding,
-          onPressed: onCancel,
+          onPressed: onCancel ?? () {},
           textColor: Colors.red,
         ),
         ValidationButton(
-          label: AppLocalizations.of(context).okButton,
+          label: AppLocalizations.of(context)?.okButton ?? errorString,
           fontSize: buttonsFontSize,
           padding: buttonsPadding,
-          onPressed: onValidate,
+          onPressed: onValidate ?? () {},
           textColor: Colors.blue,
         ),
       ],
@@ -399,14 +402,14 @@ class ValidationButton extends StatelessWidget {
   final String label;
   final double padding;
   final double fontSize;
-  final void Function() onPressed;
+  final void Function()? onPressed;
   final Color textColor;
 
   ValidationButton(
-      {@required this.label,
-      this.fontSize,
-      this.padding,
-      this.textColor,
+      {required this.label,
+      this.fontSize = 18.0,
+      this.padding = 10.0,
+      this.textColor = Colors.white,
       this.onPressed});
 
   @override
@@ -433,11 +436,11 @@ class NavigationZone extends StatelessWidget {
   final void Function() onGotoLast;
 
   NavigationZone({
-    @required this.buttonsSize,
-    this.onGotoFirst,
-    this.onGotoPrevious,
-    this.onGotoNext,
-    this.onGotoLast,
+    required this.buttonsSize,
+    required this.onGotoFirst,
+    required this.onGotoPrevious,
+    required this.onGotoNext,
+    required this.onGotoLast,
   });
 
   @override
@@ -471,9 +474,10 @@ class NavigationZone extends StatelessWidget {
 class NavigationButton extends StatelessWidget {
   final double size;
   final String imageReference;
-  final void Function() onPressed;
+  final void Function()? onPressed;
 
-  NavigationButton({@required this.size, this.imageReference, this.onPressed});
+  NavigationButton(
+      {required this.size, required this.imageReference, this.onPressed});
 
   @override
   Widget build(BuildContext context) {

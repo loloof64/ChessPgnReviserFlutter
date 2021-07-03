@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'dart:async';
 import 'dart:math';
 
@@ -6,7 +5,7 @@ import 'package:chess_pgn_reviser/components/app_bar_actions.dart';
 
 import '../constants.dart';
 import 'package:flutter/material.dart';
-import 'package:chess/chess.dart' as board_logic;
+import 'package:chessjs/chessjs.dart' as board_logic;
 import 'package:petitparser/context.dart';
 import 'package:toast/toast.dart';
 import 'package:file_selector/file_selector.dart';
@@ -38,34 +37,35 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   board_logic.Chess _boardState = board_logic.Chess.fromFEN(EMPTY_BOARD);
   bool _pendingPromotion = false;
-  Move _pendingPromotionMove;
+  Move? _pendingPromotionMove;
   bool _boardReversed = false;
   bool _lastMoveVisible = false;
-  int _lastMoveStartFile;
-  int _lastMoveStartRank;
-  int _lastMoveEndFile;
-  int _lastMoveEndRank;
+  int? _lastMoveStartFile;
+  int? _lastMoveStartRank;
+  int? _lastMoveEndFile;
+  int? _lastMoveEndRank;
   String _goalString = "";
   bool _gameInProgress = false;
   List<HistoryItem> _historyWidgetContent = [];
   var _referenceGame;
   int _moveNumber = -1;
-  String _startPosition;
-  int _currentNodeIndex;
+  String _startPosition = '8/8/8/8/8/8/8/8 w - - 0 1';
+  int _currentNodeIndex = 0;
   var _parentNode;
-  int _selectedHistoryItemIndex;
-  PlayerMode _whiteMode;
-  PlayerMode _blackMode;
+  int? _selectedHistoryItemIndex;
+  PlayerMode _whiteMode = PlayerMode.GuessMove;
+  PlayerMode _blackMode = PlayerMode.GuessMove;
   bool _loading = false;
 
   void processMoveFanIntoHistoryWidgetMoves(String moveFan, bool isWhiteTurn) {
     _historyWidgetContent.add(HistoryItem(
-        text: moveFan,
-        fenAfterMove: _boardState.fen,
-        lastMoveStartFile: _lastMoveStartFile,
-        lastMoveStartRank: _lastMoveStartRank,
-        lastMoveEndFile: _lastMoveEndFile,
-        lastMoveEndRank: _lastMoveEndRank));
+      text: moveFan,
+      fenAfterMove: _boardState.fen,
+      lastMoveStartFile: _lastMoveStartFile ?? -10,
+      lastMoveStartRank: _lastMoveStartRank ?? -10,
+      lastMoveEndFile: _lastMoveEndFile ?? -10,
+      lastMoveEndRank: _lastMoveEndRank ?? -10,
+    ));
     if (!isWhiteTurn) {
       setState(() {
         _moveNumber += 1;
@@ -92,7 +92,7 @@ class _GamePageState extends State<GamePage> {
 
     final movesSanList = getAvailableMovesAsSanAndFilterByLegalMoves();
     final movesList = getMoveListFromSanList(movesSanList);
-    board_logic.Move selectedMove;
+    board_logic.Move? selectedMove;
     int selectedMoveIndex;
     do {
       selectedMoveIndex = Random().nextInt(movesList.length);
@@ -119,7 +119,7 @@ class _GamePageState extends State<GamePage> {
     final isSingleMove = movesList.length == 1;
     if (isSingleMove) {
       final move = movesList[0];
-      final moveSan = _boardState.move_to_san(move);
+      final moveSan = _boardState.moveToSan(move!);
       final moveFan = chess_utils.moveFanFromMoveSan(
           moveSan, _boardState.turn == board_logic.Color.WHITE);
       return await commitSingleMove(move, moveSan, moveFan);
@@ -135,20 +135,21 @@ class _GamePageState extends State<GamePage> {
     });
 
     final moveIndex = await showConfirmationDialog<int>(
-        title: AppLocalizations.of(context).moveChoiceConfirmationTitle,
+        title: AppLocalizations.of(context)?.moveChoiceConfirmationTitle ?? '',
         context: context,
-        message: AppLocalizations.of(context).moveChoiceConfirmationMessage,
-        okLabel: AppLocalizations.of(context).okButton,
-        cancelLabel: AppLocalizations.of(context).cancelButton,
+        message:
+            AppLocalizations.of(context)?.moveChoiceConfirmationMessage ?? '',
+        okLabel: AppLocalizations.of(context)?.okButton ?? '',
+        cancelLabel: AppLocalizations.of(context)?.cancelButton ?? '',
         barrierDismissible: false,
         actions: movesActions);
 
     try {
-      final selectedMove = movesList[moveIndex];
+      final selectedMove = movesList[moveIndex!];
       final selectedMoveSan = movesSanList[moveIndex];
       final moveFan = chess_utils.moveFanFromMoveSan(
           selectedMoveSan, _boardState.turn == board_logic.Color.WHITE);
-      return await commitSingleMove(selectedMove, selectedMoveSan, moveFan);
+      return await commitSingleMove(selectedMove!, selectedMoveSan, moveFan);
     } catch (e) {
       // If user has cancelled, we must show him this dialog again.
       return await letUserChooserNextMoveIfAppropriate();
@@ -179,11 +180,11 @@ class _GamePageState extends State<GamePage> {
   String _getGameGoal(gamePgn) {
     final goalString = gamePgn["tags"]["Goal"] ?? "";
     if (goalString == "1-0")
-      return AppLocalizations.of(context).gameResultWhiteWin;
+      return AppLocalizations.of(context)?.gameResultWhiteWin ?? '';
     if (goalString == "0-1")
-      return AppLocalizations.of(context).gameResultBlackWin;
+      return AppLocalizations.of(context)?.gameResultBlackWin ?? '';
     if (goalString.startsWith("1/2"))
-      return AppLocalizations.of(context).gameResultDraw;
+      return AppLocalizations.of(context)?.gameResultDraw ?? '';
     return goalString;
   }
 
@@ -200,10 +201,10 @@ class _GamePageState extends State<GamePage> {
       mimeTypes: ['application/octet-stream'],
     );
 
-    final XFile file =
+    final XFile? file =
         await openFile(acceptedTypeGroups: [pgnTypeGroup, allTypeGroup]);
     if (file == null) {
-      Toast.show(AppLocalizations.of(context).cancelledNewGameRequest, context,
+      Toast.show(AppLocalizations.of(context)?.cancelledNewGameRequest, context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       return;
     }
@@ -231,8 +232,8 @@ class _GamePageState extends State<GamePage> {
         setState(() {
           _loading = false;
         });
-        Toast.show(
-            AppLocalizations.of(context).cancelledNewGameRequest, context,
+        Toast.show(AppLocalizations.of(context)?.cancelledNewGameRequest ?? '',
+            context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
         return;
       }
@@ -241,19 +242,19 @@ class _GamePageState extends State<GamePage> {
 
       final gameLogic = board_logic.Chess.fromFEN(fen);
       chess_utils.checkPiecesCount(gameLogic);
-      final moves = gameLogic.generate_moves();
+      final moves = gameLogic.generateMoves();
       final noMoreMove = moves.isEmpty;
 
       if (noMoreMove) {
-        throw Exception(AppLocalizations.of(context).noMoveInLoadedGame);
+        throw Exception(AppLocalizations.of(context)?.noMoveInLoadedGame);
       }
 
-      String startFen;
+      String? startFen;
       final tags = game['tags'];
       if (tags != null) {
         if (tags['FEN'] != null) startFen = tags['FEN'];
       }
-      if (startFen == null) startFen = board_logic.Chess.DEFAULT_POSITION;
+      if (startFen == null) startFen = board_logic.DEFAULT_POSITION;
 
       setState(() {
         _referenceGame = game;
@@ -261,7 +262,7 @@ class _GamePageState extends State<GamePage> {
         _blackMode = gameData.blackMode;
         _parentNode = game['moves']['pgn'];
         _currentNodeIndex = 0;
-        _startPosition = startFen;
+        _startPosition = startFen!;
         final firstMove = _referenceGame['moves']['pgn'];
         _moveNumber = firstMove.length > 0 ? firstMove[0]['moveNumber'] : 1;
         final blackTurn =
@@ -285,7 +286,7 @@ class _GamePageState extends State<GamePage> {
         _loading = false;
       });
       Completer().completeError(ex, stacktrace);
-      Toast.show(AppLocalizations.of(context).couldNotLoadPgn, context,
+      Toast.show(AppLocalizations.of(context)?.couldNotLoadPgn, context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     }
   }
@@ -308,17 +309,17 @@ class _GamePageState extends State<GamePage> {
     return results;
   }
 
-  List<board_logic.Move> getMoveListFromSanList(List<String> sanList) {
-    final legalMoves = _boardState.generate_moves({'legal': true});
+  List<board_logic.Move?> getMoveListFromSanList(List<String> sanList) {
+    final legalMoves = _boardState.generateMoves({'legal': true});
     final legalSanList = legalMoves.map((currentMove) {
-      return _boardState.move_to_san(currentMove);
+      return _boardState.moveToSan(currentMove);
     }).toList();
 
     return sanList.map((inputSan) {
       final int matchingLegalSanIndex = legalSanList.indexWhere((legalSan) {
         return legalSan == inputSan;
       });
-      if (matchingLegalSanIndex != null)
+      if (matchingLegalSanIndex >= 0)
         return legalMoves[matchingLegalSanIndex];
       else
         return null;
@@ -330,10 +331,10 @@ class _GamePageState extends State<GamePage> {
     if (boardNotEmpty) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
-        title: AppLocalizations.of(context).newGameDialogTitle,
-        message: AppLocalizations.of(context).newGameDialogMessage,
-        okLabel: AppLocalizations.of(context).yesButton,
-        cancelLabel: AppLocalizations.of(context).noButton,
+        title: AppLocalizations.of(context)?.newGameDialogTitle,
+        message: AppLocalizations.of(context)?.newGameDialogMessage,
+        okLabel: AppLocalizations.of(context)?.yesButton,
+        cancelLabel: AppLocalizations.of(context)?.noButton,
       );
       if (confirmed == OkCancelResult.ok) return await loadPgn(context);
     } else {
@@ -345,16 +346,16 @@ class _GamePageState extends State<GamePage> {
     if (_gameInProgress) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
-        title: AppLocalizations.of(context).stopGameDialogTitle,
-        message: AppLocalizations.of(context).stopGameDialogMessage,
-        okLabel: AppLocalizations.of(context).yesButton,
-        cancelLabel: AppLocalizations.of(context).noButton,
+        title: AppLocalizations.of(context)?.stopGameDialogTitle,
+        message: AppLocalizations.of(context)?.stopGameDialogMessage,
+        okLabel: AppLocalizations.of(context)?.yesButton,
+        cancelLabel: AppLocalizations.of(context)?.noButton,
       );
       if (confirmed == OkCancelResult.ok) {
         setState(() {
           _gameInProgress = false;
           tryToGoToLastItem();
-          Toast.show(AppLocalizations.of(context).gameStopped, context,
+          Toast.show(AppLocalizations.of(context)?.gameStopped, context,
               duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
         });
       }
@@ -370,8 +371,7 @@ class _GamePageState extends State<GamePage> {
     if (legalMove) {
       final startCell = Cell.fromAlgebraic(startCellStr);
       final endCell = Cell.fromAlgebraic(endCellStr);
-      final isPawn =
-          _boardState.get(startCellStr).type == board_logic.PieceType.PAWN;
+      final isPawn = _boardState.get(startCellStr)?.type == board_logic.PAWN;
       final isWhitePromotion = _boardState.turn == board_logic.Color.WHITE &&
           startCell.rank == 6 &&
           endCell.rank == 7;
@@ -390,13 +390,13 @@ class _GamePageState extends State<GamePage> {
         final move = chess_utils.findMoveForPosition(
             _boardState, startCellStr, endCellStr, null);
 
-        final moveSan = _boardState.move_to_san(move);
+        final moveSan = _boardState.moveToSan(move);
         final moveFan = chess_utils.moveFanFromMoveSan(
             moveSan, _boardState.turn == board_logic.Color.WHITE);
 
         try {
           await commitSingleMove(move, moveSan, moveFan);
-        } catch (ex) {
+        } on UnexpectedMoveException catch (ex) {
           await handleUnexpectedMove(context, ex);
         }
       }
@@ -428,11 +428,11 @@ class _GamePageState extends State<GamePage> {
   }
 
   Future<void> congratUser() async {
-    return await showOkAlertDialog(
+    await showOkAlertDialog(
       context: context,
-      okLabel: AppLocalizations.of(context).okButton,
-      title: AppLocalizations.of(context).userCongratulationTitle,
-      message: AppLocalizations.of(context).userCongratulationMessage,
+      okLabel: AppLocalizations.of(context)?.okButton,
+      title: AppLocalizations.of(context)?.userCongratulationTitle,
+      message: AppLocalizations.of(context)?.userCongratulationMessage,
     );
   }
 
@@ -462,11 +462,11 @@ class _GamePageState extends State<GamePage> {
   Future<void> commitPromotionMove(String type) async {
     final move = chess_utils.findMoveForPosition(
         _boardState,
-        _pendingPromotionMove.start.toAlgebraic(),
-        _pendingPromotionMove.end.toAlgebraic(),
+        _pendingPromotionMove?.start.toAlgebraic() ?? '',
+        _pendingPromotionMove?.end.toAlgebraic() ?? '',
         type);
 
-    final moveSan = _boardState.move_to_san(move);
+    final moveSan = _boardState.moveToSan(move);
     final moveFan = chess_utils.moveFanFromMoveSan(
         moveSan, _boardState.turn == board_logic.Color.WHITE);
 
@@ -477,10 +477,10 @@ class _GamePageState extends State<GamePage> {
 
     setState(() {
       _lastMoveVisible = true;
-      _lastMoveStartFile = _pendingPromotionMove.start.file;
-      _lastMoveStartRank = _pendingPromotionMove.start.rank;
-      _lastMoveEndFile = _pendingPromotionMove.end.file;
-      _lastMoveEndRank = _pendingPromotionMove.end.rank;
+      _lastMoveStartFile = _pendingPromotionMove?.start.file;
+      _lastMoveStartRank = _pendingPromotionMove?.start.rank;
+      _lastMoveEndFile = _pendingPromotionMove?.end.file;
+      _lastMoveEndRank = _pendingPromotionMove?.end.rank;
     });
     cancelPendingPromotion();
 
@@ -489,7 +489,7 @@ class _GamePageState extends State<GamePage> {
 
       await tryToMakeComputerPlayRandomMove();
       return await letUserChooserNextMoveIfAppropriate();
-    } catch (ex) {
+    } on UnexpectedMoveException catch (ex) {
       return await handleUnexpectedMove(context, ex);
     }
   }
@@ -505,9 +505,10 @@ class _GamePageState extends State<GamePage> {
   }
 
   tryToSetPositionBasedOnCurrentItemIndex() {
-    if (_selectedHistoryItemIndex >= 0 &&
-        _selectedHistoryItemIndex < _historyWidgetContent.length) {
-      final item = _historyWidgetContent[_selectedHistoryItemIndex];
+    if (_selectedHistoryItemIndex == null) return;
+    if (_selectedHistoryItemIndex! >= 0 &&
+        _selectedHistoryItemIndex! < _historyWidgetContent.length) {
+      final item = _historyWidgetContent[_selectedHistoryItemIndex!];
 
       if (item.fenAfterMove != null) {
         tryToSetHistoryPosition(
@@ -532,11 +533,11 @@ class _GamePageState extends State<GamePage> {
   }
 
   void tryToSetHistoryPosition(
-      {String fen,
-      int lastMoveStartFile,
-      int lastMoveStartRank,
-      int lastMoveEndFile,
-      int lastMoveEndRank}) {
+      {String? fen,
+      int? lastMoveStartFile,
+      int? lastMoveStartRank,
+      int? lastMoveEndFile,
+      int? lastMoveEndRank}) {
     if (!_gameInProgress) {
       if (fen != null) {
         setState(() {
@@ -549,8 +550,10 @@ class _GamePageState extends State<GamePage> {
         });
       } else {
         setState(() {
-          _boardState = board_logic.Chess();
-          _boardState.load(_startPosition);
+          if (_startPosition != null) {
+            _boardState = board_logic.Chess();
+            _boardState.load(_startPosition);
+          }
           _lastMoveStartFile = null;
           _lastMoveStartRank = null;
           _lastMoveEndFile = null;
@@ -568,10 +571,10 @@ class _GamePageState extends State<GamePage> {
     });
     await showOkAlertDialog(
       context: context,
-      okLabel: AppLocalizations.of(context).okButton,
+      okLabel: AppLocalizations.of(context)?.okButton,
       message: AppLocalizations.of(context)
-          .badMoveMessage(ex.moveFan, ex.expectedMovesFanList),
-      title: AppLocalizations.of(context).badMoveTitle,
+          ?.badMoveMessage(ex.moveFan, ex.expectedMovesFanList),
+      title: AppLocalizations.of(context)?.badMoveTitle,
     );
   }
 
@@ -580,9 +583,9 @@ class _GamePageState extends State<GamePage> {
       'Laurent Bernabé',
       '2021',
       '',
-      AppLocalizations.of(context).appDescription,
+      AppLocalizations.of(context)?.appDescription ?? '',
       '',
-      AppLocalizations.of(context).creditsSection,
+      AppLocalizations.of(context)?.creditsSection ?? '',
     ];
     List<Widget> results = inputs
         .map(
@@ -601,7 +604,7 @@ class _GamePageState extends State<GamePage> {
   Widget build(BuildContext context) {
     final viewport = MediaQuery.of(context).size;
     final minSize =
-        viewport.width < viewport.height ? viewport.width : viewport.height;
+        viewport.width < (viewport.height) ? viewport.width : viewport.height;
 
     final spinKit = _loading
         ? SpinKitWave(
@@ -686,7 +689,7 @@ class _GamePageState extends State<GamePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context).gamePageTitle,
+          AppLocalizations.of(context)?.gamePageTitle,
         ),
         actions: <Widget>[
           AppBarActions(),
@@ -793,23 +796,23 @@ class GameComponents extends StatelessWidget {
   final void Function() handleHistoryGotoLastItemRequested;
 
   GameComponents(
-      {@required this.commonSize,
-      @required this.blackAtBottom,
-      @required this.fen,
-      @required this.userCanMovePieces,
-      @required this.hasPendingPromotion,
-      @required this.lastMoveVisible,
-      @required this.lastMoveStartFile,
-      @required this.lastMoveStartRank,
-      @required this.lastMoveEndFile,
-      @required this.lastMoveEndRank,
-      @required this.onDragReleased,
-      @required this.commitPromotionMove,
-      @required this.cancelPendingPromotion,
-      @required this.historyWidgetContent,
-      @required this.reactivityEnabled,
-      @required this.startPosition,
-      @required this.selectedItemIndex,
+      {required this.commonSize,
+      required this.blackAtBottom,
+      required this.fen,
+      required this.userCanMovePieces,
+      required this.hasPendingPromotion,
+      required this.lastMoveVisible,
+      required this.lastMoveStartFile,
+      required this.lastMoveStartRank,
+      required this.lastMoveEndFile,
+      required this.lastMoveEndRank,
+      required this.onDragReleased,
+      required this.commitPromotionMove,
+      required this.cancelPendingPromotion,
+      required this.historyWidgetContent,
+      required this.reactivityEnabled,
+      required this.startPosition,
+      required this.selectedItemIndex,
       this.handleHistoryPositionRequested,
       this.handleHistoryItemRequested,
       this.handleHistoryGotoFirstItemRequested,
@@ -862,8 +865,8 @@ class GameComponents extends StatelessWidget {
 
 class GoalLabel extends StatelessWidget {
   const GoalLabel({
-    @required this.goalString,
-    @required this.fontSize,
+    required this.goalString,
+    required this.fontSize,
   });
 
   final String goalString;

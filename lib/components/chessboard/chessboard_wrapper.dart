@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'dart:ui';
 import 'dart:math';
 
@@ -18,14 +17,14 @@ class ChessBoardWrapper extends StatelessWidget {
   final int lastMoveEndRank;
 
   ChessBoardWrapper(
-      {@required this.size,
-      this.reversed,
-      this.blackTurn,
-      this.lastMoveVisible,
-      this.lastMoveStartFile,
-      this.lastMoveStartRank,
-      this.lastMoveEndFile,
-      this.lastMoveEndRank});
+      {required this.size,
+      required this.reversed,
+      required this.blackTurn,
+      required this.lastMoveVisible,
+      required this.lastMoveStartFile,
+      required this.lastMoveStartRank,
+      required this.lastMoveEndFile,
+      required this.lastMoveEndRank});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +78,7 @@ class ChessBoardWrapperPainter extends CustomPainter {
   }
 
   void paintBackground(Canvas canvas, Size size) {
-    final backgroundPaint = Paint()..color = Colors.green[300];
+    final backgroundPaint = Paint()..color = Colors.green.shade300;
     final rect = Offset.zero & size;
     canvas.drawRect(rect, backgroundPaint);
   }
@@ -140,15 +139,12 @@ class ChessBoardWrapperPainter extends CustomPainter {
 
     final circlePaint = Paint()
       ..style = PaintingStyle.fill
-      ..color = blackTurn != null && blackTurn ? Colors.black : Colors.white;
+      ..color = blackTurn ? Colors.black : Colors.white;
     canvas.drawCircle(
         Offset(cellSize * 8.68, cellSize * 8.68), cellSize * 0.24, circlePaint);
   }
 
   void paintLastMoveArrow(Canvas canvas, Size size) {
-    if (lastMoveVisible == null || !lastMoveVisible) return;
-    if (lastMoveStartFile == null || lastMoveStartRank == null) return;
-    if (lastMoveEndFile == null || lastMoveEndRank == null) return;
     final cellSize = cellSizeFrom(size);
 
     final paint = Paint()
@@ -187,7 +183,7 @@ class ChessBoardWrapperPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     if (!(oldDelegate is ChessBoardWrapperPainter)) return false;
-    final castedDelegate = oldDelegate as ChessBoardWrapperPainter;
+    final castedDelegate = oldDelegate;
     return reversed != castedDelegate.reversed ||
         size != castedDelegate.size ||
         blackTurn != castedDelegate.blackTurn ||

@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'chesssquare.dart';
 import 'package:flutter/material.dart';
 import 'chessboard_types.dart';
@@ -11,22 +9,22 @@ class ChessBoardMainZone extends StatefulWidget {
   final double size;
   final bool blackAtBottom;
   final bool userCanMovePieces;
-  final void Function(String startCell, String endCell) onMove;
+  final void Function(String startCell, String endCell)? onMove;
 
   ChessBoardMainZone({
-    @required this.fen,
-    @required this.size,
-    this.blackAtBottom,
-    this.onMove,
-    this.userCanMovePieces,
+    required this.fen,
+    required this.size,
+    required this.onMove,
+    this.blackAtBottom = false,
+    this.userCanMovePieces = true,
   });
 
   _ChessBoardMainZoneState createState() => _ChessBoardMainZoneState();
 }
 
 class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
-  Cell _hoveredCell;
-  Cell _startCell;
+  Cell? _hoveredCell;
+  Cell? _startCell;
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +50,12 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
             final file = widget.blackAtBottom ? 7 - col : col;
             final isWhiteCell = (col + row) % 2 == 0;
             final isDndCrossCell = (_hoveredCell != null) &&
-                (file == _hoveredCell.file || rank == _hoveredCell.rank);
+                (file == (_hoveredCell?.file ?? 0) ||
+                    rank == (_hoveredCell?.rank ?? 0));
             final isTargetCell = (_hoveredCell != null) &&
-                (file == _hoveredCell.file && rank == _hoveredCell.rank);
+                (file == (_hoveredCell?.file) && rank == _hoveredCell?.rank);
             final isStartCell = (_startCell != null) &&
-                (file == _startCell.file && rank == _startCell.rank);
+                (file == _startCell?.file && rank == _startCell?.rank);
             var color = isWhiteCell ? whiteCellColor : blackCellColor;
             if (isStartCell) color = startCellColor;
             if (isDndCrossCell) color = dndCrossCellColor;
@@ -76,12 +75,10 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
                   _hoveredCell = null;
                   _startCell = null;
                 });
-                if (widget.onMove != null) {
-                  widget.onMove(startCell, endCell);
-                  setState(() {
-                    pieces = getPieces();
-                  });
-                }
+                widget.onMove?.call(startCell, endCell);
+                setState(() {
+                  pieces = getPieces();
+                });
               },
               onHover: (squareName) {
                 if (widget.userCanMovePieces == null ||
@@ -112,12 +109,12 @@ class _ChessBoardMainZoneState extends State<ChessBoardMainZone> {
     );
   }
 
-  List<List<String>> getPieces() {
+  List<List<String?>> getPieces() {
     final valuesArray =
         widget.fen.split(" ")[0].split("/").map((line) => line.split(""));
-    var results = <List<String>>[];
+    var results = <List<String?>>[];
     valuesArray.forEach((line) {
-      var lineResults = <String>[];
+      var lineResults = <String?>[];
       line.forEach((element) {
         try {
           var holes = int.parse(element);

@@ -11,3 +11,5 @@ enum PlayerMode {
   /// Otherwise computer just plays the move.
   ReadMoveByUserChoice,
 }
+
+const errorString = '#Error';

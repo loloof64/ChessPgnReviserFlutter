@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'package:chess_pgn_reviser/models/dark_mode_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

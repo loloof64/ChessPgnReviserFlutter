@@ -1,9 +1,8 @@
-// @dart=2.9
-
 import 'package:chess_pgn_reviser/models/dark_mode_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:chess_pgn_reviser/constants.dart';
 
 class AppBarActions extends StatelessWidget {
   List<Widget> buildAboutChildren(BuildContext context) {
@@ -11,9 +10,9 @@ class AppBarActions extends StatelessWidget {
       'Laurent Bernabé',
       '2021',
       '',
-      AppLocalizations.of(context).appDescription,
+      AppLocalizations.of(context)?.appDescription ?? errorString,
       '',
-      AppLocalizations.of(context).creditsSection,
+      AppLocalizations.of(context)?.creditsSection ?? errorString,
     ];
     List<Widget> results = inputs
         .map(

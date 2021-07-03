@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/dark_mode_manager.dart';
@@ -25,13 +24,13 @@ class HistoryWidget extends StatefulWidget {
   final void Function() handleHistoryGotoLastItemRequested;
 
   HistoryWidget(
-      {@required this.width,
-      @required this.height,
-      @required this.content,
-      @required this.reactivityEnabled,
-      @required this.startPosition,
-      @required this.selectedItemIndex,
-      @required this.handleHistoryItemRequested,
+      {required this.width,
+      required this.height,
+      required this.content,
+      required this.reactivityEnabled,
+      required this.startPosition,
+      required this.selectedItemIndex,
+      required this.handleHistoryItemRequested,
       this.handleHistoryPositionRequested,
       this.handleHistoryGotoFirstItemRequested,
       this.handleHistoryGotoPreviousItemRequested,
@@ -104,14 +103,14 @@ class _HistoryWidgetState extends State<HistoryWidget> {
 
 class HistoryItem {
   final String text;
-  final String fenAfterMove;
+  final String? fenAfterMove;
   final int lastMoveStartFile;
   final int lastMoveStartRank;
   final int lastMoveEndFile;
   final int lastMoveEndRank;
 
   HistoryItem({
-    @required this.text,
+    required this.text,
     this.fenAfterMove,
     this.lastMoveStartFile,
     this.lastMoveStartRank,
@@ -139,7 +138,7 @@ class HistoryMainZoneWidget extends StatelessWidget {
   final List<Widget> content;
 
   HistoryMainZoneWidget(
-      {@required this.width, @required this.height, @required this.content});
+      {required this.width, required this.height, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -167,12 +166,12 @@ class HistoryNavigationWidget extends StatelessWidget {
   final bool enabled;
 
   HistoryNavigationWidget(
-      {@required this.height,
-      @required this.onGotoFirstItemRequested,
-      @required this.onGotoPreviousItemRequested,
-      @required this.onGotoNextItemRequested,
-      @required this.onGotoLastItemRequested,
-      @required this.enabled});
+      {required this.height,
+      required this.onGotoFirstItemRequested,
+      required this.onGotoPreviousItemRequested,
+      required this.onGotoNextItemRequested,
+      required this.onGotoLastItemRequested,
+      required this.enabled});
 
   @override
   Widget build(BuildContext context) {
@@ -210,9 +209,9 @@ class HistoryNavigationButton extends StatelessWidget {
   final bool enabled;
 
   HistoryNavigationButton({
-    @required this.imageReference,
-    @required this.onPressed,
-    @required this.enabled,
+    required this.imageReference,
+    required this.onPressed,
+    required this.enabled,
   });
 
   @override

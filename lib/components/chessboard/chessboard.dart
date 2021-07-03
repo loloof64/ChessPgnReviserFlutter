@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'package:flutter/material.dart';
 
 import 'chessboard_wrapper.dart';
@@ -11,25 +10,25 @@ class ChessBoard extends StatelessWidget {
   final bool blackAtBottom;
   final String fen;
 
-  final bool lastMoveVisible;
-  final int lastMoveStartFile;
-  final int lastMoveStartRank;
-  final int lastMoveEndFile;
-  final int lastMoveEndRank;
+  final bool? lastMoveVisible;
+  final int? lastMoveStartFile;
+  final int? lastMoveStartRank;
+  final int? lastMoveEndFile;
+  final int? lastMoveEndRank;
 
-  final bool userCanMovePieces;
+  final bool? userCanMovePieces;
 
-  final bool pendingPromotion;
+  final bool? pendingPromotion;
 
-  final Function(String startCell, String endCell) onDragReleased;
+  final Function(String startCell, String endCell)? onDragReleased;
 
-  final void Function() cancelPendingPromotion;
-  final void Function(String pieceType) commitPromotionMove;
+  final void Function()? cancelPendingPromotion;
+  final void Function(String pieceType)? commitPromotionMove;
 
   ChessBoard(
-      {@required this.size,
-      @required this.blackAtBottom,
-      @required this.fen,
+      {required this.size,
+      required this.blackAtBottom,
+      required this.fen,
       this.lastMoveVisible,
       this.lastMoveStartFile,
       this.lastMoveStartRank,
@@ -53,11 +52,11 @@ class ChessBoard extends StatelessWidget {
         size: mainZoneSize,
         blackAtBottom: blackAtBottom,
         onMove: onDragReleased,
-        userCanMovePieces: userCanMovePieces,
+        userCanMovePieces: userCanMovePieces ?? false,
       )
     ];
 
-    if (pendingPromotion != null && pendingPromotion) {
+    if (pendingPromotion != null && pendingPromotion == true) {
       final blackTurn = fen.split(' ')[1] == 'b';
       stackChildren.add(blackTurn
           ? ChessBoardPromotionZoneBlack(
