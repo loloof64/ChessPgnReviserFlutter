@@ -9,7 +9,6 @@ import 'chessboard/chessboard.dart' as board;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../models/dark_mode_manager.dart';
 
 class GameSelectorResult {
   final int gameIndex;
@@ -421,7 +420,7 @@ class ValidationButton extends StatelessWidget {
           label,
           style: TextStyle(fontSize: fontSize),
         ),
-        style: TextButton.styleFrom(primary: textColor),
+        style: TextButton.styleFrom(foregroundColor: textColor),
         onPressed: onPressed,
       ),
     );
