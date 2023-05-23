@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:chess_pgn_reviser/components/app_bar_actions.dart';
+import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:simple_chess_board/models/board_arrow.dart';
 import 'package:simple_chess_board/models/board_color.dart';
 import 'package:simple_chess_board/models/piece_type.dart';
@@ -440,31 +441,63 @@ class _GamePageState extends State<GamePage> {
 
   Future<PieceType?> _handlePromotion(BuildContext context) {
     final navigator = Navigator.of(context);
+    final whiteTurn = _boardState.turn == board_logic.Color.WHITE;
+    final commonSize = 50.0;
     return showDialog<PieceType>(
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text('Promotion'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text("Queen"),
-                onTap: () => navigator.pop(PieceType.queen),
-              ),
-              ListTile(
-                title: const Text("Rook"),
-                onTap: () => navigator.pop(PieceType.rook),
-              ),
-              ListTile(
-                title: const Text("Bishop"),
-                onTap: () => navigator.pop(PieceType.bishop),
-              ),
-              ListTile(
-                title: const Text("Knight"),
-                onTap: () => navigator.pop(PieceType.knight),
-              ),
-            ],
+          title: Text(
+            AppLocalizations.of(context)?.promotionTitle ?? 'Promotion',
+          ),
+          content: SizedBox(
+            height: commonSize * 1.5,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                InkWell(
+                  child: whiteTurn
+                      ? WhiteQueen(
+                          size: commonSize,
+                        )
+                      : BlackQueen(
+                          size: commonSize,
+                        ),
+                  onTap: () => navigator.pop(PieceType.queen),
+                ),
+                InkWell(
+                  child: whiteTurn
+                      ? WhiteRook(
+                          size: commonSize,
+                        )
+                      : BlackRook(
+                          size: commonSize,
+                        ),
+                  onTap: () => navigator.pop(PieceType.rook),
+                ),
+                InkWell(
+                  child: whiteTurn
+                      ? WhiteBishop(
+                          size: commonSize,
+                        )
+                      : BlackBishop(
+                          size: commonSize,
+                        ),
+                  onTap: () => navigator.pop(PieceType.bishop),
+                ),
+                InkWell(
+                  child: whiteTurn
+                      ? WhiteKnight(
+                          size: commonSize,
+                        )
+                      : BlackKnight(
+                          size: commonSize,
+                        ),
+                  onTap: () => navigator.pop(PieceType.knight),
+                ),
+              ],
+            ),
           ),
         );
       },

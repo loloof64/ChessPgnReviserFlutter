@@ -16,7 +16,7 @@ dependencies:
   intl: ^0.18.0
 
   cupertino_icons: ^1.0.3
-  chess_vectors_flutter: ^1.0.16
+  chess_vectors_flutter: ^1.0.18
   petitparser: ^4.1.0
   file_selector: ^0.8.2
   file_selector_linux: ^0.0.2
@@ -32,6 +32,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.4
 
 flutter:
 

@@ -10,6 +10,8 @@ If you encouter issue when building, you may need to clear cache and reload pack
 
 `flutter pub get`
 
+Also don't forget to update generated translations with `dart run build_runner build`.
+
 ### Linux
 
 `flutter run -d linux`
