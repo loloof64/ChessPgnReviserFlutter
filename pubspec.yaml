@@ -28,6 +28,7 @@ dependencies:
   chess: ^0.8.0
   oktoast: ^3.0.0
   simple_chess_board: ^0.10.0
+  tuple: ^2.0.1
 
 dev_dependencies:
   flutter_test:

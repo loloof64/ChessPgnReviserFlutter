@@ -16,9 +16,9 @@ import 'package:petitparser/context.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:tuple/tuple.dart';
 import '../utils/pgn_parser/pgn_parser.dart';
 import '../components/game_selector.dart';
-import '../components/chessboard/chessboard_types.dart';
 import '../components/history.dart';
 import '../utils/chess_utils.dart' as chess_utils;
 import '../components/header_bar.dart';
@@ -30,6 +30,13 @@ const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
 
 String coordinatesToCellString(int fileIndex, int rankIndex) {
   return "${String.fromCharCode("a".codeUnitAt(0) + fileIndex)}${String.fromCharCode("1".codeUnitAt(0) + rankIndex)}";
+}
+
+Tuple2<int, int> cellStringToCoordinates(String cellStr) {
+  final file = cellStr.codeUnitAt(0) - 'a'.codeUnitAt(0);
+  final rank = cellStr.codeUnitAt(1) - '1'.codeUnitAt(0);
+
+  return Tuple2(file, rank);
 }
 
 class UnexpectedMoveException implements Exception {
@@ -165,16 +172,16 @@ class _GamePageState extends State<GamePage> {
 
   Future<void> commitSingleMove(
       board_logic.Move move, String moveSan, String moveFan) async {
-    final startCell = Cell.fromAlgebraic(move.fromAlgebraic);
-    final endCell = Cell.fromAlgebraic(move.toAlgebraic);
+    final startCell = cellStringToCoordinates(move.fromAlgebraic);
+    final endCell = cellStringToCoordinates(move.toAlgebraic);
 
     _boardState.move(moveSan);
     setState(() {
       _lastMoveVisible = true;
-      _lastMoveStartFile = startCell.file;
-      _lastMoveStartRank = startCell.rank;
-      _lastMoveEndFile = endCell.file;
-      _lastMoveEndRank = endCell.rank;
+      _lastMoveStartFile = startCell.item1;
+      _lastMoveStartRank = startCell.item2;
+      _lastMoveEndFile = endCell.item1;
+      _lastMoveEndRank = endCell.item2;
     });
     processMoveFanIntoHistoryWidgetMoves(
         moveFan, _boardState.turn != board_logic.Color.WHITE);
