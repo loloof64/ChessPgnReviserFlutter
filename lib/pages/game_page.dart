@@ -2,6 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:chess_pgn_reviser/components/app_bar_actions.dart';
+import 'package:simple_chess_board/models/board_arrow.dart';
+import 'package:simple_chess_board/models/board_color.dart';
+import 'package:simple_chess_board/models/piece_type.dart';
+import 'package:simple_chess_board/models/short_move.dart';
+import 'package:simple_chess_board/widgets/chessboard.dart';
 
 import '../constants.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +17,6 @@ import 'package:file_selector/file_selector.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import '../utils/pgn_parser/pgn_parser.dart';
 import '../components/game_selector.dart';
-import '../components/chessboard/chessboard.dart' as board;
 import '../components/chessboard/chessboard_types.dart';
 import '../components/history.dart';
 import '../utils/chess_utils.dart' as chess_utils;
@@ -22,6 +26,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const EMPTY_BOARD = "8/8/8/8/8/8/8/8 w - - 0 1";
+
+String coordinatesToCellString(int fileIndex, int rankIndex) {
+  return "${String.fromCharCode("a".codeUnitAt(0) + fileIndex)}${String.fromCharCode("1".codeUnitAt(0) + rankIndex)}";
+}
 
 class UnexpectedMoveException implements Exception {
   final String moveFan;
@@ -36,8 +44,6 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> {
   board_logic.Chess _boardState = board_logic.Chess.fromFEN(EMPTY_BOARD);
-  bool _pendingPromotion = false;
-  Move? _pendingPromotionMove;
   bool _boardReversed = false;
   bool _lastMoveVisible = false;
   int? _lastMoveStartFile;
@@ -359,44 +365,26 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  Future<void> handleDragReleased(
-      String startCellStr, String endCellStr) async {
+  Future<void> onBoardMove(ShortMove moveArg) async {
+    final startCellStr = moveArg.from;
+    final endCellStr = moveArg.to;
     var boardLogicClone = board_logic.Chess();
     boardLogicClone.load(_boardState.fen);
     final isLegalMove = boardLogicClone
         .move({'from': startCellStr, 'to': endCellStr, 'promotion': 'q'});
     if (isLegalMove) {
-      final startCell = Cell.fromAlgebraic(startCellStr);
-      final endCell = Cell.fromAlgebraic(endCellStr);
-      final isPawn =
-          _boardState.get(startCellStr)?.type == board_logic.PieceType.PAWN;
-      final isWhitePromotion = _boardState.turn == board_logic.Color.WHITE &&
-          startCell.rank == 6 &&
-          endCell.rank == 7;
-      final isBlackPromotion = _boardState.turn == board_logic.Color.BLACK &&
-          startCell.rank == 1 &&
-          endCell.rank == 0;
-      final isPromotion = isPawn && (isWhitePromotion || isBlackPromotion);
+      final promotionType = moveArg.promotion.toNullable();
+      final move = chess_utils.findMoveForPosition(
+          _boardState, startCellStr, endCellStr, promotionType?.name);
 
-      if (isPromotion) {
-        setState(() {
-          _pendingPromotion = true;
-          _pendingPromotionMove = Move(startCell, endCell);
-        });
-        return null;
-      } else {
-        final move = chess_utils.findMoveForPosition(
-            _boardState, startCellStr, endCellStr, null);
+      final moveSan = _boardState.move_to_san(move!);
+      final moveFan = chess_utils.moveFanFromMoveSan(
+          moveSan, _boardState.turn == board_logic.Color.WHITE);
 
-        final moveSan = _boardState.move_to_san(move!);
-        final moveFan = chess_utils.moveFanFromMoveSan(
-            moveSan, _boardState.turn == board_logic.Color.WHITE);
-
-        try {
-          await commitSingleMove(move, moveSan, moveFan);
-        } on UnexpectedMoveException catch (ex) {
-          await handleUnexpectedMove(context, ex);
-        }
+      try {
+        await commitSingleMove(move, moveSan, moveFan);
+      } on UnexpectedMoveException catch (ex) {
+        await handleUnexpectedMove(context, ex);
       }
     }
   }
@@ -434,13 +422,6 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  cancelPendingPromotion() {
-    setState(() {
-      _pendingPromotionMove = null;
-      _pendingPromotion = false;
-    });
-  }
-
   int getMoveIndexFromExpectedMovesList(String moveSan) {
     final expectedMoves = getAvailableMovesAsSanAndFilterByLegalMoves();
     final moveIndex =
@@ -457,39 +438,37 @@ class _GamePageState extends State<GamePage> {
     return moveIndex;
   }
 
-  Future<void> commitPromotionMove(String type) async {
-    final move = chess_utils.findMoveForPosition(
-        _boardState,
-        _pendingPromotionMove?.start.toAlgebraic() ?? '',
-        _pendingPromotionMove?.end.toAlgebraic() ?? '',
-        type);
-
-    final moveSan = _boardState.move_to_san(move!);
-    final moveFan = chess_utils.moveFanFromMoveSan(
-        moveSan, _boardState.turn == board_logic.Color.WHITE);
-
-    _boardState.move(move);
-
-    processMoveFanIntoHistoryWidgetMoves(
-        moveFan, _boardState.turn != board_logic.Color.WHITE);
-
-    setState(() {
-      _lastMoveVisible = true;
-      _lastMoveStartFile = _pendingPromotionMove?.start.file;
-      _lastMoveStartRank = _pendingPromotionMove?.start.rank;
-      _lastMoveEndFile = _pendingPromotionMove?.end.file;
-      _lastMoveEndRank = _pendingPromotionMove?.end.rank;
-    });
-    cancelPendingPromotion();
-
-    try {
-      updateCurrentNode(moveSan, moveFan);
-
-      await tryToMakeComputerPlayRandomMove();
-      return await letUserChooserNextMoveIfAppropriate();
-    } on UnexpectedMoveException catch (ex) {
-      return await handleUnexpectedMove(context, ex);
-    }
+  Future<PieceType?> _handlePromotion(BuildContext context) {
+    final navigator = Navigator.of(context);
+    return showDialog<PieceType>(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Promotion'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text("Queen"),
+                onTap: () => navigator.pop(PieceType.queen),
+              ),
+              ListTile(
+                title: const Text("Rook"),
+                onTap: () => navigator.pop(PieceType.rook),
+              ),
+              ListTile(
+                title: const Text("Bishop"),
+                onTap: () => navigator.pop(PieceType.bishop),
+              ),
+              ListTile(
+                title: const Text("Knight"),
+                onTap: () => navigator.pop(PieceType.knight),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   clearLastMoveArrow() {
@@ -630,25 +609,24 @@ class _GamePageState extends State<GamePage> {
               }),
           GoalLabel(goalString: _goalString, fontSize: minSize * 0.03),
           GameComponents(
+            whiteTurn: _boardState.turn == board_logic.Color.WHITE,
             selectedItemIndex: _selectedHistoryItemIndex,
             startPosition: _startPosition,
             blackAtBottom: _boardReversed,
             commonSize: minSize * 0.65,
             fen: _boardState.fen,
             userCanMovePieces: shouldChessBoardBetInteractive(),
-            hasPendingPromotion: _pendingPromotion,
             lastMoveVisible: _lastMoveVisible,
             lastMoveStartFile: _lastMoveStartFile ?? -1000,
             lastMoveStartRank: _lastMoveStartRank ?? -1000,
             lastMoveEndFile: _lastMoveEndFile ?? -1000,
             lastMoveEndRank: _lastMoveEndRank ?? -1000,
-            onDragReleased: (startCellStr, endCellStr) async {
-              await handleDragReleased(startCellStr, endCellStr);
+            onMove: ({required ShortMove move}) async {
+              await onBoardMove(move);
             },
-            commitPromotionMove: (pieceType) async {
-              await commitPromotionMove(pieceType);
+            onPromote: () async {
+              return await _handlePromotion(context);
             },
-            cancelPendingPromotion: cancelPendingPromotion,
             historyWidgetContent: _historyWidgetContent,
             reactivityEnabled: !_gameInProgress,
             handleHistoryPositionRequested: tryToSetHistoryPosition,
@@ -766,16 +744,15 @@ class GameComponents extends StatelessWidget {
   final double commonSize;
   final bool blackAtBottom;
   final String fen;
+  final bool whiteTurn;
   final bool userCanMovePieces;
-  final bool hasPendingPromotion;
   final bool lastMoveVisible;
   final int lastMoveStartFile;
   final int lastMoveStartRank;
   final int lastMoveEndFile;
   final int lastMoveEndRank;
-  final void Function(String startCell, String endCell) onDragReleased;
-  final void Function(String pieceType) commitPromotionMove;
-  final void Function() cancelPendingPromotion;
+  final void Function({required ShortMove move}) onMove;
+  final Future<PieceType?> Function() onPromote;
   final List<HistoryItem> historyWidgetContent;
   final bool reactivityEnabled;
   final String startPosition;
@@ -797,16 +774,15 @@ class GameComponents extends StatelessWidget {
       {required this.commonSize,
       required this.blackAtBottom,
       required this.fen,
+      required this.whiteTurn,
       required this.userCanMovePieces,
-      required this.hasPendingPromotion,
       required this.lastMoveVisible,
       required this.lastMoveStartFile,
       required this.lastMoveStartRank,
       required this.lastMoveEndFile,
       required this.lastMoveEndRank,
-      required this.onDragReleased,
-      required this.commitPromotionMove,
-      required this.cancelPendingPromotion,
+      required this.onMove,
+      required this.onPromote,
       required this.historyWidgetContent,
       required this.reactivityEnabled,
       required this.startPosition,
@@ -823,20 +799,31 @@ class GameComponents extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        board.ChessBoard(
-          fen: fen,
-          size: commonSize,
-          userCanMovePieces: userCanMovePieces,
-          onDragReleased: onDragReleased,
-          blackAtBottom: blackAtBottom,
-          lastMoveVisible: lastMoveVisible,
-          lastMoveStartFile: lastMoveStartFile,
-          lastMoveStartRank: lastMoveStartRank,
-          lastMoveEndFile: lastMoveEndFile,
-          lastMoveEndRank: lastMoveEndRank,
-          pendingPromotion: hasPendingPromotion,
-          commitPromotionMove: commitPromotionMove,
-          cancelPendingPromotion: cancelPendingPromotion,
+        Container(
+          width: commonSize,
+          height: commonSize,
+          child: SimpleChessBoard(
+            fen: fen,
+            orientation: blackAtBottom ? BoardColor.black : BoardColor.white,
+            whitePlayerType: whiteTurn && userCanMovePieces
+                ? PlayerType.human
+                : PlayerType.computer,
+            blackPlayerType: !whiteTurn && userCanMovePieces
+                ? PlayerType.human
+                : PlayerType.computer,
+            onMove: onMove,
+            onPromote: onPromote,
+            chessBoardColors: ChessBoardColors(),
+            engineThinking: false,
+            lastMoveToHighlight: lastMoveVisible
+                ? BoardArrow(
+                    from: coordinatesToCellString(
+                        lastMoveStartFile, lastMoveStartRank),
+                    to: coordinatesToCellString(
+                        lastMoveEndFile, lastMoveEndRank))
+                : null,
+            showCoordinatesZone: true,
+          ),
         ),
         HistoryWidget(
           handleHistoryItemRequested: handleHistoryItemRequested,
