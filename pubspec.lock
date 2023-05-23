@@ -173,6 +173,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.1.0"
+  fpdart:
+    dependency: transitive
+    description:
+      name: fpdart
+      sha256: "2c8078716966f6bb8b723a73ba44842787860d0c8d83c6912e78f3d7b204e444"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   http:
     dependency: transitive
     description:
@@ -281,10 +289,10 @@ packages:
     dependency: "direct main"
     description:
       name: provider
-      sha256: "59471e0a4595e264625d3496af567ac85bdae1148ec985aff1e0555786f53ecf"
+      sha256: cdbe7530b12ecd9eb455bdaa2fcb8d4dad22e80b8afb4798b41479d5ce26847f
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "6.0.5"
   quiver:
     dependency: transitive
     description:
@@ -293,6 +301,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  simple_chess_board:
+    dependency: "direct main"
+    description:
+      name: simple_chess_board
+      sha256: "86aff056188c17c78cfa28b57a15b20ed39f76db01d18e058ce84b6a61d643ce"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
   sky_engine:
     dependency: transitive
     description: flutter
