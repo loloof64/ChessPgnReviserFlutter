@@ -177,10 +177,10 @@ packages:
     dependency: transitive
     description:
       name: fpdart
-      sha256: "2c8078716966f6bb8b723a73ba44842787860d0c8d83c6912e78f3d7b204e444"
+      sha256: "4a0d047c3359a4bdd19e4941603bbe394bd133b3772a38049e17f9534d47106e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.6.0"
   http:
     dependency: transitive
     description:
@@ -305,10 +305,10 @@ packages:
     dependency: "direct main"
     description:
       name: simple_chess_board
-      sha256: "86aff056188c17c78cfa28b57a15b20ed39f76db01d18e058ce84b6a61d643ce"
+      sha256: ab5b3a25d85004df5e7809c3fe1e4fbfd02e12aa64b674d35d4058414f82849f
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0"
+    version: "0.10.0"
   sky_engine:
     dependency: transitive
     description: flutter

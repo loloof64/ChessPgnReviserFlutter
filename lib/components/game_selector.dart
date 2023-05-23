@@ -178,6 +178,8 @@ class _GameSelectorState extends State<GameSelector> {
                         onPromote: () {
                           return Future.value(null);
                         },
+                        onPromotionCommited: ({required ShortMove moveDone}) =>
+                            {},
                         engineThinking: false,
                         lastMoveToHighlight: null,
                         showCoordinatesZone: true,

@@ -627,6 +627,9 @@ class _GamePageState extends State<GamePage> {
             onPromote: () async {
               return await _handlePromotion(context);
             },
+            onPromotionCommited: ({required ShortMove moveDone}) async {
+              await onBoardMove(moveDone);
+            },
             historyWidgetContent: _historyWidgetContent,
             reactivityEnabled: !_gameInProgress,
             handleHistoryPositionRequested: tryToSetHistoryPosition,
@@ -753,6 +756,7 @@ class GameComponents extends StatelessWidget {
   final int lastMoveEndRank;
   final void Function({required ShortMove move}) onMove;
   final Future<PieceType?> Function() onPromote;
+  final void Function({required ShortMove moveDone}) onPromotionCommited;
   final List<HistoryItem> historyWidgetContent;
   final bool reactivityEnabled;
   final String startPosition;
@@ -783,6 +787,7 @@ class GameComponents extends StatelessWidget {
       required this.lastMoveEndRank,
       required this.onMove,
       required this.onPromote,
+      required this.onPromotionCommited,
       required this.historyWidgetContent,
       required this.reactivityEnabled,
       required this.startPosition,
@@ -813,6 +818,7 @@ class GameComponents extends StatelessWidget {
                 : PlayerType.computer,
             onMove: onMove,
             onPromote: onPromote,
+            onPromotionCommited: onPromotionCommited,
             chessBoardColors: ChessBoardColors(),
             engineThinking: false,
             lastMoveToHighlight: lastMoveVisible
