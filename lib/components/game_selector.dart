@@ -5,7 +5,7 @@ import 'package:chess_pgn_reviser/models/dark_mode_manager.dart';
 import '../../constants.dart';
 import 'package:flutter/material.dart';
 import "package:chess/chess.dart" as board_logic;
-import 'chessboard/chessboard.dart' as board;
+import 'package:simple_chess_board/simple_chess_board.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -164,10 +164,24 @@ class _GameSelectorState extends State<GameSelector> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    board.ChessBoard(
-                      size: size,
-                      fen: fen,
-                      blackAtBottom: isBlackTurn(),
+                    Container(
+                      width: size,
+                      height: size,
+                      child: SimpleChessBoard(
+                        fen: fen,
+                        orientation:
+                            isBlackTurn() ? BoardColor.black : BoardColor.white,
+                        chessBoardColors: ChessBoardColors(),
+                        whitePlayerType: PlayerType.computer,
+                        blackPlayerType: PlayerType.computer,
+                        onMove: ({required ShortMove move}) => {},
+                        onPromote: () {
+                          return Future.value(null);
+                        },
+                        engineThinking: false,
+                        lastMoveToHighlight: null,
+                        showCoordinatesZone: true,
+                      ),
                     ),
                     ModeSettingZone(
                       whiteMode: _whiteMode,
