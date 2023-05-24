@@ -147,6 +147,18 @@
     "promotionTitle": "Promotion",
     "@promotionTitle": {
       "description": "Title for promotion piece selection on board."
+    },
+    "sessionOption": "Session mode",
+    "@sessionOption": {
+      "description": "Session mode option for game selection screen."
+    },
+    "sessionCountLabel": "Success count per branch",
+    "@sessionCountLabel": {
+      "description": "Number of successful attempts requested per brach (in session mode)."
+    },
+    "completionTargetParseError": "Setting count per branch to 3, as given input is invalid.",
+    "@completionTargetParseError": {
+      "description": "Error message when failing to parse completion target value from user."
     }
 
 }

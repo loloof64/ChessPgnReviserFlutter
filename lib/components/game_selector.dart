@@ -11,7 +11,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class GameSelectorResult {
+  final bool sessionMode;
   final int gameIndex;
+  final int completionTarget;
   final PlayerMode whiteMode;
   final PlayerMode blackMode;
 
@@ -19,6 +21,8 @@ class GameSelectorResult {
     required this.gameIndex,
     required this.whiteMode,
     required this.blackMode,
+    required this.sessionMode,
+    required this.completionTarget,
   });
 }
 
@@ -37,6 +41,37 @@ class _GameSelectorState extends State<GameSelector> {
   int _gameIndex = 0;
   PlayerMode _whiteMode = PlayerMode.GuessMove;
   PlayerMode _blackMode = PlayerMode.GuessMove;
+  bool _sessionModeSelected = false;
+  late String _sessionModeText;
+  late TextEditingController _completionTargetController;
+
+  @override
+  void initState() {
+    super.initState();
+    _completionTargetController = TextEditingController(text: '0');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _completionTargetController.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    updatetSessionModeText();
+  }
+
+  void updatetSessionModeText() {
+    setState(() {
+      if (_sessionModeSelected) {
+        _sessionModeText = AppLocalizations.of(context)?.yesButton ?? 'Yes';
+      } else {
+        _sessionModeText = AppLocalizations.of(context)?.noButton ?? 'No';
+      }
+    });
+  }
 
   gotoFirst() {
     setState(() {
@@ -67,12 +102,30 @@ class _GameSelectorState extends State<GameSelector> {
   }
 
   validate(BuildContext context) {
+    var completionTarget = int.tryParse(_completionTargetController.text);
+
+    if (completionTarget == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)?.completionTargetParseError ??
+                'Setting count per branch to 3, as given input is invalid.',
+          ),
+        ),
+      );
+      completionTarget = 3;
+    }
+
     Navigator.pop(
-        context,
-        GameSelectorResult(
-            gameIndex: _gameIndex,
-            whiteMode: _whiteMode,
-            blackMode: _blackMode));
+      context,
+      GameSelectorResult(
+        gameIndex: _gameIndex,
+        whiteMode: _whiteMode,
+        blackMode: _blackMode,
+        sessionMode: _sessionModeSelected,
+        completionTarget: completionTarget,
+      ),
+    );
   }
 
   resetText() {
@@ -128,7 +181,7 @@ class _GameSelectorState extends State<GameSelector> {
     final fen = currentFen();
     final navigationButtonsSize = size * 0.05;
     final validationButtonsFontSize = size * 0.08;
-    final validationButtonsPadding = size * 0.016;
+    final validationButtonsPadding = size * 0.010;
     final navigationFontSize = size * 0.08;
 
     TextEditingController textController =
@@ -137,7 +190,8 @@ class _GameSelectorState extends State<GameSelector> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-              AppLocalizations.of(context)?.gameSelectorTitle ?? errorString),
+            AppLocalizations.of(context)?.gameSelectorTitle ?? errorString,
+          ),
           actions: [
             AppBarActions(),
           ],
@@ -145,19 +199,77 @@ class _GameSelectorState extends State<GameSelector> {
         body: Center(
           child: Column(
             children: [
-              NavigationProgress(
-                fontSize: navigationFontSize,
-                gamesCount: widget.games.length,
-                indexFieldController: textController,
-                indexFieldWidth: size * 0.16,
-                onIndexFieldSubmitted: (value) => tryNavigatingAt(value),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  NavigationProgress(
+                    fontSize: navigationFontSize,
+                    gamesCount: widget.games.length,
+                    indexFieldController: textController,
+                    indexFieldWidth: size * 0.16,
+                    onIndexFieldSubmitted: (value) => tryNavigatingAt(value),
+                  ),
+                  SizedBox(
+                    width: 4.0,
+                  ),
+                  NavigationZone(
+                    buttonsSize: navigationButtonsSize,
+                    onGotoFirst: gotoFirst,
+                    onGotoNext: gotoNext,
+                    onGotoLast: gotoLast,
+                    onGotoPrevious: gotoPrevious,
+                  ),
+                ],
               ),
-              NavigationZone(
-                buttonsSize: navigationButtonsSize,
-                onGotoFirst: gotoFirst,
-                onGotoNext: gotoNext,
-                onGotoLast: gotoLast,
-                onGotoPrevious: gotoPrevious,
+              SizedBox(
+                height: 4.0,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(AppLocalizations.of(context)?.sessionOption ??
+                      'Session mode'),
+                  SizedBox(
+                    width: 20.0,
+                  ),
+                  Switch(
+                      value: _sessionModeSelected,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _sessionModeSelected = newValue;
+                        });
+                        updatetSessionModeText();
+                      }),
+                  SizedBox(
+                    width: 8.0,
+                  ),
+                  Text(_sessionModeText),
+                  if (_sessionModeSelected)
+                    SizedBox(
+                      width: 8.0,
+                    ),
+                  if (_sessionModeSelected)
+                    Text(
+                      AppLocalizations.of(context)?.sessionCountLabel ??
+                          'Success per branch',
+                    ),
+                  if (_sessionModeSelected)
+                    SizedBox(
+                      width: 8.0,
+                    ),
+                  if (_sessionModeSelected)
+                    SizedBox(
+                      width: 30.0,
+                      child: TextField(
+                        controller: _completionTargetController,
+                      ),
+                    )
+                ],
+              ),
+              SizedBox(
+                height: 4.0,
               ),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 9.0),
@@ -383,8 +495,8 @@ class ValidationZone extends StatelessWidget {
   final void Function()? onCancel;
 
   ValidationZone(
-      {this.buttonsFontSize = 18.0,
-      this.buttonsPadding = 10.0,
+      {this.buttonsFontSize = 12.0,
+      this.buttonsPadding = 8.0,
       this.onValidate,
       this.onCancel});
 

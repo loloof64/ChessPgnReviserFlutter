@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:chess_pgn_reviser/components/app_bar_actions.dart';
+import 'package:chess_pgn_reviser/utils/game_statistics.dart';
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:simple_chess_board/models/board_arrow.dart';
 import 'package:simple_chess_board/models/board_color.dart';
@@ -54,6 +55,10 @@ class _GamePageState extends State<GamePage> {
   board_logic.Chess _boardState = board_logic.Chess.fromFEN(EMPTY_BOARD);
   bool _boardReversed = false;
   bool _lastMoveVisible = false;
+  bool _sessionMode = false;
+  int _variationsCount = 0;
+  int _completedVariations = 0;
+  int _completionTarget = 3;
   int? _lastMoveStartFile;
   int? _lastMoveStartRank;
   int? _lastMoveEndFile;
@@ -270,10 +275,25 @@ class _GamePageState extends State<GamePage> {
       if (startFen == null) startFen = board_logic.Chess.DEFAULT_POSITION;
 
       setState(() {
+        _sessionMode = gameData.sessionMode;
         _referenceGame = game;
         _whiteMode = gameData.whiteMode;
         _blackMode = gameData.blackMode;
         _parentNode = game['moves']['pgn'];
+
+        if (_sessionMode) {
+          //TODO _completionTarget = 3;
+          _variationsCount = variationsCount(_parentNode as List<dynamic>);
+          _completedVariations = completedVariationsCount(
+            _parentNode as List<dynamic>,
+            _completionTarget,
+            _whiteMode == PlayerMode.GuessMove,
+            _blackMode == PlayerMode.GuessMove,
+          );
+          ////////////////////////
+          print("$_completedVariations/$_variationsCount");
+          ////////////////////////
+        }
         _currentNodeIndex = 0;
         _startPosition = startFen!;
         final firstMove = _referenceGame['moves']['pgn'];
