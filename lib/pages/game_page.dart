@@ -64,6 +64,7 @@ class _GamePageState extends State<GamePage> {
   int? _lastMoveEndFile;
   int? _lastMoveEndRank;
   String _goalString = "";
+  String _startFen = board_logic.Chess.DEFAULT_POSITION;
   bool _gameInProgress = false;
   List<HistoryItem> _historyWidgetContent = [];
   var _referenceGame;
@@ -71,6 +72,7 @@ class _GamePageState extends State<GamePage> {
   String _startPosition = '8/8/8/8/8/8/8/8 w - - 0 1';
   int _currentNodeIndex = 0;
   var _parentNode;
+  var _rootNode;
   int? _selectedHistoryItemIndex;
   PlayerMode _whiteMode = PlayerMode.GuessMove;
   PlayerMode _blackMode = PlayerMode.GuessMove;
@@ -275,14 +277,16 @@ class _GamePageState extends State<GamePage> {
       if (startFen == null) startFen = board_logic.Chess.DEFAULT_POSITION;
 
       setState(() {
+        _startFen = startFen!;
         _sessionMode = gameData.sessionMode;
         _referenceGame = game;
         _whiteMode = gameData.whiteMode;
         _blackMode = gameData.blackMode;
-        _parentNode = game['moves']['pgn'];
+        _rootNode = game['moves']['pgn'];
+        _parentNode = _rootNode;
 
         if (_sessionMode) {
-          //TODO _completionTarget = 3;
+          _completionTarget = gameData.completionTarget;
           _variationsCount = variationsCount(_parentNode as List<dynamic>);
           _completedVariations = completedVariationsCount(
             _parentNode as List<dynamic>,
@@ -290,21 +294,9 @@ class _GamePageState extends State<GamePage> {
             _whiteMode == PlayerMode.GuessMove,
             _blackMode == PlayerMode.GuessMove,
           );
-          ////////////////////////
-          print("$_completedVariations/$_variationsCount");
-          ////////////////////////
         }
-        _currentNodeIndex = 0;
-        _startPosition = startFen!;
-        final firstMove = _referenceGame['moves']['pgn'];
-        _moveNumber = firstMove.length > 0 ? firstMove[0]['moveNumber'] : 1;
-        final blackTurn =
-            firstMove.length > 0 ? firstMove[0]['turn'] != 'w' : false;
-        _historyWidgetContent.clear();
-        _historyWidgetContent
-            .add(HistoryItem.moveNumber(_moveNumber, blackTurn));
         _goalString = _getGameGoal(game);
-        _boardState = board_logic.Chess.fromFEN(fen);
+        _startNewGameLoop();
         _boardReversed = fen.split(" ")[1] == "b";
         _gameInProgress = true;
       });
@@ -321,6 +313,25 @@ class _GamePageState extends State<GamePage> {
       Completer().completeError(ex, stacktrace);
       showToast(AppLocalizations.of(context)?.couldNotLoadPgn ?? errorString);
     }
+  }
+
+  void _startNewGameLoop() {
+    setState(() {
+      _lastMoveVisible = false;
+      _lastMoveStartFile = -1;
+      _lastMoveStartRank = -1;
+      _lastMoveEndFile = -1;
+      _lastMoveEndRank = -1;
+      _currentNodeIndex = 0;
+      _startPosition = _startFen;
+      final firstMove = _referenceGame['moves']['pgn'];
+      _moveNumber = firstMove.length > 0 ? firstMove[0]['moveNumber'] : 1;
+      final blackTurn =
+          firstMove.length > 0 ? firstMove[0]['turn'] != 'w' : false;
+      _historyWidgetContent.clear();
+      _historyWidgetContent.add(HistoryItem.moveNumber(_moveNumber, blackTurn));
+      _boardState = board_logic.Chess.fromFEN(_startFen);
+    });
   }
 
   List<String> getAvailableMovesAsSanAndFilterByLegalMoves() {
@@ -358,7 +369,7 @@ class _GamePageState extends State<GamePage> {
     }).toList();
   }
 
-  Future<void> startNewGame(BuildContext context) async {
+  Future<void> purposeStartNewGame(BuildContext context) async {
     final boardNotEmpty = _boardState.fen != EMPTY_BOARD;
     if (boardNotEmpty) {
       final confirmed = await showOkCancelAlertDialog(
@@ -374,7 +385,7 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  Future<void> stopCurrentGame(BuildContext contex) async {
+  Future<void> purposeStopCurrentGame(BuildContext contex) async {
     if (_gameInProgress) {
       final confirmed = await showOkCancelAlertDialog(
         context: context,
@@ -412,7 +423,7 @@ class _GamePageState extends State<GamePage> {
       try {
         await commitSingleMove(move, moveSan, moveFan);
       } on UnexpectedMoveException catch (ex) {
-        await handleUnexpectedMove(context, ex);
+        await handleUnexpectedMove(ex);
       }
     }
   }
@@ -598,12 +609,22 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  Future<void> handleUnexpectedMove(
-      BuildContext context, UnexpectedMoveException ex) async {
-    setState(() {
-      _gameInProgress = false;
-      tryToGoToLastItem();
-    });
+  Future<void> handleUnexpectedMove(UnexpectedMoveException ex) async {
+    if (_sessionMode) {
+      await _showErrorToUser(ex);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)?.restartingSessionLoop ??
+              'Restarting game loop because of error.'),
+        ),
+      );
+      _startNewGameLoop();
+    } else {
+      await _endGameImmediatelyBecauseOfError(ex);
+    }
+  }
+
+  Future<void> _showErrorToUser(UnexpectedMoveException ex) async {
     await showOkAlertDialog(
       context: context,
       okLabel: AppLocalizations.of(context)?.okButton,
@@ -611,6 +632,15 @@ class _GamePageState extends State<GamePage> {
           ?.badMoveMessage(ex.moveFan, ex.expectedMovesFanList),
       title: AppLocalizations.of(context)?.badMoveTitle,
     );
+  }
+
+  Future<void> _endGameImmediatelyBecauseOfError(
+      UnexpectedMoveException ex) async {
+    setState(() {
+      _gameInProgress = false;
+      tryToGoToLastItem();
+    });
+    await _showErrorToUser(ex);
   }
 
   List<Widget> buildAboutChildren() {
@@ -654,14 +684,16 @@ class _GamePageState extends State<GamePage> {
           )
         : null;
 
+    final progressionString = "$_completedVariations/$_variationsCount";
+
     List<Widget> children = <Widget>[
       Column(
         children: <Widget>[
           HeaderBar(
               width: viewport.width * 0.8,
               height: viewport.height * 0.1,
-              startGame: () async => await startNewGame(context),
-              stopGame: () async => await stopCurrentGame(context),
+              startGame: () async => await purposeStartNewGame(context),
+              stopGame: () async => await purposeStopCurrentGame(context),
               reverseBoard: () {
                 setState(() {
                   _boardReversed = !_boardReversed;
@@ -716,6 +748,9 @@ class _GamePageState extends State<GamePage> {
             gameInProgress: _gameInProgress,
             whiteMode: _whiteMode,
             blackMode: _blackMode,
+            isSessionMode: _sessionMode,
+            progressionString: progressionString,
+            goalPerBranch: _completionTarget,
           )
         ],
       ),

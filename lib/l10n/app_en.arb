@@ -159,6 +159,18 @@
     "completionTargetParseError": "Setting count per branch to 3, as given input is invalid.",
     "@completionTargetParseError": {
       "description": "Error message when failing to parse completion target value from user."
+    },
+    "sessionProgression": "Progression",
+    "@sessionProgression": {
+      "description": "Progression in session mode."
+    },
+    "goalPerBranch": "Goal per branch",
+    "@goalPerBranch": {
+      "description": "The goal count per branch, in session mode."
+    },
+    "restartingSessionLoop": "Restarting game loop because of error.",
+    "@restartingSessionLoop": {
+      "description": "Message for when restarting game loop because of error"
     }
 
 }

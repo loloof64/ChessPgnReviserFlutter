@@ -35,5 +35,8 @@
     "promotionTitle": "Promotion",
     "sessionOption": "Mode session",
     "sessionCountLabel": "Nombre de succès par branche",
-    "completionTargetParseError": "Le compte par branche est fixé à 3, comme la valeur donnée est incorrecte."
+    "completionTargetParseError": "Le compte par branche est fixé à 3, comme la valeur donnée est incorrecte.",
+    "sessionProgression": "Progression",
+    "goalPerBranch": "Objectif par branche",
+    "restartingSessionLoop": "Relance de la boucle du jeu à cause d'une erreur."
 }

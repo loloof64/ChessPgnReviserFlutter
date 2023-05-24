@@ -35,5 +35,8 @@
     "promotionTitle": "Promoción",
     "sessionOption": "Modo sesión",
     "sessionCountLabel": "Recuento de éxitos por rama",
-    "completionTargetParseError": "Establecer el recuento por rama en 3, ya que la entrada dada no es válida."
+    "completionTargetParseError": "Establecer el recuento por rama en 3, ya que la entrada dada no es válida.",
+    "sessionProgression": "Progresión",
+    "goalPerBranch": "Gol por ramificación",
+    "restartingSessionLoop": "Reiniciando el bucle del juego debido a un error."
 }

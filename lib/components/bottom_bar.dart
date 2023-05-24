@@ -5,6 +5,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BottomBar extends StatelessWidget {
   final bool gameInProgress;
+  final bool isSessionMode;
+  final int goalPerBranch;
+  final String progressionString;
   final PlayerMode whiteMode;
   final PlayerMode blackMode;
 
@@ -12,6 +15,9 @@ class BottomBar extends StatelessWidget {
     required this.gameInProgress,
     required this.whiteMode,
     required this.blackMode,
+    required this.goalPerBranch,
+    required this.isSessionMode,
+    required this.progressionString,
   });
 
   @override
@@ -104,7 +110,14 @@ class BottomBar extends StatelessWidget {
                 style: textStyle,
               )
             ],
-          )
+          ),
+          if (isSessionMode)
+            Text(
+                "${AppLocalizations.of(context)?.sessionProgression ?? 'Progression'} $progressionString"),
+          if (isSessionMode)
+            Text(
+              "${AppLocalizations.of(context)?.goalPerBranch ?? 'Goal per branch'} : $goalPerBranch",
+            ),
         ],
       );
     } else {
