@@ -126,9 +126,6 @@ class _GamePageState extends State<GamePage> {
         _whiteMode == PlayerMode.GuessMove,
         _blackMode == PlayerMode.GuessMove,
       );
-      //////////////////
-      if (_sessionMode) print(completedLine);
-      //////////////////
       final weCanExit = _sessionMode
           ? (selectedMove != null && !completedLine)
           : selectedMove != null;
@@ -450,8 +447,10 @@ class _GamePageState extends State<GamePage> {
 
     setState(() {
       if (moveIndex == 0) {
+        // going on main variation
         _currentNodeIndex++;
       } else {
+        // going into sub variation
         _parentNode =
             _parentNode[_currentNodeIndex]['variations'][moveIndex - 1]['pgn'];
         _currentNodeIndex = 1;
@@ -509,8 +508,8 @@ class _GamePageState extends State<GamePage> {
       okLabel: AppLocalizations.of(context)?.okButton,
       title: AppLocalizations.of(context)?.userCongratulationTitle,
       message: _sessionMode
-          ? AppLocalizations.of(context)?.userCongratulationMessageSimple
-          : AppLocalizations.of(context)?.userCongratulationMessageSession,
+          ? AppLocalizations.of(context)?.userCongratulationMessageSession
+          : AppLocalizations.of(context)?.userCongratulationMessageSimple,
     );
   }
 
