@@ -107,9 +107,13 @@
     "@userCongratulationTitle": {
       "description": "Title for the dialog of the congratulations."
     },
-    "userCongratulationMessage": "Congratulations ! You found all moves.",
-    "@userCongratulationMessage": {
-      "description": "Message for the dialog of the congratulations."
+    "userCongratulationMessageSimple": "Congratulations ! You found all moves.",
+    "@userCongratulationMessageSimple": {
+      "description": "Message for the dialog of the congratulations (in simple mode)."
+    },
+    "userCongratulationMessageSession": "Congratulations ! You found all moves for all variation.",
+    "@userCongratulationMessageSession": {
+      "description": "Message for the dialog of the congratulations (in session mode)."
     },
     "badMoveTitle": "Bad move",
     "@badMoveTitle": {
@@ -168,8 +172,12 @@
     "@goalPerBranch": {
       "description": "The goal count per branch, in session mode."
     },
-    "restartingSessionLoop": "Restarting game loop because of error.",
-    "@restartingSessionLoop": {
+    "restartingSessionLoopSuccess": "Restarting game loop following a sucess.",
+    "@restartingSessionLoopSuccess": {
+      "description": "Message for when restarting game loop because of sucess"
+    },
+    "restartingSessionLoopError": "Restarting game loop because of error.",
+    "@restartingSessionLoopError": {
       "description": "Message for when restarting game loop because of error"
     }
 

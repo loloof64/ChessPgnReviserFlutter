@@ -118,13 +118,28 @@ class _GamePageState extends State<GamePage> {
     do {
       selectedMoveIndex = Random().nextInt(movesList.length);
       selectedMove = movesList[selectedMoveIndex];
-    } while (selectedMove == null);
+      final selectedMoveParentNode =
+          getMoveParentNodeInCurrentLine(movesSanList[selectedMoveIndex]);
+      final completedLine = isCompleted(
+        selectedMoveParentNode,
+        _completionTarget,
+        _whiteMode == PlayerMode.GuessMove,
+        _blackMode == PlayerMode.GuessMove,
+      );
+      //////////////////
+      if (_sessionMode) print(completedLine);
+      //////////////////
+      final weCanExit = _sessionMode
+          ? (selectedMove != null && !completedLine)
+          : selectedMove != null;
+      if (weCanExit) break;
+    } while (true);
     final moveSan = movesSanList[selectedMoveIndex];
 
     final moveFan = chess_utils.moveFanFromMoveSan(
         moveSan, _boardState.turn == board_logic.Color.WHITE);
 
-    return await commitSingleMove(selectedMove, moveSan, moveFan);
+    return await commitSingleMove(selectedMove!, moveSan, moveFan);
   }
 
   Future<void> letUserChooserNextMoveIfAppropriate() async {
@@ -192,7 +207,7 @@ class _GamePageState extends State<GamePage> {
     });
     processMoveFanIntoHistoryWidgetMoves(
         moveFan, _boardState.turn != board_logic.Color.WHITE);
-    updateCurrentNode(moveSan, moveFan);
+    await updateCurrentNode(moveSan, moveFan);
 
     await tryToMakeComputerPlayRandomMove();
     return await letUserChooserNextMoveIfAppropriate();
@@ -296,16 +311,11 @@ class _GamePageState extends State<GamePage> {
           );
         }
         _goalString = _getGameGoal(game);
-        _startNewGameLoop();
         _boardReversed = fen.split(" ")[1] == "b";
         _gameInProgress = true;
-      });
-      clearLastMoveArrow();
-      await tryToMakeComputerPlayRandomMove();
-      await letUserChooserNextMoveIfAppropriate();
-      setState(() {
         _loading = false;
       });
+      await _startNewGameLoop();
     } catch (ex, stacktrace) {
       setState(() {
         _loading = false;
@@ -315,23 +325,22 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  void _startNewGameLoop() {
+  Future<void> _startNewGameLoop() async {
     setState(() {
-      _lastMoveVisible = false;
-      _lastMoveStartFile = -1;
-      _lastMoveStartRank = -1;
-      _lastMoveEndFile = -1;
-      _lastMoveEndRank = -1;
-      _currentNodeIndex = 0;
+      clearLastMoveArrow();
       _startPosition = _startFen;
       final firstMove = _referenceGame['moves']['pgn'];
       _moveNumber = firstMove.length > 0 ? firstMove[0]['moveNumber'] : 1;
       final blackTurn =
           firstMove.length > 0 ? firstMove[0]['turn'] != 'w' : false;
+      _parentNode = _rootNode;
+      _currentNodeIndex = 0;
       _historyWidgetContent.clear();
       _historyWidgetContent.add(HistoryItem.moveNumber(_moveNumber, blackTurn));
       _boardState = board_logic.Chess.fromFEN(_startFen);
     });
+    await tryToMakeComputerPlayRandomMove();
+    await letUserChooserNextMoveIfAppropriate();
   }
 
   List<String> getAvailableMovesAsSanAndFilterByLegalMoves() {
@@ -428,7 +437,15 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
-  updateCurrentNode(String moveSan, String moveFan) {
+  dynamic getMoveParentNodeInCurrentLine(String moveSan) {
+    final moveIndex = getMoveIndexFromExpectedMovesList(moveSan);
+    if (moveIndex == 0)
+      return _parentNode;
+    else
+      return _parentNode[_currentNodeIndex]['variations'][moveIndex - 1]['pgn'];
+  }
+
+  Future<void> updateCurrentNode(String moveSan, String moveFan) async {
     final moveIndex = getMoveIndexFromExpectedMovesList(moveSan);
 
     setState(() {
@@ -439,17 +456,51 @@ class _GamePageState extends State<GamePage> {
             _parentNode[_currentNodeIndex]['variations'][moveIndex - 1]['pgn'];
         _currentNodeIndex = 1;
       }
-
-      final noMoreMove = _currentNodeIndex >= _parentNode.length;
-      if (noMoreMove) {
-        _gameInProgress = false;
-        tryToGoToLastItem();
-        if (_whiteMode == PlayerMode.GuessMove ||
-            _blackMode == PlayerMode.GuessMove) {
-          congratUser();
-        }
-      }
     });
+
+    final noMoreMove = _currentNodeIndex >= _parentNode.length;
+    if (noMoreMove) {
+      if (_sessionMode) {
+        var lastNode = _parentNode.last;
+        setState(() {
+          if (lastNode.containsKey(completionsKey)) {
+            lastNode[completionsKey] += 1;
+          } else {
+            lastNode[completionsKey] = 1;
+          }
+          _completedVariations = completedVariationsCount(
+            _parentNode,
+            _completionTarget,
+            _whiteMode == PlayerMode.GuessMove,
+            _blackMode == PlayerMode.GuessMove,
+          );
+        });
+        if (_completedVariations == _variationsCount) {
+          await _endGameImmediatelyBecauseOfSuccess();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)?.restartingSessionLoopSuccess ??
+                    'Restarting game loop following a sucess.',
+              ),
+            ),
+          );
+          await _startNewGameLoop();
+        }
+      } else {
+        await _endGameImmediatelyBecauseOfSuccess();
+      }
+    }
+  }
+
+  Future<void> _endGameImmediatelyBecauseOfSuccess() async {
+    _gameInProgress = false;
+    tryToGoToLastItem();
+    if (_whiteMode == PlayerMode.GuessMove ||
+        _blackMode == PlayerMode.GuessMove) {
+      congratUser();
+    }
   }
 
   Future<void> congratUser() async {
@@ -457,7 +508,9 @@ class _GamePageState extends State<GamePage> {
       context: context,
       okLabel: AppLocalizations.of(context)?.okButton,
       title: AppLocalizations.of(context)?.userCongratulationTitle,
-      message: AppLocalizations.of(context)?.userCongratulationMessage,
+      message: _sessionMode
+          ? AppLocalizations.of(context)?.userCongratulationMessageSimple
+          : AppLocalizations.of(context)?.userCongratulationMessageSession,
     );
   }
 
@@ -612,13 +665,16 @@ class _GamePageState extends State<GamePage> {
   Future<void> handleUnexpectedMove(UnexpectedMoveException ex) async {
     if (_sessionMode) {
       await _showErrorToUser(ex);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)?.restartingSessionLoop ??
-              'Restarting game loop because of error.'),
+          content: Text(
+            AppLocalizations.of(context)?.restartingSessionLoopError ??
+                'Restarting game loop because of error.',
+          ),
         ),
       );
-      _startNewGameLoop();
+      await _startNewGameLoop();
     } else {
       await _endGameImmediatelyBecauseOfError(ex);
     }

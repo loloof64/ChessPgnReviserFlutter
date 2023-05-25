@@ -24,7 +24,8 @@
     "stopGameDialogMessage": "Souhaitez-vous vraiment arrêter la partie ?",
     "gameStopped": "Partie arrêtée.",
     "userCongratulationTitle": "Fin de partie",
-    "userCongratulationMessage": "Félicitation! Vous avez trouvé tous les coups.",
+    "userCongratulationMessageSimple": "Félicitation! Vous avez trouvé tous les coups.",
+    "userCongratulationMessageSession": "Félicitation! Vous avez trouvé tous les coups pour toutes les branches.",
     "badMoveTitle": "Mauvais coup",
     "badMoveMessage": "Coup inattendu {wrongMoveFan} !\nAttendant un parmi {expectedMovesFanList}.",
     "gamePageTitle": "Page de jeu",
@@ -38,5 +39,6 @@
     "completionTargetParseError": "Le compte par branche est fixé à 3, comme la valeur donnée est incorrecte.",
     "sessionProgression": "Progression",
     "goalPerBranch": "Objectif par branche",
-    "restartingSessionLoop": "Relance de la boucle du jeu à cause d'une erreur."
+    "restartingSessionLoopSuccess": "Relance de la boucle du jeu suite à un succès.",
+    "restartingSessionLoopError": "Relance de la boucle du jeu à cause d'une erreur."
 }

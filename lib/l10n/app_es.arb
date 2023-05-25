@@ -24,7 +24,8 @@
     "stopGameDialogMessage": "¿Estás seguro de que quieres detener la partida?",
     "gameStopped": "Partida terminada.",
     "userCongratulationTitle": "Partida terminada",
-    "userCongratulationMessage": "¡Felicidades! Has encontrado todas los golpes.",
+    "userCongratulationMessageSimple": "¡Felicidades! Has encontrado todas los golpes.",
+    "userCongratulationMessageSession": "¡Felicidades! Has encontrado todas los golpes para todas las ramas.",
     "badMoveTitle": "Mal golpe",
     "badMoveMessage": "Golpe inesperado {wrongMoveFan}! \nEsperando uno de {expectedMovesFanList}.",
     "gamePageTitle": "Página de la partida",
@@ -38,5 +39,6 @@
     "completionTargetParseError": "Establecer el recuento por rama en 3, ya que la entrada dada no es válida.",
     "sessionProgression": "Progresión",
     "goalPerBranch": "Gol por ramificación",
-    "restartingSessionLoop": "Reiniciando el bucle del juego debido a un error."
+    "restartingSessionLoopSuccess": "Reiniciando gameloop después de un éxito.",
+    "restartingSessionLoopError": "Reiniciando el bucle del juego debido a un error."
 }

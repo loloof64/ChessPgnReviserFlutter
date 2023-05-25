@@ -25,6 +25,9 @@ bool isCompleted(List<dynamic> gamePgnNode, int completionTarget,
   // We always complete an empty task.
   if (gamePgnNode.isEmpty) return true;
 
+  // User has not move to guess : it's completed.
+  if (!includeWhiteMoves && !includeBlackMoves) return true;
+
   // Checks that all subvarations are completed.
   for (var currentNode in gamePgnNode) {
     final allVariations = currentNode[variationsKey] as List<dynamic>;
@@ -33,25 +36,22 @@ bool isCompleted(List<dynamic> gamePgnNode, int completionTarget,
           includeBlackMoves)) return false;
     }
   }
-  final lastImportantNodeToGuess = searchLastImportantNodeToGuess(
-      gamePgnNode, includeWhiteMoves, includeBlackMoves);
 
-  if (lastImportantNodeToGuess == null) {
-    return true;
-  } else {
-    // Node that has not been reached yet has not marked its completion status.
-    if (!lastImportantNodeToGuess.containsKey(completionsKey)) return false;
+  final lastNode = gamePgnNode.last;
 
-    final completionsValue = lastImportantNodeToGuess[completionsKey];
-    final completed = completionsValue >= completionTarget;
+  // Node that has not been reached yet has not marked its completion status.
+  if (!lastNode.containsKey(completionsKey)) return false;
 
-    return completed;
-  }
+  final completionsValue = lastNode[completionsKey];
+  final completed = completionsValue >= completionTarget;
+
+  return completed;
 }
 
 /// Returns the total number of variations starting from the given game node.
 int variationsCount(List<dynamic> gamePgnNode) {
-  if (gamePgnNode.isEmpty) return 0;
+  // We always complete an empty task.
+  if (gamePgnNode.isEmpty) return 1;
 
   int result = 1; // the main line
   for (var currentNode in gamePgnNode) {
@@ -68,7 +68,11 @@ int variationsCount(List<dynamic> gamePgnNode) {
 /// till its end at least completionTarget times.
 int completedVariationsCount(List<dynamic> gamePgnNode, int completionTarget,
     bool includeWhiteMoves, bool includeBlackMoves) {
+  // We always complete an empty task.
   if (gamePgnNode.isEmpty) return 1;
+
+  // User has not move to guess : it's completed.
+  if (!includeWhiteMoves && !includeBlackMoves) return 1;
 
   int result = 0;
   for (var currentNode in gamePgnNode) {
@@ -83,35 +87,16 @@ int completedVariationsCount(List<dynamic> gamePgnNode, int completionTarget,
     }
   }
 
-  final lastImportantNodeToGuess = searchLastImportantNodeToGuess(
-      gamePgnNode, includeWhiteMoves, includeBlackMoves);
+  final lastNode = gamePgnNode.last;
 
-  if (lastImportantNodeToGuess == null) {
-    result += 1;
-  } else {
-    // Node that has not been reached yet has not marked its completion status.
-    if (lastImportantNodeToGuess.containsKey(completionsKey)) {
-      final completionsValue = lastImportantNodeToGuess[completionsKey];
-      final lastNodeCompleted = completionsValue >= completionTarget;
-      if (lastNodeCompleted) {
-        result += 1;
-      }
+  // Node that has not been reached yet has not marked its completion status.
+  if (lastNode.containsKey(completionsKey)) {
+    final completionsValue = lastNode[completionsKey];
+    final lastNodeCompleted = completionsValue >= completionTarget;
+    if (lastNodeCompleted) {
+      result += 1;
     }
   }
 
   return result;
-}
-
-dynamic searchLastImportantNodeToGuess(
-    List<dynamic> gamePgnNode, bool includeWhiteMoves, bool includeBlackMoves) {
-  for (var currentNode in gamePgnNode.reversed) {
-    final isWhiteMove = currentNode[turnKey] == whiteTurn;
-    final isBlackMove = currentNode[turnKey] == blackTurn;
-    if (isWhiteMove && includeWhiteMoves) {
-      return currentNode;
-    } else if (isBlackMove && includeBlackMoves) {
-      return currentNode;
-    }
-  }
-  return null;
 }
