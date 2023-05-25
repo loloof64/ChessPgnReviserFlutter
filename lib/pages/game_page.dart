@@ -301,7 +301,7 @@ class _GamePageState extends State<GamePage> {
           _completionTarget = gameData.completionTarget;
           _variationsCount = variationsCount(_parentNode as List<dynamic>);
           _completedVariations = completedVariationsCount(
-            _parentNode as List<dynamic>,
+            _rootNode,
             _completionTarget,
             _whiteMode == PlayerMode.GuessMove,
             _blackMode == PlayerMode.GuessMove,
@@ -468,7 +468,7 @@ class _GamePageState extends State<GamePage> {
             lastNode[completionsKey] = 1;
           }
           _completedVariations = completedVariationsCount(
-            _parentNode,
+            _rootNode,
             _completionTarget,
             _whiteMode == PlayerMode.GuessMove,
             _blackMode == PlayerMode.GuessMove,

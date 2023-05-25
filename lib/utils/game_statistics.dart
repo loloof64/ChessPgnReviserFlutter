@@ -75,6 +75,8 @@ int completedVariationsCount(List<dynamic> gamePgnNode, int completionTarget,
   if (!includeWhiteMoves && !includeBlackMoves) return 1;
 
   int result = 0;
+
+  // Counts completed sub variations (recursively)
   for (var currentNode in gamePgnNode) {
     final allVariations = currentNode[variationsKey] as List<dynamic>;
     for (var variation in allVariations) {
